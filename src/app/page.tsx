@@ -1,3 +1,4 @@
+
 import {
   Card,
   CardHeader,
@@ -12,7 +13,7 @@ import Image from "next/image";
 
 const features = [
   {
-    title: "AI Itinerary Planner",
+    title: "AI Trip Planner",
     description:
       "Let our AI craft the perfect trip for you based on your preferences and budget.",
     href: "/itinerary-planner",
