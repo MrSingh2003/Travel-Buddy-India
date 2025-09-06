@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from './theme-toggle';
+import { Separator } from './ui/separator';
 
 
 const navLinks = [
@@ -36,16 +37,23 @@ export function Header() {
         </span>
       </Link>
       <nav className="hidden md:flex items-center gap-2 mx-auto">
-        {navLinks.map(link => (
-          <Button
+         <Button
             asChild
             variant="ghost"
-            key={link.href}
+            key={navLinks[0].href}
             className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105 hover:drop-shadow-lg"
           >
-            <Link href={link.href}>{link.label}</Link>
+            <Link href={navLinks[0].href}>{navLinks[0].label}</Link>
           </Button>
-        ))}
+          <Separator orientation="vertical" className="h-6" />
+           <Button
+            asChild
+            variant="ghost"
+            key={navLinks[1].href}
+            className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105 hover:drop-shadow-lg"
+          >
+            <Link href={navLinks[1].href}>{navLinks[1].label}</Link>
+          </Button>
       </nav>
       <div className="flex items-center justify-end gap-2 ml-auto">
         <ThemeToggle />
