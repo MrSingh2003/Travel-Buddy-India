@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowRight, Plane, Car, Hotel, Map, Building } from "lucide-react";
+import { ArrowRight, Plane, Car, Hotel, Map, Building, Navigation } from "lucide-react";
 import Image from "next/image";
 
 const features = [
@@ -27,21 +27,22 @@ const features = [
     icon: Car,
   },
   {
-    title: "Hotels",
-    description: "Discover and Book hotels across India.",
+    title: "Accommodations",
+    description: "Discover and Book hotels & dharamshalas across India.",
     href: "/accommodations",
     icon: Hotel,
   },
-   {
-    title: "Dharamshalas",
-    description: "Find simple and affordable stays in dharamshalas.",
-    href: "/accommodations",
-    icon: Building,
+  {
+    title: "Navigation",
+    description:
+      "Get real-time directions and explore routes with our map feature.",
+    href: "/navigation",
+    icon: Navigation,
   },
   {
     title: "Offline Maps",
     description:
-      "Download maps and routes to navigate with confidence, even without internet.",
+      "Save maps and routes to navigate with confidence, even without internet.",
     href: "/offline-maps",
     icon: Map,
   },
