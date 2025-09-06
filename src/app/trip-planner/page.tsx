@@ -39,6 +39,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Combobox } from "@/components/ui/combobox";
 
 const formSchema = z.object({
+  currentLocation: z.string({ required_error: "Please select your current location." }),
   location: z.string({ required_error: "Please select a destination." }),
   dates: z.object({
     from: z.date({ required_error: "A 'from' date is required." }),
@@ -69,6 +70,7 @@ export default function TripPlannerPage() {
     setTrip(null);
     try {
       const response = await generatePersonalizedTrip({
+        currentLocation: values.currentLocation,
         location: values.location,
         dates: `${format(values.dates.from, "yyyy-MM-dd")} to ${format(
           values.dates.to,
@@ -125,6 +127,25 @@ export default function TripPlannerPage() {
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="currentLocation"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Current Location</FormLabel>
+                      <Combobox
+                        options={cities.map((c) => ({
+                          value: `${c.name}, ${c.state}`,
+                          label: `${c.name}, ${c.state}`,
+                        }))}
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Select current location"
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="location"

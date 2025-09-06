@@ -14,6 +14,9 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const PersonalizedTripInputSchema = z.object({
+  currentLocation: z
+    .string()
+    .describe('The starting location of the user, e.g., New Delhi, India.'),
   dates: z
     .string()
     .describe("The travel dates, in 'YYYY-MM-DD to YYYY-MM-DD' format."),
@@ -54,10 +57,11 @@ const prompt = ai.definePrompt({
   Follow with a "Day X: [Day Title]" section for each day of the trip.
   Finally, include a "Budget Breakdown" section.
 
+  Current Location: {{{currentLocation}}}
+  Destination: {{{location}}}
   Dates: {{{dates}}}
   Budget: {{{budget}}} INR
   Interests: {{{interests}}}
-  Location: {{{location}}}
   Number of People: {{{numberOfPeople}}}
   `,
 });
