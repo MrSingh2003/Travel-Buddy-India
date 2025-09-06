@@ -41,11 +41,9 @@ import { Combobox } from "@/components/ui/combobox";
 const formSchema = z.object({
   state: z.string({ required_error: "Please select a state." }),
   city: z.string({ required_error: "Please select a city." }),
-  dateFrom: z.date({
-    required_error: "A 'from' date is required.",
-  }),
-  dateTo: z.date({
-    required_error: "A 'to' date is required.",
+  dates: z.object({
+    from: z.date({ required_error: "A 'from' date is required." }),
+    to: z.date({ required_error: "A 'to' date is required." }),
   }),
   budget: z.coerce.number().min(1, "Budget must be a positive number."),
   interests: z.string().min(3, "Please list at least one interest."),
@@ -79,8 +77,8 @@ export default function TripPlannerPage() {
     try {
       const response = await generatePersonalizedTrip({
         location: `${values.city}, ${values.state}`,
-        dates: `${format(values.dateFrom, "yyyy-MM-dd")} to ${format(
-          values.dateTo,
+        dates: `${format(values.dates.from, "yyyy-MM-dd")} to ${format(
+          values.dates.to,
           "yyyy-MM-dd"
         )}`,
         budget: values.budget,
@@ -178,93 +176,56 @@ export default function TripPlannerPage() {
                     )}
                   />
                 </div>
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="dateFrom"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <FormLabel>From</FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button
-                                  variant={"outline"}
-                                  className={cn(
-                                    "w-full justify-start text-left font-normal group",
-                                    !field.value && "text-muted-foreground"
-                                  )}
-                                >
-                                  <CalendarIcon className="mr-2 h-4 w-4" />
-                                  {field.value ? (
-                                    format(field.value, "LLL dd, y")
-                                  ) : (
-                                    <span>Pick a date</span>
-                                  )}
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar
-                                mode="single"
-                                selected={field.value}
-                                onSelect={field.onChange}
-                                disabled={(date) =>
+                 <FormField
+                  control={form.control}
+                  name="dates"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Travel Dates</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full justify-start text-left font-normal",
+                                !field.value?.from && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {field.value?.from ? (
+                                field.value.to ? (
+                                  <>
+                                    {format(field.value.from, "LLL dd, y")} -{" "}
+                                    {format(field.value.to, "LLL dd, y")}
+                                  </>
+                                ) : (
+                                  format(field.value.from, "LLL dd, y")
+                                )
+                              ) : (
+                                <span>Pick a date range</span>
+                              )}
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            initialFocus
+                            mode="range"
+                            defaultMonth={field.value?.from}
+                            selected={{ from: field.value?.from, to: field.value?.to }}
+                            onSelect={field.onChange}
+                            numberOfMonths={2}
+                            disabled={(date) =>
                                   date < new Date(new Date().setHours(0, 0, 0, 0))
                                 }
-                                initialFocus
-                              />
-                            </PopoverContent>
-                          </Popover>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="dateTo"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <FormLabel>To</FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button
-                                  variant={"outline"}
-                                  className={cn(
-                                    "w-full justify-start text-left font-normal group",
-                                    !field.value && "text-muted-foreground"
-                                  )}
-                                >
-                                  <CalendarIcon className="mr-2 h-4 w-4" />
-                                  {field.value ? (
-                                    format(field.value, "LLL dd, y")
-                                  ) : (
-                                    <span>Pick a date</span>
-                                  )}
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar
-                                mode="single"
-                                selected={field.value}
-                                onSelect={field.onChange}
-                                disabled={
-                                  (date) =>
-                                    date <
-                                    (form.getValues("dateFrom") ||
-                                      new Date(new Date().setHours(0, 0, 0, 0)))
-                                }
-                                initialFocus
-                              />
-                            </PopoverContent>
-                          </Popover>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                </div>
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -370,5 +331,3 @@ export default function TripPlannerPage() {
     </div>
   );
 }
-
-    
