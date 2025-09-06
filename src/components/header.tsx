@@ -1,6 +1,6 @@
 // src/components/header.tsx
 import Link from 'next/link';
-import { Plane, Menu } from 'lucide-react';
+import { Plane, Menu, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserNav } from '@/components/user-nav';
 import {
@@ -9,6 +9,13 @@ import {
   SheetTrigger,
   SheetClose,
 } from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
 
 const navLinks = [
   { href: '/', label: 'Dashboard' },
@@ -40,6 +47,20 @@ export function Header() {
         ))}
       </nav>
       <div className="flex items-center justify-end gap-2 ml-auto">
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                    <Globe className="h-5 w-5" />
+                    <span className="sr-only">Select Language</span>
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuItem>English</DropdownMenuItem>
+                <DropdownMenuItem>हिन्दी</DropdownMenuItem>
+                <DropdownMenuItem>বাংলা</DropdownMenuItem>
+                <DropdownMenuItem>తెలుగు</DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
         <div className="md:hidden">
           <Sheet>
             <SheetTrigger asChild>
