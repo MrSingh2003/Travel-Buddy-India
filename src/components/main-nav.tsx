@@ -14,7 +14,7 @@ const navLinks = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   {
     href: "/itinerary-planner",
-    label: "Itinerary Planner",
+    label: "AI Itinerary Planner",
     icon: Plane,
   },
   { href: "/local-transport", label: "Local Transport", icon: Car },
@@ -33,6 +33,8 @@ export function MainNav() {
             asChild
             isActive={pathname === href}
             tooltip={label}
+            size="lg"
+            className="justify-start"
           >
             <Link href={href}>
               <Icon />
