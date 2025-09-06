@@ -1,4 +1,3 @@
-
 // src/components/header.tsx
 import Link from 'next/link';
 import { Plane, Menu } from 'lucide-react';
@@ -13,10 +12,6 @@ import {
 
 const navLinks = [
   { href: '/', label: 'Dashboard' },
-  { href: '/trip-planner', label: 'AI Trip Planner' },
-  { href: '/local-transport', label: 'Local Transport' },
-  { href: '/accommodations', label: 'Accommodations' },
-  { href: '/offline-maps', label: 'Offline Maps' },
   { href: '/support', label: 'Support' },
 ];
 
