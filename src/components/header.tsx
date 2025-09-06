@@ -15,6 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { ThemeToggle } from './theme-toggle';
 
 
 const navLinks = [
@@ -47,6 +48,7 @@ export function Header() {
         ))}
       </nav>
       <div className="flex items-center justify-end gap-2 ml-auto">
+        <ThemeToggle />
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
