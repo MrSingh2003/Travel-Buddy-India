@@ -1,10 +1,21 @@
+"use client";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, Printer } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function OfflineMapsPage() {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const handlePrint = () => {
-    window.print();
+    if (typeof window !== "undefined") {
+      window.print();
+    }
   };
   
   return (
@@ -42,7 +53,7 @@ export default function OfflineMapsPage() {
                     </ol>
                 </div>
                 <div className="mt-4 flex gap-2">
-                    <Button onClick={handlePrint} variant="outline">
+                    <Button onClick={handlePrint} variant="outline" disabled={!isClient}>
                         <Printer className="mr-2 h-4 w-4"/>
                         Print / Save as PDF
                     </Button>
