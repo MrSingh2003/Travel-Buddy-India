@@ -8,6 +8,7 @@ import { z } from "zod";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Loader2, Wand2 } from "lucide-react";
 import { generatePersonalizedTrip } from "@/ai/flows/generate-personalized-trip";
+import { states, cities } from "@/lib/locations";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -35,9 +36,11 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
+import { Combobox } from "@/components/ui/combobox";
 
 const formSchema = z.object({
-  location: z.string().min(2, "Location is required."),
+  state: z.string({ required_error: "Please select a state." }),
+  city: z.string({ required_error: "Please select a city." }),
   dateFrom: z.date({
     required_error: "A 'from' date is required.",
   }),
@@ -57,18 +60,23 @@ export default function TripPlannerPage() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      location: "",
       budget: 1000,
       interests: "sightseeing, food, culture",
     },
   });
+
+  const selectedState = form.watch("state");
+
+  const filteredCities = cities.filter(
+    (city) => city.state === selectedState
+  );
 
   async function onSubmit(values: FormValues) {
     setIsLoading(true);
     setTrip(null);
     try {
       const response = await generatePersonalizedTrip({
-        location: values.location,
+        location: `${values.city}, ${values.state}`,
         dates: `${format(values.dateFrom, "yyyy-MM-dd")} to ${format(
           values.dateTo,
           "yyyy-MM-dd"
@@ -79,7 +87,9 @@ export default function TripPlannerPage() {
       setTrip(response.trip);
     } catch (error) {
       console.error("Failed to generate trip:", error);
-      setTrip("Sorry, we couldn't generate your trip at this time. Please try again later.");
+      setTrip(
+        "Sorry, we couldn't generate your trip at this time. Please try again later."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -99,20 +109,51 @@ export default function TripPlannerPage() {
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="location"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Destination</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., Goa, India" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="state"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>State</FormLabel>
+                        <Combobox
+                          options={states.map((s) => ({
+                            value: s.name,
+                            label: s.name,
+                          }))}
+                          value={field.value}
+                          onChange={(value) => {
+                             field.onChange(value);
+                             form.setValue("city", "");
+                          }}
+                          placeholder="Select state"
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>City</FormLabel>
+                         <Combobox
+                          options={filteredCities.map((c) => ({
+                            value: c.name,
+                            label: c.name,
+                          }))}
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder="Select city"
+                          disabled={!selectedState}
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="dateFrom"
@@ -144,7 +185,7 @@ export default function TripPlannerPage() {
                               selected={field.value}
                               onSelect={field.onChange}
                               disabled={(date) =>
-                                date < new Date(new Date().setHours(0,0,0,0))
+                                date < new Date(new Date().setHours(0, 0, 0, 0))
                               }
                               initialFocus
                             />
@@ -184,8 +225,11 @@ export default function TripPlannerPage() {
                               mode="single"
                               selected={field.value}
                               onSelect={field.onChange}
-                              disabled={(date) =>
-                                date < (form.getValues('dateFrom') || new Date(new Date().setHours(0,0,0,0)))
+                              disabled={
+                                (date) =>
+                                  date <
+                                  (form.getValues("dateFrom") ||
+                                    new Date(new Date().setHours(0, 0, 0, 0)))
                               }
                               initialFocus
                             />
@@ -222,7 +266,8 @@ export default function TripPlannerPage() {
                         />
                       </FormControl>
                       <FormDescription>
-                        Separate interests with commas (e.g., hiking, beaches, history).
+                        Separate interests with commas (e.g., hiking, beaches,
+                        history).
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -252,17 +297,17 @@ export default function TripPlannerPage() {
           <CardContent>
             {isLoading && (
               <div className="space-y-4">
-                 <div className="space-y-2">
-                    <div className="h-4 bg-muted rounded w-1/4 animate-pulse"></div>
-                    <div className="h-4 bg-muted rounded w-full animate-pulse"></div>
-                    <div className="h-4 bg-muted rounded w-3/4 animate-pulse"></div>
-                 </div>
-                 <div className="space-y-2 pt-4">
-                    <div className="h-4 bg-muted rounded w-1/4 animate-pulse"></div>
-                    <div className="h-4 bg-muted rounded w-full animate-pulse"></div>
-                    <div className="h-4 bg-muted rounded w-1/2 animate-pulse"></div>
-                    <div className="h-4 bg-muted rounded w-3/4 animate-pulse"></div>
-                 </div>
+                <div className="space-y-2">
+                  <div className="h-4 bg-muted rounded w-1/4 animate-pulse"></div>
+                  <div className="h-4 bg-muted rounded w-full animate-pulse"></div>
+                  <div className="h-4 bg-muted rounded w-3/4 animate-pulse"></div>
+                </div>
+                <div className="space-y-2 pt-4">
+                  <div className="h-4 bg-muted rounded w-1/4 animate-pulse"></div>
+                  <div className="h-4 bg-muted rounded w-full animate-pulse"></div>
+                  <div className="h-4 bg-muted rounded w-1/2 animate-pulse"></div>
+                  <div className="h-4 bg-muted rounded w-3/4 animate-pulse"></div>
+                </div>
               </div>
             )}
             {trip && (
@@ -272,7 +317,7 @@ export default function TripPlannerPage() {
             )}
             {!isLoading && !trip && (
               <div className="text-center text-muted-foreground py-16">
-                <Wand2 className="mx-auto h-12 w-12 mb-4"/>
+                <Wand2 className="mx-auto h-12 w-12 mb-4" />
                 <p>Your generated trip will appear here.</p>
               </div>
             )}

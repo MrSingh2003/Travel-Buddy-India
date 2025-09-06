@@ -1,3 +1,4 @@
+
 // src/ai/flows/generate-personalized-trip.ts
 'use server';
 
@@ -24,7 +25,7 @@ const PersonalizedTripInputSchema = z.object({
     ),
   location: z
     .string()
-    .describe('The desired destination, e.g., New Delhi, Paris.'),
+    .describe('The desired destination, e.g., New Delhi, India.'),
 });
 export type PersonalizedTripInput = z.infer<typeof PersonalizedTripInputSchema>;
 
