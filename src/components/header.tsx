@@ -40,7 +40,7 @@ export function Header() {
             asChild
             variant="ghost"
             key={link.href}
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105 hover:drop-shadow-lg"
           >
             <Link href={link.href}>{link.label}</Link>
           </Button>
