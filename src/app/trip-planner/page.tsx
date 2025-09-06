@@ -174,7 +174,7 @@ export default function TripPlannerPage() {
                                 {field.value ? (
                                   format(field.value, "LLL dd, y")
                                 ) : (
-                                  <span className="group-hover:scale-105 group-hover:font-medium transition-transform"></span>
+                                  <span>Pick a date</span>
                                 )}
                               </Button>
                             </FormControl>
@@ -215,7 +215,7 @@ export default function TripPlannerPage() {
                                 {field.value ? (
                                   format(field.value, "LLL dd, y")
                                 ) : (
-                                  <span className="group-hover:scale-105 group-hover:font-medium transition-transform"></span>
+                                  <span>Pick a date</span>
                                 )}
                               </Button>
                             </FormControl>
