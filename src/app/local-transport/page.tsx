@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -39,7 +38,7 @@ export default function LocalTransportPage() {
           <Card>
             <CardHeader className="flex flex-row items-start justify-between">
               <div>
-                <CardTitle className="font-headline">Local Cab Services</CardTitle>
+                <CardTitle className="font-headline">Cab Service</CardTitle>
                 <CardDescription>
                   Verified cab services in areas without ride-sharing apps.
                 </CardDescription>
