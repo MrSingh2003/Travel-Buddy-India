@@ -1,8 +1,9 @@
+// src/app/offline-maps/page.tsx
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, Printer } from "lucide-react";
+import { Printer } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function OfflineMapsPage() {
