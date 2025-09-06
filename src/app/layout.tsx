@@ -1,12 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarContent,
-} from '@/components/ui/sidebar';
-import { MainNav } from '@/components/main-nav';
 import { Header } from '@/components/header';
 import { Chatbot } from '@/components/chatbot';
 
@@ -31,22 +25,13 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
-        <SidebarProvider>
-          <div className="flex">
-            <Sidebar collapsible="icon">
-              <SidebarContent className="pt-4">
-                <MainNav />
-              </SidebarContent>
-            </Sidebar>
-            <div className="flex flex-1 flex-col">
-              <Header />
-              <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
-                {children}
-              </main>
-            </div>
-          </div>
-          <Chatbot />
-        </SidebarProvider>
+        <div className="flex flex-1 flex-col">
+          <Header />
+          <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
+            {children}
+          </main>
+        </div>
+        <Chatbot />
         <Toaster />
       </body>
     </html>
