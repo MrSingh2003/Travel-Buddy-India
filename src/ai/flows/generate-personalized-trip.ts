@@ -16,7 +16,7 @@ const PersonalizedTripInputSchema = z.object({
   dates: z
     .string()
     .describe("The travel dates, in 'YYYY-MM-DD to YYYY-MM-DD' format."),
-  budget: z.number().describe('The budget for the trip in USD.'),
+  budget: z.number().describe('The budget for the trip in INR.'),
   interests: z
     .string()
     .describe(
@@ -48,7 +48,7 @@ const prompt = ai.definePrompt({
   Based on the user's preferences, generate a personalized travel trip.
 
   Dates: {{{dates}}}
-  Budget: {{{budget}}} USD
+  Budget: {{{budget}}} INR
   Interests: {{{interests}}}
   Location: {{{location}}}
 

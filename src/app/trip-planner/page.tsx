@@ -125,7 +125,7 @@ export default function TripPlannerPage() {
                               <Button
                                 variant={"outline"}
                                 className={cn(
-                                  "w-full justify-start text-left font-normal",
+                                  "w-full justify-start text-left font-normal group",
                                   !field.value && "text-muted-foreground"
                                 )}
                               >
@@ -133,7 +133,7 @@ export default function TripPlannerPage() {
                                 {field.value ? (
                                   format(field.value, "LLL dd, y")
                                 ) : (
-                                  <span></span>
+                                  <span className="group-hover:scale-105 group-hover:font-medium transition-transform"></span>
                                 )}
                               </Button>
                             </FormControl>
@@ -166,7 +166,7 @@ export default function TripPlannerPage() {
                               <Button
                                 variant={"outline"}
                                 className={cn(
-                                  "w-full justify-start text-left font-normal",
+                                  "w-full justify-start text-left font-normal group",
                                   !field.value && "text-muted-foreground"
                                 )}
                               >
@@ -174,7 +174,7 @@ export default function TripPlannerPage() {
                                 {field.value ? (
                                   format(field.value, "LLL dd, y")
                                 ) : (
-                                  <span></span>
+                                  <span className="group-hover:scale-105 group-hover:font-medium transition-transform"></span>
                                 )}
                               </Button>
                             </FormControl>
@@ -201,7 +201,7 @@ export default function TripPlannerPage() {
                   name="budget"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Budget (USD)</FormLabel>
+                      <FormLabel>Budget (INR)</FormLabel>
                       <FormControl>
                         <Input type="number" placeholder="1000" {...field} />
                       </FormControl>
