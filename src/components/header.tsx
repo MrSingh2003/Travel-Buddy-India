@@ -56,9 +56,28 @@ export function Header() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 <DropdownMenuItem>English</DropdownMenuItem>
-                <DropdownMenuItem>हिन्दी</DropdownMenuItem>
-                <DropdownMenuItem>বাংলা</DropdownMenuItem>
-                <DropdownMenuItem>తెలుగు</DropdownMenuItem>
+                <DropdownMenuItem>Assamese</DropdownMenuItem>
+                <DropdownMenuItem>Bengali</DropdownMenuItem>
+                <DropdownMenuItem>Bodo</DropdownMenuItem>
+                <DropdownMenuItem>Dogri</DropdownMenuItem>
+                <DropdownMenuItem>Gujarati</DropdownMenuItem>
+                <DropdownMenuItem>Hindi</DropdownMenuItem>
+                <DropdownMenuItem>Kannada</DropdownMenuItem>
+                <DropdownMenuItem>Kashmiri</DropdownMenuItem>
+                <DropdownMenuItem>Konkani</DropdownMenuItem>
+                <DropdownMenuItem>Maithili</DropdownMenuItem>
+                <DropdownMenuItem>Malayalam</DropdownMenuItem>
+                <DropdownMenuItem>Manipuri</DropdownMenuItem>
+                <DropdownMenuItem>Marathi</DropdownMenuItem>
+                <DropdownMenuItem>Nepali</DropdownMenuItem>
+                <DropdownMenuItem>Odia</DropdownMenuItem>
+                <DropdownMenuItem>Punjabi</DropdownMenuItem>
+                <DropdownMenuItem>Sanskrit</DropdownMenuItem>
+                <DropdownMenuItem>Santali</DropdownMenuItem>
+                <DropdownMenuItem>Sindhi</DropdownMenuItem>
+                <DropdownMenuItem>Tamil</DropdownMenuItem>
+                <DropdownMenuItem>Telugu</DropdownMenuItem>
+                <DropdownMenuItem>Urdu</DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
         <div className="md:hidden">
