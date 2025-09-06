@@ -8,7 +8,7 @@ import { z } from "zod";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Loader2, Users, Wand2 } from "lucide-react";
 import { generatePersonalizedTrip } from "@/ai/flows/generate-personalized-trip";
-import { states, cities } from "@/lib/locations";
+import { cities } from "@/lib/locations";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -39,8 +39,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Combobox } from "@/components/ui/combobox";
 
 const formSchema = z.object({
-  state: z.string({ required_error: "Please select a state." }),
-  city: z.string({ required_error: "Please select a city." }),
+  location: z.string({ required_error: "Please select a destination." }),
   dates: z.object({
     from: z.date({ required_error: "A 'from' date is required." }),
     to: z.date({ required_error: "A 'to' date is required." }),
@@ -65,18 +64,12 @@ export default function TripPlannerPage() {
     },
   });
 
-  const selectedState = form.watch("state");
-
-  const filteredCities = cities.filter(
-    (city) => city.state === selectedState
-  );
-
   async function onSubmit(values: FormValues) {
     setIsLoading(true);
     setTrip(null);
     try {
       const response = await generatePersonalizedTrip({
-        location: `${values.city}, ${values.state}`,
+        location: values.location,
         dates: `${format(values.dates.from, "yyyy-MM-dd")} to ${format(
           values.dates.to,
           "yyyy-MM-dd"
@@ -132,50 +125,25 @@ export default function TripPlannerPage() {
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="state"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>State</FormLabel>
-                        <Combobox
-                          options={states.map((s) => ({
-                            value: s.name,
-                            label: s.name,
-                          }))}
-                          value={field.value}
-                          onChange={(value) => {
-                             field.onChange(value);
-                             form.setValue("city", "");
-                          }}
-                          placeholder="Select state"
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="city"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>City</FormLabel>
-                         <Combobox
-                          options={filteredCities.map((c) => ({
-                            value: c.name,
-                            label: c.name,
-                          }))}
-                          value={field.value}
-                          onChange={field.onChange}
-                          placeholder="Select city"
-                          disabled={!selectedState}
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Destination</FormLabel>
+                      <Combobox
+                        options={cities.map((c) => ({
+                          value: `${c.name}, ${c.state}`,
+                          label: `${c.name}, ${c.state}`,
+                        }))}
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Select destination"
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                  <FormField
                   control={form.control}
                   name="dates"
