@@ -28,7 +28,7 @@ export default function LocalTransportPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold font-headline mb-4">Local Transport</h1>
+      <h1 className="text-3xl font-bold font-headline mb-4">Cab Service</h1>
       <Tabs defaultValue="cabs" className="w-full">
         <TabsList className="grid w-full grid-cols-3 md:w-[400px]">
           <TabsTrigger value="cabs">Cabs</TabsTrigger>
