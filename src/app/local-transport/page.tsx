@@ -35,7 +35,7 @@ export default function LocalTransportPage() {
     ? cabServices.filter((cab) => cab.location.endsWith(selectedState))
     : cabServices;
     
-    const handleBooking = async (service: 'bus' | 'train', details: string, id: string) => {
+    const handleBooking = async (service: 'bus' | 'train' | 'cab', details: string, id: string) => {
         setBookingState({ isLoading: true, serviceId: id });
         try {
             const response = await bookTransport({ service, details });
@@ -58,7 +58,7 @@ export default function LocalTransportPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold font-headline mb-4">Cab Service</h1>
+      <h1 className="text-3xl font-bold font-headline mb-4">Local Transport</h1>
       <Tabs defaultValue="cabs" className="w-full">
         <TabsList className="grid w-full grid-cols-3 md:w-[400px]">
           <TabsTrigger value="cabs">Cabs</TabsTrigger>
