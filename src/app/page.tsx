@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowRight, Plane, Car, Hotel, Map, LifeBuoy } from "lucide-react";
+import { ArrowRight, Plane, Car, Hotel, Map, Building } from "lucide-react";
 import Image from "next/image";
 
 const features = [
@@ -27,10 +27,16 @@ const features = [
     icon: Car,
   },
   {
-    title: "Accommodations",
-    description: "Discover and compare hotels and dharamshalas across India.",
+    title: "Hotels",
+    description: "Discover and compare hotels across India.",
     href: "/accommodations",
     icon: Hotel,
+  },
+   {
+    title: "Dharamshalas",
+    description: "Find simple and affordable stays in dharamshalas.",
+    href: "/accommodations",
+    icon: Building,
   },
   {
     title: "Offline Maps",
@@ -72,7 +78,7 @@ export default function DashboardPage() {
 
       <div>
         <h2 className="text-3xl font-bold font-headline text-center mb-8">Features</h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {features.map((feature) => (
             <Card
               key={feature.title}
