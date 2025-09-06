@@ -64,7 +64,7 @@ export function Header() {
                     <span className="sr-only">Select Language</span>
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="max-h-60 overflow-y-auto">
                 <DropdownMenuItem>English</DropdownMenuItem>
                 <DropdownMenuItem>Assamese</DropdownMenuItem>
                 <DropdownMenuItem>Bengali</DropdownMenuItem>
