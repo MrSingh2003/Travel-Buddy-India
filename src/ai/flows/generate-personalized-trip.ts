@@ -26,6 +26,7 @@ const PersonalizedTripInputSchema = z.object({
   location: z
     .string()
     .describe('The desired destination, e.g., New Delhi, India.'),
+  numberOfPeople: z.number().describe('The number of people for the trip.'),
 });
 export type PersonalizedTripInput = z.infer<typeof PersonalizedTripInputSchema>;
 
@@ -57,6 +58,7 @@ const prompt = ai.definePrompt({
   Budget: {{{budget}}} INR
   Interests: {{{interests}}}
   Location: {{{location}}}
+  Number of People: {{{numberOfPeople}}}
   `,
 });
 
@@ -71,3 +73,5 @@ const generatePersonalizedTripFlow = ai.defineFlow(
     return output!;
   }
 );
+
+    
