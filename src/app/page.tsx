@@ -28,7 +28,7 @@ const features = [
   },
   {
     title: "Hotels",
-    description: "Discover and compare hotels across India.",
+    description: "Discover Book hotels across India.",
     href: "/accommodations",
     icon: Hotel,
   },
