@@ -95,6 +95,28 @@ export default function TripPlannerPage() {
     }
   }
 
+  const renderTrip = (tripText: string) => {
+    const sections = tripText.split(/\n\s*\n/); // Split by double newlines
+    return sections.map((section, index) => {
+      const lines = section.trim().split('\n');
+      const title = lines[0];
+      const items = lines.slice(1);
+      
+      const isDayPlan = /day \d+/i.test(title);
+
+      return (
+        <div key={index} className="mb-4">
+          <h3 className={`font-semibold text-lg mb-2 ${isDayPlan ? 'text-primary' : ''}`}>{title}</h3>
+          <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+            {items.map((item, i) => (
+              <li key={i} className="ml-4">{item.replace(/^- /, '')}</li>
+            ))}
+          </ul>
+        </div>
+      );
+    });
+  };
+
   return (
     <div className="grid md:grid-cols-3 gap-8">
       <div className="md:col-span-1">
@@ -311,8 +333,8 @@ export default function TripPlannerPage() {
               </div>
             )}
             {trip && (
-              <div className="prose prose-sm max-w-none whitespace-pre-wrap">
-                {trip}
+              <div className="prose-sm max-w-none">
+                {renderTrip(trip)}
               </div>
             )}
             {!isLoading && !trip && (

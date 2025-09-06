@@ -30,7 +30,7 @@ const PersonalizedTripInputSchema = z.object({
 export type PersonalizedTripInput = z.infer<typeof PersonalizedTripInputSchema>;
 
 const PersonalizedTripOutputSchema = z.object({
-  trip: z.string().describe('The generated travel trip.'),
+  trip: z.string().describe('The generated travel trip in markdown format.'),
 });
 export type PersonalizedTripOutput = z.infer<typeof PersonalizedTripOutputSchema>;
 
@@ -47,13 +47,17 @@ const prompt = ai.definePrompt({
   prompt: `You are a travel agent specializing in trip generation.
 
   Based on the user's preferences, generate a personalized travel trip.
+  Present the output as a series of sections. Each section should have a title followed by a newline and then a list of bullet points (using '-'). 
+  Separate sections with a double newline.
+  Start with a "Trip Summary" section.
+  Follow with a "Day X: [Day Title]" section for each day of the trip.
+  Finally, include a "Budget Breakdown" section.
 
   Dates: {{{dates}}}
   Budget: {{{budget}}} INR
   Interests: {{{interests}}}
   Location: {{{location}}}
-
-  Trip:`,
+  `,
 });
 
 const generatePersonalizedTripFlow = ai.defineFlow(
