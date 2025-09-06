@@ -43,63 +43,181 @@ export const cities = [
   { name: "Visakhapatnam", state: "Andhra Pradesh" },
   { name: "Vijayawada", state: "Andhra Pradesh" },
   { name: "Tirupati", state: "Andhra Pradesh" },
+  { name: "Guntur", state: "Andhra Pradesh" },
+  { name: "Nellore", state: "Andhra Pradesh" },
+  { name: "Kurnool", state: "Andhra Pradesh" },
+  { name: "Rajahmundry", state: "Andhra Pradesh" },
+  { name: "Kakinada", state: "Andhra Pradesh" },
+  { name: "Anantapur", state: "Andhra Pradesh" },
+  { name: "Amaravati", state: "Andhra Pradesh" },
   // Arunachal Pradesh
   { name: "Itanagar", state: "Arunachal Pradesh" },
   { name: "Tawang", state: "Arunachal Pradesh" },
+  { name: "Ziro", state: "Arunachal Pradesh" },
+  { name: "Bomdila", state: "Arunachal Pradesh" },
+  { name: "Pasighat", state: "Arunachal Pradesh" },
   // Assam
   { name: "Guwahati", state: "Assam" },
   { name: "Dibrugarh", state: "Assam" },
+  { name: "Silchar", state: "Assam" },
+  { name: "Jorhat", state: "Assam" },
+  { name: "Tezpur", state: "Assam" },
   // Bihar
   { name: "Patna", state: "Bihar" },
   { name: "Gaya", state: "Bihar" },
+  { name: "Bodh Gaya", state: "Bihar" },
+  { name: "Nalanda", state: "Bihar" },
+  { name: "Munger", state: "Bihar" },
   // Chhattisgarh
   { name: "Raipur", state: "Chhattisgarh" },
+  { name: "Bhilai", state: "Chhattisgarh" },
+  { name: "Bilaspur", state: "Chhattisgarh" },
+  { name: "Jagdalpur", state: "Chhattisgarh" },
   // Goa
   { name: "Panaji", state: "Goa" },
   { name: "Margao", state: "Goa" },
+  { name: "Vasco da Gama", state: "Goa" },
+  { name: "Mapusa", state: "Goa" },
+  { name: "Ponda", state: "Goa" },
   // Gujarat
   { name: "Ahmedabad", state: "Gujarat" },
   { name: "Surat", state: "Gujarat" },
   { name: "Vadodara", state: "Gujarat" },
+  { name: "Rajkot", state: "Gujarat" },
+  { name: "Bhuj", state: "Gujarat" },
+  { name: "Dwarka", state: "Gujarat" },
   // Haryana
   { name: "Gurugram", state: "Haryana" },
   { name: "Faridabad", state: "Haryana" },
+  { name: "Chandigarh", state: "Haryana" },
+  { name: "Hisar", state: "Haryana" },
+  { name: "Karnal", state: "Haryana" },
   // Himachal Pradesh
   { name: "Shimla", state: "Himachal Pradesh" },
   { name: "Manali", state: "Himachal Pradesh" },
+  { name: "Dharamshala", state: "Himachal Pradesh" },
+  { name: "Kullu", state: "Himachal Pradesh" },
+  { name: "Dalhousie", state: "Himachal Pradesh" },
   // Jharkhand
   { name: "Ranchi", state: "Jharkhand" },
   { name: "Jamshedpur", state: "Jharkhand" },
+  { name: "Dhanbad", state: "Jharkhand" },
+  { name: "Bokaro", state: "Jharkhand" },
   // Karnataka
   { name: "Bengaluru", state: "Karnataka" },
   { name: "Mysuru", state: "Karnataka" },
   { name: "Mangaluru", state: "Karnataka" },
+  { name: "Hubballi", state: "Karnataka" },
+  { name: "Hampi", state: "Karnataka" },
+  { name: "Udupi", state: "Karnataka" },
   // Kerala
   { name: "Kochi", state: "Kerala" },
   { name: "Thiruvananthapuram", state: "Kerala" },
   { name: "Kozhikode", state: "Kerala" },
+  { name: "Alleppey", state: "Kerala" },
+  { name: "Munnar", state: "Kerala" },
   // Madhya Pradesh
   { name: "Indore", state: "Madhya Pradesh" },
   { name: "Bhopal", state: "Madhya Pradesh" },
+  { name: "Jabalpur", state: "Madhya Pradesh" },
+  { name: "Gwalior", state: "Madhya Pradesh" },
+  { name: "Ujjain", state: "Madhya Pradesh" },
+  { name: "Khajuraho", state: "Madhya Pradesh" },
   // Maharashtra
   { name: "Mumbai", state: "Maharashtra" },
   { name: "Pune", state: "Maharashtra" },
   { name: "Nagpur", state: "Maharashtra" },
-  // Delhi
-  { name: "New Delhi", state: "Delhi" },
+  { name: "Aurangabad", state: "Maharashtra" },
+  { name: "Nashik", state: "Maharashtra" },
+  { name: "Mahabaleshwar", state: "Maharashtra" },
+  // Manipur
+  { name: "Imphal", state: "Manipur" },
+  { name: "Ukhrul", state: "Manipur" },
+  // Meghalaya
+  { name: "Shillong", state: "Meghalaya" },
+  { name: "Cherrapunji", state: "Meghalaya" },
+  { name: "Mawlynnong", state: "Meghalaya" },
+  // Mizoram
+  { name: "Aizawl", state: "Mizoram" },
+  { name: "Lunglei", state: "Mizoram" },
+  // Nagaland
+  { name: "Kohima", state: "Nagaland" },
+  { name: "Dimapur", state: "Nagaland" },
+  // Odisha
+  { name: "Bhubaneswar", state: "Odisha" },
+  { name: "Puri", state: "Odisha" },
+  { name: "Cuttack", state: "Odisha" },
+  { name: "Konark", state: "Odisha" },
+  // Punjab
+  { name: "Amritsar", state: "Punjab" },
+  { name: "Ludhiana", state: "Punjab" },
+  { name: "Jalandhar", state: "Punjab" },
+  { name: "Patiala", state: "Punjab" },
+  { name: "Chandigarh", state: "Punjab" },
   // Rajasthan
   { name: "Jaipur", state: "Rajasthan" },
   { name: "Udaipur", state: "Rajasthan" },
   { name: "Jodhpur", state: "Rajasthan" },
+  { name: "Jaisalmer", state: "Rajasthan" },
+  { name: "Pushkar", state: "Rajasthan" },
+  { name: "Bikaner", state: "Rajasthan" },
+  // Sikkim
+  { name: "Gangtok", state: "Sikkim" },
+  { name: "Pelling", state: "Sikkim" },
+  { name: "Lachung", state: "Sikkim" },
   // Tamil Nadu
   { name: "Chennai", state: "Tamil Nadu" },
   { name: "Coimbatore", state: "Tamil Nadu" },
   { name: "Madurai", state: "Tamil Nadu" },
+  { name: "Kanyakumari", state: "Tamil Nadu" },
+  { name: "Ooty", state: "Tamil Nadu" },
+  { name: "Rameswaram", state: "Tamil Nadu" },
+  // Telangana
+  { name: "Hyderabad", state: "Telangana" },
+  { name: "Warangal", state: "Telangana" },
+  { name: "Nizamabad", state: "Telangana" },
+  // Tripura
+  { name: "Agartala", state: "Tripura" },
+  { name: "Udaipur", state: "Tripura" },
   // Uttar Pradesh
   { name: "Lucknow", state: "Uttar Pradesh" },
   { name: "Agra", state: "Uttar Pradesh" },
   { name: "Varanasi", state: "Uttar Pradesh" },
+  { name: "Allahabad", state: "Uttar Pradesh" },
+  { name: "Kanpur", state: "Uttar Pradesh" },
+  { name: "Mathura", state: "Uttar Pradesh" },
+  // Uttarakhand
+  { name: "Dehradun", state: "Uttarakhand" },
+  { name: "Rishikesh", state: "Uttarakhand" },
+  { name: "Haridwar", state: "Uttarakhand" },
+  { name: "Nainital", state: "Uttarakhand" },
+  { name: "Mussoorie", state: "Uttarakhand" },
   // West Bengal
   { name: "Kolkata", state: "West Bengal" },
   { name: "Darjeeling", state: "West Bengal" },
+  { name: "Siliguri", state: "West Bengal" },
+  { name: "Durgapur", state: "West Bengal" },
+  // Andaman and Nicobar Islands
+  { name: "Port Blair", state: "Andaman and Nicobar Islands" },
+  { name: "Havelock Island", state: "Andaman and Nicobar Islands" },
+  // Chandigarh
+  { name: "Chandigarh", state: "Chandigarh" },
+  // Dadra and Nagar Haveli and Daman and Diu
+  { name: "Daman", state: "Dadra and Nagar Haveli and Daman and Diu" },
+  { name: "Diu", state: "Dadra and Nagar Haveli and Daman and Diu" },
+  { name: "Silvassa", state: "Dadra and Nagar Haveli and Daman and Diu" },
+  // Delhi
+  { name: "New Delhi", state: "Delhi" },
+  // Jammu and Kashmir
+  { name: "Srinagar", state: "Jammu and Kashmir" },
+  { name: "Jammu", state: "Jammu and Kashmir" },
+  { name: "Gulmarg", state: "Jammu and Kashmir" },
+  { name: "Pahalgam", state: "Jammu and Kashmir" },
+  // Ladakh
+  { name: "Leh", state: "Ladakh" },
+  { name: "Kargil", state: "Ladakh" },
+  // Lakshadweep
+  { name: "Kavaratti", state: "Lakshadweep" },
+  // Puducherry
+  { name: "Puducherry", state: "Puducherry" },
 ];
