@@ -13,7 +13,7 @@ import {
 
 const navLinks = [
   { href: '/', label: 'Dashboard' },
-  { href: '/itinerary-planner', label: 'AI Trip Planner' },
+  { href: '/trip-planner', label: 'AI Trip Planner' },
   { href: '/local-transport', label: 'Local Transport' },
   { href: '/accommodations', label: 'Accommodations' },
   { href: '/offline-maps', label: 'Offline Maps' },

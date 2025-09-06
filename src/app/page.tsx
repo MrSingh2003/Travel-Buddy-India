@@ -16,7 +16,7 @@ const features = [
     title: "AI Trip Planner",
     description:
       "Let our AI craft the perfect trip for you based on your preferences and budget.",
-    href: "/itinerary-planner",
+    href: "/trip-planner",
     icon: Plane,
   },
   {
@@ -68,7 +68,7 @@ export default function DashboardPage() {
               Your ultimate travel companion is here. Plan your journey, book transport, and find stays—all in one seamless experience.
             </p>
             <Button asChild className="mt-8 px-8 py-6 text-lg" size="lg">
-              <Link href="/itinerary-planner">
+              <Link href="/trip-planner">
                 Start Planning <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
