@@ -32,19 +32,21 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <SidebarProvider>
-          <Sidebar collapsible="icon">
-            <SidebarContent className="pt-14">
-              <MainNav />
-            </SidebarContent>
-          </Sidebar>
-          <div className="flex flex-1 flex-col">
-            <Header />
-            <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
-              {children}
-            </main>
+          <div className="flex">
+            <Sidebar collapsible="icon">
+              <SidebarContent className="pt-4">
+                <MainNav />
+              </SidebarContent>
+            </Sidebar>
+            <div className="flex flex-1 flex-col">
+              <Header />
+              <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
+                {children}
+              </main>
+            </div>
           </div>
+          <Chatbot />
         </SidebarProvider>
-        <Chatbot />
         <Toaster />
       </body>
     </html>

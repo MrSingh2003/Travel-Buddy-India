@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Plane, Car, Hotel, Map } from "lucide-react";
+import { Plane, Car, Hotel, Map } from "lucide-react";
 
 import {
   SidebarMenu,
@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/sidebar";
 
 const navLinks = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
   {
     href: "/itinerary-planner",
     label: "AI Itinerary Planner",
