@@ -36,7 +36,7 @@ export function Header() {
           Travel Buddy
         </span>
       </Link>
-      <nav className="hidden md:flex items-center gap-2 mx-auto">
+      <nav className="hidden md:flex items-center gap-2 mx-auto ml-[20%]">
          <Button
             asChild
             variant="ghost"
