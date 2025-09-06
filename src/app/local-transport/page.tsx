@@ -14,16 +14,46 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cabServices, buses, trains } from "@/lib/mock-data";
-import { CheckCircle, Phone, XCircle } from "lucide-react";
+import { CheckCircle, Loader2, Phone, XCircle } from "lucide-react";
 import { Combobox } from "@/components/ui/combobox";
 import { states } from "@/lib/locations";
+import { bookTransport } from "@/ai/flows/book-transport";
+import { useToast } from "@/hooks/use-toast";
+
+type BookingState = {
+  isLoading: boolean;
+  serviceId: string | null;
+};
+
 
 export default function LocalTransportPage() {
     const [selectedState, setSelectedState] = useState<string | undefined>();
+    const { toast } = useToast();
+    const [bookingState, setBookingState] = useState<BookingState>({ isLoading: false, serviceId: null });
 
     const filteredCabServices = selectedState
     ? cabServices.filter((cab) => cab.location.endsWith(selectedState))
     : cabServices;
+    
+    const handleBooking = async (service: 'bus' | 'train', details: string, id: string) => {
+        setBookingState({ isLoading: true, serviceId: id });
+        try {
+            const response = await bookTransport({ service, details });
+            toast({
+                title: "Booking Confirmed!",
+                description: response.message,
+            });
+        } catch (error) {
+            console.error("Failed to book:", error);
+            toast({
+                variant: "destructive",
+                title: "Booking Failed",
+                description: "We couldn't complete your booking at this time. Please try again.",
+            });
+        } finally {
+            setBookingState({ isLoading: false, serviceId: null });
+        }
+    }
 
 
   return (
@@ -100,18 +130,24 @@ export default function LocalTransportPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {buses.map((bus, index) => (
-                <Card key={index} className="flex flex-col md:flex-row justify-between md:items-center p-4">
+              {buses.map((bus, index) => {
+                const busId = `bus-${index}`;
+                const isBooking = bookingState.isLoading && bookingState.serviceId === busId;
+                return (
+                <Card key={busId} className="flex flex-col md:flex-row justify-between md:items-center p-4">
                     <div>
                         <p className="font-semibold">{bus.from} to {bus.to}</p>
                         <p className="text-sm text-muted-foreground">{bus.operator} - {bus.type}</p>
                     </div>
                     <div className="flex items-center gap-4 mt-2 md:mt-0">
                         <p className="font-semibold text-lg">{bus.price}</p>
-                        <Button disabled>Book Now</Button>
+                        <Button disabled={bookingState.isLoading} onClick={() => handleBooking('bus', `${bus.operator}: ${bus.from} to ${bus.to}`, busId)}>
+                         {isBooking ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                         {isBooking ? 'Booking...' : 'Book Now'}
+                        </Button>
                     </div>
                 </Card>
-              ))}
+              )})}
             </CardContent>
           </Card>
         </TabsContent>
@@ -124,18 +160,24 @@ export default function LocalTransportPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {trains.map((train, index) => (
-                <Card key={index} className="flex flex-col md:flex-row justify-between md:items-center p-4">
+              {trains.map((train, index) => {
+                 const trainId = `train-${index}`;
+                 const isBooking = bookingState.isLoading && bookingState.serviceId === trainId;
+                 return (
+                <Card key={trainId} className="flex flex-col md:flex-row justify-between md:items-center p-4">
                     <div>
                         <p className="font-semibold">{train.from} to {train.to}</p>
                         <p className="text-sm text-muted-foreground">{train.name} - {train.class}</p>
                     </div>
                     <div className="flex items-center gap-4 mt-2 md:mt-0">
                         <p className="font-semibold text-lg">{train.price}</p>
-                        <Button disabled>Book Now</Button>
+                        <Button disabled={bookingState.isLoading} onClick={() => handleBooking('train', `${train.name}: ${train.from} to ${train.to}`, trainId)}>
+                           {isBooking ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                           {isBooking ? 'Booking...' : 'Book Now'}
+                        </Button>
                     </div>
                 </Card>
-              ))}
+              )})}
             </CardContent>
           </Card>
         </TabsContent>
