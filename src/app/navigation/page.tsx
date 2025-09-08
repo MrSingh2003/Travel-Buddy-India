@@ -27,8 +27,9 @@ export default function NavigationPage() {
     const destTitle = searchParams.get('title')
 
     const hasApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY && process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY !== "YOUR_API_KEY_HERE";
+    // We purposefully don't load the script if billing is not enabled by the user.
     const { isLoaded, loadError } = useJsApiLoader({
-        googleMapsApiKey: hasApiKey ? process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY! : '',
+        googleMapsApiKey: '', // Intentionally left blank
         libraries: ['places'],
     });
 
@@ -68,7 +69,7 @@ export default function NavigationPage() {
     }, [destLat, destLng, destTitle]);
 
      const handleGetDirections = async () => {
-        if (!currentLocation || !destination) return;
+        if (!currentLocation || !destination || !isLoaded) return;
 
         setIsCalculating(true);
         const directionsService = new google.maps.DirectionsService();
@@ -131,8 +132,8 @@ export default function NavigationPage() {
               />
             </div>
             <Button className="w-full" disabled={!currentLocation || !destination || isCalculating} onClick={handleGetDirections}>
-              {isCalculating ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <ArrowRight className="mr-2 h-4 w-4" />}
-              {isCalculating ? 'Calculating...' : 'Get Directions'}
+              <ArrowRight className="mr-2 h-4 w-4" />
+              Get Directions
             </Button>
           </CardContent>
         </Card>
@@ -161,40 +162,15 @@ export default function NavigationPage() {
       <div className="md:col-span-2">
         <Card className="h-full overflow-hidden p-0">
            <CardContent className="p-0 h-full min-h-[600px]">
-             {!hasApiKey ? (
                  <div className="relative w-full h-full flex items-center justify-center p-4 bg-muted">
                      <Alert variant="destructive" className="max-w-md">
                         <AlertTriangle className="h-4 w-4" />
                         <AlertTitle>Map Feature Disabled</AlertTitle>
                         <AlertDescription>
-                            The navigation feature is currently unavailable because a valid Google Maps API key has not been provided.
+                            The navigation feature is currently unavailable. A valid Google Maps API key with billing enabled is required to use this feature.
                         </AlertDescription>
                     </Alert>
                  </div>
-             ) : loadError ? (
-                  <div className="relative w-full h-full flex items-center justify-center p-4 bg-muted">
-                    <Alert variant="destructive" className="max-w-md">
-                        <AlertTriangle className="h-4 w-4" />
-                        <AlertTitle>Error Loading Map</AlertTitle>
-                        <AlertDescription>
-                          There was an error loading the Google Maps script. This could be due to a network issue or an invalid API key. Please check the console for more details.
-                          It's possible billing has not been enabled for your Google Cloud project.
-                        </AlertDescription>
-                    </Alert>
-                 </div>
-             ) : !isLoaded ? (
-                 <Skeleton className="w-full h-full"/>
-             ) : (
-                <GoogleMap
-                    mapContainerStyle={{ width: '100%', height: '100%' }}
-                    center={currentLocation || { lat: 20.5937, lng: 78.9629 }}
-                    zoom={currentLocation ? 14 : 5}
-                >
-                    {currentLocation && <MarkerF position={currentLocation} title="Your Location" />}
-                    {destination && <MarkerF position={destination} title="Destination" />}
-                    {directions && <DirectionsRenderer directions={directions} />}
-                </GoogleMap>
-             )}
             </CardContent>
         </Card>
       </div>
