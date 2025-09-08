@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowRight, Plane, Car, Hotel, Map, Building, Navigation } from "lucide-react";
+import { ArrowRight, Plane, Car, Hotel, Map, Navigation } from "lucide-react";
 import Image from "next/image";
 
 const features = [
