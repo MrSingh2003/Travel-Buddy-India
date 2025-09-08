@@ -3,7 +3,8 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Search, MapPin, Star, Building, Globe } from 'lucide-react';
+import { Search, MapPin, Star, Building, Globe, Navigation } from 'lucide-react';
+import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -118,7 +119,7 @@ export default function ExplorePage() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {results?.local_results?.map((place, index) => (
-          <Card key={`${place.title}-${index}`} className="flex flex-col">
+          <Card key={`${place.place_id}-${index}`} className="flex flex-col">
             <CardHeader>
               <CardTitle className="font-headline text-xl leading-tight">{place.title}</CardTitle>
                 {place.type && <Badge variant="secondary" className="w-fit">{place.type}</Badge>}
@@ -141,14 +142,19 @@ export default function ExplorePage() {
                 </div>
               )}
             </CardContent>
-            <CardFooter>
+            <CardFooter className="grid grid-cols-2 gap-2">
                 {place.website && (
                     <Button asChild variant="outline" className="w-full">
                         <a href={place.website} target="_blank" rel="noopener noreferrer">
-                           <Globe className="mr-2 h-4 w-4" /> Visit Website
+                           <Globe className="mr-2 h-4 w-4" /> Website
                         </a>
                     </Button>
                 )}
+                 <Button asChild className="w-full col-span-2">
+                    <Link href={`/navigation?lat=${place.gps_coordinates?.latitude}&lng=${place.gps_coordinates?.longitude}&title=${encodeURIComponent(place.title || '')}`}>
+                        <Navigation className="mr-2 h-4 w-4" /> Get Directions
+                    </Link>
+                </Button>
             </CardFooter>
           </Card>
         ))}
