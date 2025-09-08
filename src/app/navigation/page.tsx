@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2, AlertTriangle } from "lucide-react";
 import { GoogleMap, useJsApiLoader, DirectionsRenderer, Autocomplete } from "@react-google-maps/api";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const mapContainerStyle = {
   width: '100%',
@@ -28,6 +29,7 @@ export default function NavigationPage() {
   const [destination, setDestination] = useState("Taj Mahal, Agra, Uttar Pradesh");
   const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [startAutocomplete, setStartAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
   const [destAutocomplete, setDestAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
@@ -44,6 +46,7 @@ export default function NavigationPage() {
     }
     setIsLoading(true);
     setDirections(null);
+    setError(null);
 
     const directionsService = new google.maps.DirectionsService();
     directionsService.route(
@@ -57,8 +60,8 @@ export default function NavigationPage() {
         if (status === google.maps.DirectionsStatus.OK && result) {
           setDirections(result);
         } else {
-          console.error(`error fetching directions ${result}`);
-          alert(`Could not get directions for the given locations. Please try again. \nStatus: ${status}`);
+          console.error(`Error fetching directions ${result}`);
+          setError(`Could not get directions. The destination may be invalid or there might be no available routes. Please try again. Status: ${status}`);
         }
       }
     );
@@ -103,8 +106,14 @@ export default function NavigationPage() {
 
   if (loadError) {
     return (
-        <div className="flex items-center justify-center h-full">
-            <p>Error loading map. Please check your API key and try again.</p>
+        <div className="flex items-center justify-center h-full col-span-full">
+            <Alert variant="destructive" className="max-w-md">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Map Loading Error</AlertTitle>
+                <AlertDescription>
+                    There was a problem loading Google Maps. This is often caused by an invalid API key or a missing billing account. Please check the browser console for more details and ensure your Google Cloud project has billing enabled.
+                </AlertDescription>
+            </Alert>
         </div>
     )
   }
@@ -160,6 +169,14 @@ export default function NavigationPage() {
               )}
               Get Directions
             </Button>
+
+            {error && (
+              <Alert variant="destructive" className="mt-4">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
             {directions && (
               <div className="pt-4 border-t">
