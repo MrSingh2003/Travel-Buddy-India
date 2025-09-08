@@ -25,6 +25,10 @@ export const translations: Translations = {
         title: 'AI Trip Planner',
         description: 'Let our AI craft the perfect trip for you based on your preferences and budget.',
       },
+      explore: {
+        title: 'Explore Places',
+        description: 'Find top-rated restaurants, attractions, and hidden gems near you.',
+      },
       localTransport: {
         title: 'Local Transport',
         description: 'Find verified local cabs, buses, and trains for your travel needs.',
@@ -55,6 +59,10 @@ export const translations: Translations = {
         title: 'एआई यात्रा योजनाकार',
         description: 'हमारी एआई को आपकी पसंद और बजट के आधार पर आपके लिए सही यात्रा तैयार करने दें।',
       },
+      explore: {
+        title: 'स्थानों का अन्वेषण करें',
+        description: 'अपने आस-पास शीर्ष-रेटेड रेस्तरां, आकर्षण और छिपे हुए रत्न खोजें।',
+      },
       localTransport: {
         title: 'स्थानीय परिवहन',
         description: 'अपनी यात्रा की जरूरतों के लिए सत्यापित स्थानीय कैब, बसें और ट्रेनें खोजें।',
@@ -80,6 +88,7 @@ export const translations: Translations = {
     go: 'যান',
     features: {
         aiTripPlanner: { title: 'এআই ট্রিপ প্ল্যানার', description: 'আমাদের এআই আপনার পছন্দ এবং বাজেটের উপর ভিত্তি করে আপনার জন্য নিখুঁত ট্রিপ তৈরি করবে।' },
+        explore: { title: 'স্থানগুলি অন্বেষণ করুন', description: 'আপনার কাছাকাছি শীর্ষ-রেটেড রেস্তোরাঁ, আকর্ষণ এবং লুকানো রত্ন খুঁজুন।' },
         localTransport: { title: 'স্থানীয় পরিবহন', description: 'আপনার ভ্রমণের প্রয়োজনের জন্য যাচাইকৃত স্থানীয় ক্যাব, বাস এবং ট্রেন খুঁজুন।' },
         accommodations: { title: 'থাকার ব্যবস্থা', description: 'ভারত জুড়ে হোটেল এবং ধর্মশালা আবিষ্কার করুন এবং বুক করুন।' },
         offlineMaps: { title: 'অফলাইন মানচিত্র', description: 'এমনকি ইন্টারনেট ছাড়াই আত্মবিশ্বাসের সাথে নেভিগেট করতে মানচিত্র এবং রুটগুলি সংরক্ষণ করুন।' }
@@ -95,6 +104,7 @@ export const translations: Translations = {
     go: 'જાઓ',
     features: {
         aiTripPlanner: { title: 'એઆઈ ટ્રિપ પ્લાનર', description: 'અમારી એઆઈને તમારી પસંદગીઓ અને બજેટના આધારે તમારા માટે સંપૂર્ણ સફર બનાવવા દો.' },
+        explore: { title: 'સ્થળોનું અન્વેષણ કરો', description: 'તમારી નજીકના ટોપ-રેટેડ રેસ્ટોરાં, આકર્ષણો અને છુપાયેલા રત્નો શોધો.' },
         localTransport: { title: 'સ્થાનિક પરિવહન', description: 'તમારી મુસાફરીની જરૂરિયાતો માટે ચકાસાયેલ સ્થાનિક કેબ, બસો અને ટ્રેનો શોધો.' },
         accommodations: { title: 'રહેઠાણ', description: 'ભારતભરમાં હોટલો અને ધર્મશાળાઓ શોધો અને બુક કરો.' },
         offlineMaps: { title: 'ઑફલાઇન નકશા', description: 'ઇન્ટરનેટ વિના પણ આત્મવિશ્વાસ સાથે નેવિગેટ કરવા માટે નકશા અને માર્ગો સાચવો.' }
@@ -110,6 +120,7 @@ export const translations: Translations = {
     go: 'ಹೋಗಿ',
     features: {
         aiTripPlanner: { title: 'ಎಐ ಪ್ರವಾಸ ಯೋಜಕ', description: 'ನಮ್ಮ ಎಐ ನಿಮ್ಮ ಆದ್ಯತೆಗಳು ಮತ್ತು ಬಜೆಟ್‌ಗೆ ಅನುಗುಣವಾಗಿ ನಿಮಗಾಗಿ ಪರಿಪೂರ್ಣ ಪ್ರವಾಸವನ್ನು ರಚಿಸಲಿ.' },
+        explore: { title: 'ಸ್ಥಳಗಳನ್ನು ಅನ್ವೇಷಿಸಿ', description: 'ನಿಮ್ಮ ಹತ್ತಿರದ ಉನ್ನತ ದರ್ಜೆಯ ರೆಸ್ಟೋರೆಂಟ್‌ಗಳು, ಆಕರ್ಷಣೆಗಳು ಮತ್ತು ಗುಪ್ತ ರತ್ನಗಳನ್ನು ಹುಡುಕಿ.' },
         localTransport: { title: 'ಸ್ಥಳೀಯ ಸಾರಿಗೆ', description: 'ನಿಮ್ಮ ಪ್ರಯಾಣದ ಅಗತ್ಯಗಳಿಗಾಗಿ ಪರಿಶೀಲಿಸಿದ ಸ್ಥಳೀಯ ಕ್ಯಾಬ್‌ಗಳು, ಬಸ್‌ಗಳು ಮತ್ತು ರೈಲುಗಳನ್ನು ಹುಡುಕಿ.' },
         accommodations: { title: 'ವಸತಿ', description: 'ಭಾರತದಾದ್ಯಂತ ಹೋಟೆಲ್‌ಗಳು ಮತ್ತು ಧರ್ಮಶಾಲೆಗಳನ್ನು ಅನ್ವೇಷಿಸಿ ಮತ್ತು ಕಾಯ್ದಿರಿಸಿ.' },
         offlineMaps: { title: 'ಆಫ್‌ಲೈನ್ ನಕ್ಷೆಗಳು', description: 'ಇಂಟರ್ನೆಟ್ ಇಲ್ಲದಿದ್ದರೂ ಆತ್ಮವಿಶ್ವಾಸದಿಂದ ನ್ಯಾವಿಗೇಟ್ ಮಾಡಲು ನಕ್ಷೆಗಳು ಮತ್ತು ಮಾರ್ಗಗಳನ್ನು ಉಳಿಸಿ.' }
@@ -125,6 +136,7 @@ export const translations: Translations = {
     go: 'പോകൂ',
     features: {
         aiTripPlanner: { title: 'എഐ ട്രിപ്പ് പ്ലാനർ', description: 'ഞങ്ങളുടെ എഐ നിങ്ങളുടെ താൽപ്പര്യങ്ങൾക്കും ബജറ്റിനും അനുസരിച്ച് നിങ്ങൾക്കായി മികച്ച യാത്ര തയ്യാറാക്കട്ടെ.' },
+        explore: { title: 'സ്ഥലങ്ങൾ കണ്ടെത്തുക', description: 'നിങ്ങളുടെ അടുത്തുള്ള മികച്ച റേറ്റിംഗ് ഉള്ള റെസ്റ്റോറന്റുകൾ, ആകർഷണങ്ങൾ, മറഞ്ഞിരിക്കുന്ന രത്നങ്ങൾ എന്നിവ കണ്ടെത്തുക.' },
         localTransport: { title: 'പ്രാദേശിക ഗതാഗതം', description: 'നിങ്ങളുടെ യാത്രാ ആവശ്യങ്ങൾക്കായി പരിശോധിച്ചുറപ്പിച്ച പ്രാദേശിക ക്യാബുകൾ, ബസുകൾ, ട്രെയിനുകൾ എന്നിവ കണ്ടെത്തുക.' },
         accommodations: { title: 'താമസ സൗകര്യങ്ങൾ', description: 'ഇന്ത്യയിലുടനീളമുള്ള ഹോട്ടലുകളും ധർമ്മശാലകളും കണ്ടെത്തുകയും ബുക്ക് ചെയ്യുകയും ചെയ്യുക.' },
         offlineMaps: { title: 'ഓഫ്‌ലൈൻ മാപ്പുകൾ', description: 'ഇൻ്റർനെറ്റ് ഇല്ലാതെ പോലും ആത്മവിശ്വാസത്തോടെ നാവിഗേറ്റ് ചെയ്യാൻ മാപ്പുകളും റൂട്ടുകളും സംരക്ഷിക്കുക.' }
@@ -140,6 +152,7 @@ export const translations: Translations = {
     go: 'जा',
     features: {
         aiTripPlanner: { title: 'एआय ट्रिप प्लॅनर', description: 'आमच्या एआयला तुमच्या आवडी आणि बजेटनुसार तुमच्यासाठी योग्य सहल तयार करू द्या.' },
+        explore: { title: 'ठिकाणे शोधा', description: 'तुमच्या जवळची उच्च-रेट केलेली रेस्टॉरंट्स, आकर्षणे आणि छुपी रत्ने शोधा.' },
         localTransport: { title: 'स्थानिक वाहतूक', description: 'तुमच्या प्रवासाच्या गरजांसाठी सत्यापित स्थानिक कॅब, बस आणि ट्रेन शोधा.' },
         accommodations: { title: 'निवास', description: 'भारतभरातील हॉटेल्स आणि धर्मशाळा शोधा आणि बुक करा.' },
         offlineMaps: { title: 'ऑफलाइन नकाशे', description: 'इंटरनेटशिवायही आत्मविश्वासाने नेव्हिगेट करण्यासाठी नकाशे आणि मार्ग जतन करा.' }
@@ -155,7 +168,8 @@ export const translations: Translations = {
     go: 'ਜਾਓ',
     features: {
         aiTripPlanner: { title: 'ਏਆਈ ਟ੍ਰਿਪ ਪਲੈਨਰ', description: 'ਸਾਡੇ ਏਆਈ ਨੂੰ ਤੁਹਾਡੀਆਂ ਤਰਜੀਹਾਂ ਅਤੇ ਬਜਟ ਦੇ ਅਧਾਰ ਤੇ ਤੁਹਾਡੇ ਲਈ ਸੰਪੂਰਨ ਯਾਤਰਾ ਤਿਆਰ ਕਰਨ ਦਿਓ।' },
-        localTransport: { title: 'ਸਥਾਨਕ ਆਵਾਜਾਈ', description: 'ਆਪਣੀਆਂ ਯਾਤਰਾ ਦੀਆਂ ਜ਼ਰੂਰਤਾਂ ਲਈ ਪ੍ਰਮਾਣਿਤ ਸਥਾਨਕ ਕੈਬ, ਬੱਸਾਂ ਅਤੇ ਰੇਲ ਗੱਡੀਆਂ ਲੱਭੋ।' },
+        explore: { title: 'ਥਾਵਾਂ ਦੀ ਪੜਚੋਲ ਕਰੋ', description: 'ਆਪਣੇ ਨੇੜੇ ਦੇ ਉੱਚ-ਦਰਜੇ ਵਾਲੇ ਰੈਸਟੋਰੈਂਟ, ਆਕਰਸ਼ਣ ਅਤੇ ਲੁਕਵੇਂ ਰਤਨ ਲੱਭੋ।' },
+        localTransport: { title: 'ਸਥਾਨਕ ਆਵਾਜਾਈ', description: 'ਆਪਣੀਆਂ ਯਾਤਰਾ ਦੀਆਂ ਜ਼ਰੂਰਤਾਂ ਲਈ ਪ੍ਰਮਾณਿਤ ਸਥਾਨਕ ਕੈਬ, ਬੱਸਾਂ ਅਤੇ ਰੇਲ ਗੱਡੀਆਂ ਲੱਭੋ।' },
         accommodations: { title: 'ਰਿਹਾਇਸ਼', description: 'ਪੂਰੇ ਭਾਰਤ ਵਿੱਚ ਹੋਟਲ ਅਤੇ ਧਰਮਸ਼ਾਲਾ ਲੱਭੋ ਅਤੇ ਬੁੱਕ ਕਰੋ।' },
         offlineMaps: { title: 'ਔਫਲਾਈਨ ਨਕਸ਼ੇ', description: 'ਬਿਨਾਂ ਇੰਟਰਨੈਟ ਦੇ ਵੀ ਭਰੋਸੇ ਨਾਲ ਨੈਵੀਗੇਟ ਕਰਨ ਲਈ ਨਕਸ਼ੇ ਅਤੇ ਰੂਟ ਸੁਰੱਖਿਅਤ ਕਰੋ।' }
     }
@@ -170,6 +184,7 @@ export const translations: Translations = {
     go: 'செல்',
     features: {
         aiTripPlanner: { title: 'AI பயண திட்டமிடுபவர்', description: 'எங்கள் AI உங்கள் விருப்பங்கள் மற்றும் பட்ஜெட்டின் அடிப்படையில் உங்களுக்கான சரியான பயணத்தை உருவாக்கட்டும்.' },
+        explore: { title: 'இடங்களை ஆராயுங்கள்', description: 'உங்களுக்கு அருகிலுள்ள சிறந்த தரமதிப்பீடு பெற்ற உணவகங்கள், ஈர்ப்புகள் மற்றும் மறைக்கப்பட்ட ரத்தினங்களைக் கண்டறியவும்.' },
         localTransport: { title: 'உள்ளூர் போக்குவரத்து', description: 'உங்கள் பயணத் தேவைகளுக்கு சரிபார்க்கப்பட்ட உள்ளூர் வண்டிகள், பேருந்துகள் மற்றும் ரயில்களைக் கண்டறியவும்.' },
         accommodations: { title: 'தங்குமிடங்கள்', description: 'இந்தியா முழுவதும் உள்ள ஹோட்டல்கள் மற்றும் தர்மசாலாக்களைக் கண்டறிந்து முன்பதிவு செய்யுங்கள்.' },
         offlineMaps: { title: 'ஆஃப்லைன் வரைபடங்கள்', description: 'இணையம் இல்லாவிட்டாலும் நம்பிக்கையுடன் செல்ல வரைபடங்களையும் வழிகளையும் சேமிக்கவும்.' }
@@ -185,6 +200,7 @@ export const translations: Translations = {
     go: 'వెళ్ళండి',
     features: {
         aiTripPlanner: { title: 'AI ట్రిప్ ప్లానర్', description: 'మా AI మీ ప్రాధాన్యతలు మరియు బడ్జెట్ ఆధారంగా మీ కోసం ఖచ్చితమైన పర్యటనను రూపొందించనివ్వండి.' },
+        explore: { title: 'స్థలాలను అన్వేషించండి', description: 'మీకు సమీపంలో ఉన్న అగ్రశ్రేణి రెస్టారెంట్లు, ఆకర్షణలు మరియు దాచిన రత్నాలను కనుగొనండి.' },
         localTransport: { title: 'స్థానిక రవాణా', description: 'మీ ప్రయాణ అవసరాల కోసం ధృవీకరించబడిన స్థానిక క్యాబ్‌లు, బస్సులు మరియు రైళ్లను కనుగొనండి.' },
         accommodations: { title: 'వసతులు', description: 'భారతదేశం అంతటా హోటళ్ళు మరియు ధర్మశాలలను కనుగొని బుక్ చేసుకోండి.' },
         offlineMaps: { title: 'ఆఫ్‌లైన్ మ్యాప్‌లు', description: 'ఇంటర్నెట్ లేకుండా కూడా విశ్వాసంతో నావిగేట్ చేయడానికి మ్యాప్‌లు మరియు మార్గాలను సేవ్ చేయండి.' }

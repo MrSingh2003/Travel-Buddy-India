@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowRight, Plane, Car, Hotel, Map, Navigation } from "lucide-react";
+import { ArrowRight, Plane, Car, Hotel, Map, Search } from "lucide-react";
 import Image from "next/image";
 import { useLanguage } from "@/components/language-provider";
 
@@ -22,6 +22,11 @@ export default function DashboardPage() {
       key: "aiTripPlanner",
       href: "/trip-planner",
       icon: Plane,
+    },
+    {
+      key: "explore",
+      href: "/explore",
+      icon: Search,
     },
     {
       key: "localTransport",
