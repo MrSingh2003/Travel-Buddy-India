@@ -1,4 +1,6 @@
 // src/components/header.tsx
+'use client';
+
 import Link from 'next/link';
 import { Plane, Menu, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -17,7 +19,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from './theme-toggle';
 import { Separator } from './ui/separator';
-
+import { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 const navLinks = [
   { href: '/', label: 'Dashboard' },
@@ -25,8 +28,35 @@ const navLinks = [
 ];
 
 export function Header() {
+  const [isHidden, setIsHidden] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      // Hide header on scroll down, show on scroll up
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsHidden(true);
+      } else {
+        setIsHidden(false);
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [lastScrollY]);
+
   return (
-    <header className="sticky top-0 z-50 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm lg:h-20 lg:px-6">
+    <header
+      className={cn(
+        'sticky top-0 z-50 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm transition-transform duration-300 lg:h-20 lg:px-6',
+        isHidden ? '-translate-y-full' : 'translate-y-0'
+      )}
+    >
       <Link
         href="/"
         className="flex items-center gap-2 font-semibold text-foreground"
@@ -37,58 +67,61 @@ export function Header() {
         </span>
       </Link>
       <nav className="hidden md:flex items-center gap-2 mx-auto ml-[20%]">
-         <Button
-            asChild
-            variant="ghost"
-            key={navLinks[0].href}
-            className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105 hover:drop-shadow-lg"
-          >
-            <Link href={navLinks[0].href}>{navLinks[0].label}</Link>
-          </Button>
-          <Separator orientation="vertical" className="h-6" />
-           <Button
-            asChild
-            variant="ghost"
-            key={navLinks[1].href}
-            className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105 hover:drop-shadow-lg"
-          >
-            <Link href={navLinks[1].href}>{navLinks[1].label}</Link>
-          </Button>
+        <Button
+          asChild
+          variant="ghost"
+          key={navLinks[0].href}
+          className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105 hover:drop-shadow-lg"
+        >
+          <Link href={navLinks[0].href}>{navLinks[0].label}</Link>
+        </Button>
+        <Separator orientation="vertical" className="h-6" />
+        <Button
+          asChild
+          variant="ghost"
+          key={navLinks[1].href}
+          className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105 hover:drop-shadow-lg"
+        >
+          <Link href={navLinks[1].href}>{navLinks[1].label}</Link>
+        </Button>
       </nav>
       <div className="flex items-center justify-end gap-2 ml-auto">
         <ThemeToggle />
         <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                    <Globe className="h-5 w-5" />
-                    <span className="sr-only">Select Language</span>
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="max-h-60 overflow-y-auto">
-                <DropdownMenuItem>English</DropdownMenuItem>
-                <DropdownMenuItem>Assamese</DropdownMenuItem>
-                <DropdownMenuItem>Bengali</DropdownMenuItem>
-                <DropdownMenuItem>Bodo</DropdownMenuItem>
-                <DropdownMenuItem>Dogri</DropdownMenuItem>
-                <DropdownMenuItem>Gujarati</DropdownMenuItem>
-                <DropdownMenuItem>Hindi</DropdownMenuItem>
-                <DropdownMenuItem>Kannada</DropdownMenuItem>
-                <DropdownMenuItem>Kashmiri</DropdownMenuItem>
-                <DropdownMenuItem>Konkani</DropdownMenuItem>
-                <DropdownMenuItem>Maithili</DropdownMenuItem>
-                <DropdownMenuItem>Malayalam</DropdownMenuItem>
-                <DropdownMenuItem>Manipuri</DropdownMenuItem>
-                <DropdownMenuItem>Marathi</DropdownMenuItem>
-                <DropdownMenuItem>Nepali</DropdownMenuItem>
-                <DropdownMenuItem>Odia</DropdownMenuItem>
-                <DropdownMenuItem>Punjabi</DropdownMenuItem>
-                <DropdownMenuItem>Sanskrit</DropdownMenuItem>
-                <DropdownMenuItem>Santali</DropdownMenuItem>
-                <DropdownMenuItem>Sindhi</DropdownMenuItem>
-                <DropdownMenuItem>Tamil</DropdownMenuItem>
-                <DropdownMenuItem>Telugu</DropdownMenuItem>
-                <DropdownMenuItem>Urdu</DropdownMenuItem>
-            </DropdownMenuContent>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <Globe className="h-5 w-5" />
+              <span className="sr-only">Select Language</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="end"
+            className="max-h-60 overflow-y-auto"
+          >
+            <DropdownMenuItem>English</DropdownMenuItem>
+            <DropdownMenuItem>Assamese</DropdownMenuItem>
+            <DropdownMenuItem>Bengali</DropdownMenuItem>
+            <DropdownMenuItem>Bodo</DropdownMenuItem>
+            <DropdownMenuItem>Dogri</DropdownMenuItem>
+            <DropdownMenuItem>Gujarati</DropdownMenuItem>
+            <DropdownMenuItem>Hindi</DropdownMenuItem>
+            <DropdownMenuItem>Kannada</DropdownMenuItem>
+            <DropdownMenuItem>Kashmiri</DropdownMenuItem>
+            <DropdownMenuItem>Konkani</DropdownMenuItem>
+            <DropdownMenuItem>Maithili</DropdownMenuItem>
+            <DropdownMenuItem>Malayalam</DropdownMenuItem>
+            <DropdownMenuItem>Manipuri</DropdownMenuItem>
+            <DropdownMenuItem>Marathi</DropdownMenuItem>
+            <DropdownMenuItem>Nepali</DropdownMenuItem>
+            <DropdownMenuItem>Odia</DropdownMenuItem>
+            <DropdownMenuItem>Punjabi</DropdownMenuItem>
+            <DropdownMenuItem>Sanskrit</DropdownMenuItem>
+            <DropdownMenuItem>Santali</DropdownMenuItem>
+            <DropdownMenuItem>Sindhi</DropdownMenuItem>
+            <DropdownMenuItem>Tamil</DropdownMenuItem>
+            <DropdownMenuItem>Telugu</DropdownMenuItem>
+            <DropdownMenuItem>Urdu</DropdownMenuItem>
+          </DropdownMenuContent>
         </DropdownMenu>
         <div className="md:hidden">
           <Sheet>
