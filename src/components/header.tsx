@@ -30,7 +30,6 @@ import { languages, useLanguage } from './language-provider';
 
 const navLinks = [
   { href: '/', labelKey: 'dashboard' },
-  { href: '/navigation', labelKey: 'navigation' },
   { href: '/support', labelKey: 'support' },
 ];
 

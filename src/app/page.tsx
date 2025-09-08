@@ -34,11 +34,6 @@ export default function DashboardPage() {
       icon: Hotel,
     },
     {
-      key: "navigation",
-      href: "/navigation",
-      icon: Navigation,
-    },
-    {
       key: "offlineMaps",
       href: "/offline-maps",
       icon: Map,
@@ -75,7 +70,7 @@ export default function DashboardPage() {
 
       <div>
         <h2 className="text-3xl font-bold font-headline text-center mb-8">{t('featuresTitle')}</h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {features.map((feature) => (
             <Card
               key={feature.key}
