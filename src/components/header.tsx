@@ -16,20 +16,26 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from './theme-toggle';
 import { Separator } from './ui/separator';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { languages, useLanguage } from './language-provider';
 
 const navLinks = [
-  { href: '/', label: 'Dashboard' },
-  { href: '/support', label: 'Support' },
+  { href: '/', labelKey: 'dashboard' },
+  { href: '/support', labelKey: 'support' },
 ];
 
 export function Header() {
   const [isHidden, setIsHidden] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const { language, setLanguage, t } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -67,23 +73,18 @@ export function Header() {
         </span>
       </Link>
       <nav className="hidden md:flex items-center gap-2 mx-auto ml-[20%]">
-        <Button
-          asChild
-          variant="ghost"
-          key={navLinks[0].href}
-          className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105 hover:drop-shadow-lg"
-        >
-          <Link href={navLinks[0].href}>{navLinks[0].label}</Link>
-        </Button>
-        <Separator orientation="vertical" className="h-6" />
-        <Button
-          asChild
-          variant="ghost"
-          key={navLinks[1].href}
-          className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105 hover:drop-shadow-lg"
-        >
-          <Link href={navLinks[1].href}>{navLinks[1].label}</Link>
-        </Button>
+        {navLinks.map((link, index) => (
+            <React.Fragment key={link.href}>
+              <Button
+                asChild
+                variant="ghost"
+                className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105 hover:drop-shadow-lg"
+              >
+                <Link href={link.href}>{t(`nav.${link.labelKey}`)}</Link>
+              </Button>
+              {index < navLinks.length - 1 && <Separator orientation="vertical" className="h-6" />}
+            </React.Fragment>
+        ))}
       </nav>
       <div className="flex items-center justify-end gap-2 ml-auto">
         <ThemeToggle />
@@ -96,31 +97,15 @@ export function Header() {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className="max-h-60 overflow-y-auto"
+            className="max-h-80 overflow-y-auto"
           >
-            <DropdownMenuItem>English</DropdownMenuItem>
-            <DropdownMenuItem>Assamese</DropdownMenuItem>
-            <DropdownMenuItem>Bengali</DropdownMenuItem>
-            <DropdownMenuItem>Bodo</DropdownMenuItem>
-            <DropdownMenuItem>Dogri</DropdownMenuItem>
-            <DropdownMenuItem>Gujarati</DropdownMenuItem>
-            <DropdownMenuItem>Hindi</DropdownMenuItem>
-            <DropdownMenuItem>Kannada</DropdownMenuItem>
-            <DropdownMenuItem>Kashmiri</DropdownMenuItem>
-            <DropdownMenuItem>Konkani</DropdownMenuItem>
-            <DropdownMenuItem>Maithili</DropdownMenuItem>
-            <DropdownMenuItem>Malayalam</DropdownMenuItem>
-            <DropdownMenuItem>Manipuri</DropdownMenuItem>
-            <DropdownMenuItem>Marathi</DropdownMenuItem>
-            <DropdownMenuItem>Nepali</DropdownMenuItem>
-            <DropdownMenuItem>Odia</DropdownMenuItem>
-            <DropdownMenuItem>Punjabi</DropdownMenuItem>
-            <DropdownMenuItem>Sanskrit</DropdownMenuItem>
-            <DropdownMenuItem>Santali</DropdownMenuItem>
-            <DropdownMenuItem>Sindhi</DropdownMenuItem>
-            <DropdownMenuItem>Tamil</DropdownMenuItem>
-            <DropdownMenuItem>Telugu</DropdownMenuItem>
-            <DropdownMenuItem>Urdu</DropdownMenuItem>
+            <DropdownMenuLabel>{t('selectLanguage')}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuRadioGroup value={language} onValueChange={setLanguage}>
+                {Object.entries(languages).map(([code, name]) => (
+                    <DropdownMenuRadioItem key={code} value={code}>{name}</DropdownMenuRadioItem>
+                ))}
+            </DropdownMenuRadioGroup>
           </DropdownMenuContent>
         </DropdownMenu>
         <div className="md:hidden">
@@ -139,7 +124,7 @@ export function Header() {
                       href={link.href}
                       className="flex w-full items-center py-2 text-lg font-semibold"
                     >
-                      {link.label}
+                      {t(`nav.${link.labelKey}`)}
                     </Link>
                   </SheetClose>
                 ))}
