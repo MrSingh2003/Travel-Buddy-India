@@ -118,7 +118,7 @@ export default function ExplorePage() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {results?.local_results?.map((place, index) => (
-          <Card key={`${place.place_id}-${index}`} className="flex flex-col">
+          <Card key={`${place.title}-${index}`} className="flex flex-col">
             <CardHeader>
               <CardTitle className="font-headline text-xl leading-tight">{place.title}</CardTitle>
                 {place.type && <Badge variant="secondary" className="w-fit">{place.type}</Badge>}
@@ -126,7 +126,7 @@ export default function ExplorePage() {
             <CardContent className="flex-grow space-y-3">
               {place.thumbnail && (
                  <div className="relative h-40 w-full rounded-md overflow-hidden">
-                    <Image src={place.thumbnail} alt={place.title || 'Place image'} layout="fill" className="object-cover" />
+                    <Image src={place.thumbnail} alt={place.title || 'Place image'} fill className="object-cover" />
                  </div>
               )}
               <div className="flex items-start gap-2 text-sm text-muted-foreground">
