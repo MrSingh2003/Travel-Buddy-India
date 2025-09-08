@@ -12,6 +12,7 @@ export const translations: Translations = {
   en: {
     nav: {
       dashboard: 'Dashboard',
+      explore: 'Explore',
       support: 'Support',
     },
     selectLanguage: 'Select Language',
@@ -46,6 +47,7 @@ export const translations: Translations = {
   hi: {
     nav: {
       dashboard: 'डैशबोर्ड',
+      explore: 'अन्वेषण',
       support: 'सहायता',
     },
     selectLanguage: 'भाषा चुनें',
@@ -79,7 +81,7 @@ export const translations: Translations = {
   },
   // Add other languages here...
   bn: {
-    nav: { dashboard: 'ড্যাশবোর্ড', support: 'সমর্থন' },
+    nav: { dashboard: 'ড্যাশবোর্ড', explore: 'অন্বেষণ', support: 'সমর্থন' },
     selectLanguage: 'ভাষা নির্বাচন করুন',
     heroTitle: 'ভারতের বিস্ময় অন্বেষণ করুন',
     heroSubtitle: 'আপনার চূড়ান্ত ভ্রমণ সঙ্গী এখানে। আপনার যাত্রা পরিকল্পনা করুন, পরিবহন বুক করুন, এবং থাকার জায়গা খুঁজুন—সবই এক বিরামহীন অভিজ্ঞতায়।',
@@ -95,7 +97,7 @@ export const translations: Translations = {
     }
   },
   gu: {
-    nav: { dashboard: 'ડેશબોર્ડ', support: 'આધાર' },
+    nav: { dashboard: 'ડેશબોર્ડ', explore: 'અન્વેષણ', support: 'આધાર' },
     selectLanguage: 'ભાષા પસંદ કરો',
     heroTitle: 'ભારતના અજાયબીઓની શોધખોળ કરો',
     heroSubtitle: 'તમારો અંતિમ પ્રવાસ સાથી અહીં છે. તમારી મુસાફરીની યોજના બનાવો, પરિવહન બુક કરો, અને રહેઠાણ શોધો—બધું એક સરળ અનુભવમાં.',
@@ -111,7 +113,7 @@ export const translations: Translations = {
     }
   },
   kn: {
-    nav: { dashboard: 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್', support: 'ಬೆಂಬಲ' },
+    nav: { dashboard: 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್', explore: 'ಅನ್ವೇಷಿಸಿ', support: 'ಬೆಂಬಲ' },
     selectLanguage: 'ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ',
     heroTitle: 'ಭಾರತದ ಅದ್ಭುತಗಳನ್ನು ಅನ್ವೇಷಿಸಿ',
     heroSubtitle: 'ನಿಮ್ಮ ಅಂತಿಮ ಪ್ರಯಾಣ ಸಂಗಾತಿ ಇಲ್ಲಿದೆ. ನಿಮ್ಮ ಪ್ರಯಾಣವನ್ನು ಯೋಜಿಸಿ, ಸಾರಿಗೆಯನ್ನು ಕಾಯ್ದಿರಿಸಿ, ಮತ್ತು ಉಳಿದುಕೊಳ್ಳುವ ಸ್ಥಳಗಳನ್ನು ಹುಡುಕಿ—ಎಲ್ಲವೂ ಒಂದೇ ಸುಲಲಿತ ಅನುಭವದಲ್ಲಿ.',
@@ -127,7 +129,7 @@ export const translations: Translations = {
     }
   },
   ml: {
-    nav: { dashboard: 'ഡാഷ്ബോർഡ്', support: 'പിന്തുണ' },
+    nav: { dashboard: 'ഡാഷ്ബോർഡ്', explore: 'പര്യവേക്ഷണം ചെയ്യുക', support: 'പിന്തുണ' },
     selectLanguage: 'ഭാഷ തിരഞ്ഞെടുക്കുക',
     heroTitle: 'ഇന്ത്യയുടെ അത്ഭുതങ്ങൾ കണ്ടെത്തുക',
     heroSubtitle: 'നിങ്ങളുടെ ആത്യന്തിക യാത്രാ സഹായി ഇവിടെയുണ്ട്. നിങ്ങളുടെ യാത്ര ആസൂത്രണം ചെയ്യുക, ഗതാഗതം ബുക്ക് ചെയ്യുക, താമസസ്ഥലങ്ങൾ കണ്ടെത്തുക—എല്ലാം ഒരൊറ്റ സുഗമമായ അനുഭവത്തിൽ.',
@@ -143,7 +145,7 @@ export const translations: Translations = {
     }
   },
   mr: {
-    nav: { dashboard: 'डॅशबोर्ड', support: 'समर्थन' },
+    nav: { dashboard: 'डॅशबोर्ड', explore: 'अन्वेषण', support: 'समर्थन' },
     selectLanguage: 'भाषा निवडा',
     heroTitle: 'भारताच्या आश्चर्यांचा शोध घ्या',
     heroSubtitle: 'तुमचा अंतिम प्रवास सोबती येथे आहे. तुमच्या प्रवासाची योजना करा, वाहतूक बुक करा आणि राहण्याची ठिकाणे शोधा—सर्व काही एका अखंड अनुभवात.',
@@ -159,7 +161,7 @@ export const translations: Translations = {
     }
   },
   pa: {
-    nav: { dashboard: 'ਡੈਸ਼ਬੋਰਡ', support: 'ਸਹਾਇਤਾ' },
+    nav: { dashboard: 'ਡੈਸ਼ਬੋਰਡ', explore: 'ਪੜਚੋਲ ਕਰੋ', support: 'ਸਹਾਇਤਾ' },
     selectLanguage: 'ਭਾਸ਼ਾ ਚੁਣੋ',
     heroTitle: 'ਭਾਰਤ ਦੇ ਅਜੂਬਿਆਂ ਦੀ ਪੜਚੋਲ ਕਰੋ',
     heroSubtitle: 'ਤੁਹਾਡਾ ਅੰਤਮ ਯਾਤਰਾ ਸਾਥੀ ਇੱਥੇ ਹੈ। ਆਪਣੀ ਯਾਤਰਾ ਦੀ ਯੋਜਨਾ ਬਣਾਓ, ਆਵਾਜਾਈ ਬੁੱਕ ਕਰੋ, ਅਤੇ ਰਹਿਣ ਦੀਆਂ ਥਾਵਾਂ ਲੱਭੋ—ਸਭ ਕੁਝ ਇੱਕ ਸਹਿਜ ਅਨੁਭਵ ਵਿੱਚ।',
@@ -171,11 +173,11 @@ export const translations: Translations = {
         localTransport: { title: 'ਸਥਾਨਕ ਆਵਾਜਾਈ', description: 'ਆਪਣੀਆਂ ਯਾਤਰਾ ਦੀਆਂ ਜ਼ਰੂਰਤਾਂ ਲਈ ਪ੍ਰਮਾਣਿਤ ਸਥਾਨਕ ਕੈਬ, ਬੱਸਾਂ ਅਤੇ ਰੇਲ ਗੱਡੀਆਂ ਲੱਭੋ।' },
         accommodations: { title: 'ਰਿਹਾਇਸ਼', description: 'ਪੂਰੇ ਭਾਰਤ ਵਿੱਚ ਹੋਟਲ ਅਤੇ ਧਰਮਸ਼ਾਲਾ ਲੱਭੋ ਅਤੇ ਬੁੱਕ ਕਰੋ।' },
         navigation: { title: 'ਨੇਵੀਗੇਸ਼ਨ', description: 'ਸਾਡੀ ਨਕਸ਼ੇ ਦੀ ਵਿਸ਼ੇਸ਼ਤਾ ਨਾਲ ਰੀਅਲ-ਟਾਈਮ ਦਿਸ਼ਾ-ਨਿਰਦੇਸ਼ ਪ੍ਰਾਪਤ ਕਰੋ ਅਤੇ ਰੂਟਾਂ ਦੀ ਪੜਚੋਲ ਕਰੋ।' },
-        offlineMaps: { title: 'ਔਫਲਾਈਨ ਨਕਸ਼ੇ', description: 'ਬਿਨਾਂ ਇੰਟਰਨੈਟ ਦੇ ਵੀ ਭਰੋਸੇ ਨਾਲ ਨੈਵੀਗੇਟ ਕਰਨ ਲਈ ਨਕਸ਼ੇ ਅਤੇ ਰੂਟ ਸੁਰੱਖਿਅਤ ਕਰੋ।' }
+        offlineMaps: { title: 'ਔਫਲਾਈਨ ਨਕਸ਼ੇ', description: 'ਬਿਨਾਂ ਇੰтерਨੈਟ ਦੇ ਵੀ ਭਰੋਸੇ ਨਾਲ ਨੈਵੀਗੇਟ ਕਰਨ ਲਈ ਨਕਸ਼ੇ ਅਤੇ ਰੂਟ ਸੁਰੱਖਿਅਤ ਕਰੋ।' }
     }
   },
   ta: {
-    nav: { dashboard: 'แดชบอร์ด', support: 'ஆதரவு' },
+    nav: { dashboard: 'แดชบอร์ด', explore: 'ஆராயுங்கள்', support: 'ஆதரவு' },
     selectLanguage: 'மொழியை தேர்ந்தெடு',
     heroTitle: 'இந்தியாவின் அதிசயங்களை ஆராயுங்கள்',
     heroSubtitle: 'உங்கள் இறுதி பயண துணை இங்கே உள்ளது. உங்கள் பயணத்தைத் திட்டமிடுங்கள், போக்குவரத்தை முன்பதிவு செய்யுங்கள், தங்குமிடங்களைக் கண்டறியுங்கள்—அனைத்தும் ஒரே απρόσκοπτη அனுபவத்தில்.',
@@ -191,7 +193,7 @@ export const translations: Translations = {
     }
   },
   te: {
-    nav: { dashboard: 'డాష్‌బోర్డ్', support: 'మద్దతు' },
+    nav: { dashboard: 'డాష్‌బోర్డ్', explore: 'అన్వేషించండి', support: 'మద్దతు' },
     selectLanguage: 'భాషను ఎంచుకోండి',
     heroTitle: 'భారతదేశ అద్భుతాలను అన్వేషించండి',
     heroSubtitle: 'మీ అంతిమ ప్రయాణ సహచరుడు ఇక్కడ ఉన్నారు. మీ ప్రయాణాన్ని ప్లాన్ చేసుకోండి, రవాణాను బుక్ చేసుకోండి మరియు బసలను కనుగొనండి—అన్నీ ఒకే అతుకులు లేని అనుభవంలో.',

@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Plane, Menu, Globe } from 'lucide-react';
+import { Plane, Menu, Globe, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserNav } from '@/components/user-nav';
 import {
@@ -30,6 +30,7 @@ import { languages, useLanguage } from './language-provider';
 
 const navLinks = [
   { href: '/', labelKey: 'dashboard' },
+  { href: '/explore', labelKey: 'explore', icon: Search },
   { href: '/support', labelKey: 'support' },
 ];
 
@@ -73,7 +74,7 @@ export function Header() {
           Travel Buddy
         </span>
       </Link>
-      <nav className="hidden md:flex items-center gap-2 mx-auto ml-[20%]">
+      <nav className="hidden md:flex items-center gap-2 mx-auto">
         {navLinks.map((link, index) => (
             <React.Fragment key={link.href}>
               <Button
@@ -81,7 +82,9 @@ export function Header() {
                 variant="ghost"
                 className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105 hover:drop-shadow-lg"
               >
-                <Link href={link.href}>{t(`nav.${link.labelKey}`)}</Link>
+                <Link href={link.href}>
+                {link.icon && <link.icon className="mr-2 h-4 w-4" />}
+                {t(`nav.${link.labelKey}`)}</Link>
               </Button>
               {index < navLinks.length - 1 && <Separator orientation="vertical" className="h-6" />}
             </React.Fragment>
@@ -125,6 +128,7 @@ export function Header() {
                       href={link.href}
                       className="flex w-full items-center py-2 text-lg font-semibold"
                     >
+                       {link.icon && <link.icon className="mr-3 h-5 w-5" />}
                       {t(`nav.${link.labelKey}`)}
                     </Link>
                   </SheetClose>
