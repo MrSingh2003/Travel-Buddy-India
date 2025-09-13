@@ -37,6 +37,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Combobox } from "@/components/ui/combobox";
+import { useLanguage } from "@/components/language-provider";
 
 const formSchema = z.object({
   currentLocation: z.string({ required_error: "Please select your current location." }),
@@ -55,6 +56,7 @@ type FormValues = z.infer<typeof formSchema>;
 export default function TripPlannerPage() {
   const [trip, setTrip] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useLanguage();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -84,7 +86,7 @@ export default function TripPlannerPage() {
     } catch (error) {
       console.error("Failed to generate trip:", error);
       setTrip(
-        "Sorry, we couldn't generate your trip at this time. Please try again later."
+        t('tripPlanner.generationError')
       );
     } finally {
       setIsLoading(false);
@@ -118,10 +120,9 @@ export default function TripPlannerPage() {
       <div className="md:col-span-1">
         <Card>
           <CardHeader>
-            <CardTitle className="font-headline">Create Your Dream Trip</CardTitle>
+            <CardTitle className="font-headline">{t('tripPlanner.title')}</CardTitle>
             <CardDescription>
-              Fill in your travel details, and our AI will craft a personalized
-              trip just for you.
+              {t('tripPlanner.description')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -132,7 +133,7 @@ export default function TripPlannerPage() {
                   name="currentLocation"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Current Location</FormLabel>
+                      <FormLabel>{t('tripPlanner.currentLocation')}</FormLabel>
                       <Combobox
                         options={cities.map((c) => ({
                           value: `${c.name}, ${c.state}`,
@@ -140,7 +141,7 @@ export default function TripPlannerPage() {
                         }))}
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder="Select current location"
+                        placeholder={t('tripPlanner.selectCurrentLocation')}
                       />
                       <FormMessage />
                     </FormItem>
@@ -151,7 +152,7 @@ export default function TripPlannerPage() {
                   name="location"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Destination</FormLabel>
+                      <FormLabel>{t('tripPlanner.destination')}</FormLabel>
                       <Combobox
                         options={cities.map((c) => ({
                           value: `${c.name}, ${c.state}`,
@@ -159,7 +160,7 @@ export default function TripPlannerPage() {
                         }))}
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder="Select destination"
+                        placeholder={t('tripPlanner.selectDestination')}
                       />
                       <FormMessage />
                     </FormItem>
@@ -170,7 +171,7 @@ export default function TripPlannerPage() {
                   name="dates"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Travel Dates</FormLabel>
+                      <FormLabel>{t('tripPlanner.travelDates')}</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
@@ -192,7 +193,7 @@ export default function TripPlannerPage() {
                                   format(field.value.from, "LLL dd, y")
                                 )
                               ) : (
-                                <span>Pick a date range</span>
+                                <span>{t('tripPlanner.pickDateRange')}</span>
                               )}
                             </Button>
                           </FormControl>
@@ -221,7 +222,7 @@ export default function TripPlannerPage() {
                       name="budget"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Budget (INR)</FormLabel>
+                          <FormLabel>{t('tripPlanner.budget')}</FormLabel>
                           <FormControl>
                             <Input type="number" placeholder="1000" {...field} />
                           </FormControl>
@@ -234,7 +235,7 @@ export default function TripPlannerPage() {
                       name="numberOfPeople"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>No. of People</FormLabel>
+                          <FormLabel>{t('tripPlanner.people')}</FormLabel>
                           <FormControl>
                              <div className="relative">
                               <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -251,16 +252,15 @@ export default function TripPlannerPage() {
                   name="interests"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Interests</FormLabel>
+                      <FormLabel>{t('tripPlanner.interests')}</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Tell us what you love to do..."
+                          placeholder={t('tripPlanner.interestsPlaceholder')}
                           {...field}
                         />
                       </FormControl>
                       <FormDescription>
-                        Separate interests with commas (e.g., hiking, beaches,
-                        history).
+                        {t('tripPlanner.interestsDescription')}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -272,7 +272,7 @@ export default function TripPlannerPage() {
                   ) : (
                     <Wand2 className="mr-2 h-4 w-4" />
                   )}
-                  Generate Trip
+                  {t('tripPlanner.generateButton')}
                 </Button>
               </form>
             </Form>
@@ -282,9 +282,9 @@ export default function TripPlannerPage() {
       <div className="md:col-span-2">
         <Card className="h-full">
           <CardHeader>
-            <CardTitle className="font-headline">Your Personalized Trip</CardTitle>
+            <CardTitle className="font-headline">{t('tripPlanner.yourTrip')}</CardTitle>
             <CardDescription>
-              Here is the travel plan generated by our AI.
+              {t('tripPlanner.yourTripDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -311,7 +311,7 @@ export default function TripPlannerPage() {
             {!isLoading && !trip && (
               <div className="text-center text-muted-foreground py-16">
                 <Wand2 className="mx-auto h-12 w-12 mb-4" />
-                <p>Your generated trip will appear here.</p>
+                <p>{t('tripPlanner.generatedTripPlaceholder')}</p>
               </div>
             )}
           </CardContent>
