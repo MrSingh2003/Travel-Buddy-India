@@ -142,6 +142,7 @@ export default function TripPlannerPage() {
                         value={field.value}
                         onChange={field.onChange}
                         placeholder={t('tripPlanner.selectCurrentLocation')}
+                        searchPlaceholder={t('tripPlanner.searchLocation')}
                       />
                       <FormMessage />
                     </FormItem>
@@ -161,6 +162,7 @@ export default function TripPlannerPage() {
                         value={field.value}
                         onChange={field.onChange}
                         placeholder={t('tripPlanner.selectDestination')}
+                        searchPlaceholder={t('tripPlanner.searchLocation')}
                       />
                       <FormMessage />
                     </FormItem>

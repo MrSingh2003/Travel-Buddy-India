@@ -121,6 +121,7 @@ export default function ExplorePage() {
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="Select location"
+                      searchPlaceholder="Search location..."
                     />
                     <FormMessage />
                   </FormItem>
