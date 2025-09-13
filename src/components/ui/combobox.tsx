@@ -6,28 +6,21 @@ import { Check, ChevronsUpDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command"
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { ScrollArea } from "./scroll-area"
 
 type ComboboxProps = {
     options: { value: string; label: string }[];
     value?: string;
     onChange: (value: string) => void;
     placeholder?: string;
-    searchPlaceholder?: string;
+    searchPlaceholder?: string; // No longer used, but kept for compatibility
 }
 
-export function Combobox({ options, value, onChange, placeholder, searchPlaceholder }: ComboboxProps) {
+export function Combobox({ options, value, onChange, placeholder }: ComboboxProps) {
   const [open, setOpen] = React.useState(false)
 
   return (
@@ -39,26 +32,26 @@ export function Combobox({ options, value, onChange, placeholder, searchPlacehol
           aria-expanded={open}
           className="w-full justify-between"
         >
+          <span className="truncate">
           {value
             ? options.find((option) => option.value === value)?.label
             : placeholder || "Select option..."}
+          </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-        <Command>
-          <CommandInput placeholder={searchPlaceholder || "Search..."} />
-          <CommandList>
-            <CommandEmpty>No option found.</CommandEmpty>
-            <CommandGroup>
+        <ScrollArea className="h-72">
+            <div className="p-1">
               {options.map((option) => (
-                <CommandItem
-                  key={option.value}
-                  value={option.value}
-                  onSelect={(currentValue) => {
-                    onChange(currentValue === value ? "" : currentValue)
-                    setOpen(false)
-                  }}
+                <Button
+                    key={option.value}
+                    variant="ghost"
+                    className={cn("w-full justify-start font-normal", value === option.value && "font-semibold")}
+                    onClick={() => {
+                        onChange(option.value === value ? "" : option.value)
+                        setOpen(false)
+                    }}
                 >
                   <Check
                     className={cn(
@@ -66,12 +59,11 @@ export function Combobox({ options, value, onChange, placeholder, searchPlacehol
                       value === option.value ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {option.label}
-                </CommandItem>
+                  <span className="truncate">{option.label}</span>
+                </Button>
               ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
+            </div>
+        </ScrollArea>
       </PopoverContent>
     </Popover>
   )
