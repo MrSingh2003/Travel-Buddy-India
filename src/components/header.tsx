@@ -27,10 +27,6 @@ import { Combobox } from '@/components/ui/combobox';
 
 const navLinks = [
   { href: '/', labelKey: 'dashboard' },
-  { href: '/trip-planner', labelKey: 'aiTripPlanner' },
-  { href: '/explore', labelKey: 'explore' },
-  { href: '/local-transport', labelKey: 'localTransport' },
-  { href: '/accommodations', labelKey: 'accommodations' },
   { href: '/support', labelKey: 'support' },
 ];
 
