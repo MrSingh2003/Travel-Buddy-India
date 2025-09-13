@@ -1,11 +1,12 @@
 // src/lib/firebase.ts
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   projectId: "travel-buddy-india-sbj6m",
   appId: "1:72166677805:web:a98e2adb1ade4ea282c7a4",
-  storageBucket: "travel-buddy-india-sbj6m.firebasestorage.app",
+  storageBucket: "travel-buddy-india-sbj6m.appspot.com",
   apiKey: "AIzaSyAiyLmKTjSKXqB9Hjv6JWPfFe5nLRauQ5g",
   authDomain: "travel-buddy-india-sbj6m.firebaseapp.com",
   measurementId: "",
@@ -15,6 +16,8 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
+const storage = getStorage(app);
+
 
 // Add this declaration for the reCAPTCHA verifier
 declare global {
@@ -24,4 +27,4 @@ declare global {
 }
 
 
-export { app, auth };
+export { app, auth, storage };
