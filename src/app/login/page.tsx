@@ -64,7 +64,8 @@ export default function LoginPage() {
 import { auth } from "@/lib/firebase";
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function LoginPage() {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -72,14 +73,19 @@ export default function LoginPage() {
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [otpSent, setOtpSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && !window.recaptchaVerifier) {
+      // Ensure the container is empty before creating a new verifier
+      const recaptchaContainer = document.getElementById('recaptcha-container');
+      if (recaptchaContainer) {
+        recaptchaContainer.innerHTML = '';
+      }
       window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         'size': 'invisible',
         'callback': (response: any) => {
-          // reCAPTCHA solved, allow signInWithPhoneNumber.
           console.log("reCAPTCHA verified");
         }
       });
@@ -96,6 +102,7 @@ export default function LoginPage() {
       return;
     }
     setIsLoading(true);
+    setAuthError(null);
     try {
       const formattedPhoneNumber = `+91${phoneNumber}`;
       const appVerifier = window.recaptchaVerifier;
@@ -106,13 +113,17 @@ export default function LoginPage() {
         title: "OTP Sent",
         description: `An OTP has been sent to ${formattedPhoneNumber}.`,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error sending OTP: ", error);
-      toast({
-        variant: "destructive",
-        title: "Failed to send OTP",
-        description: "Please try again. You may need to refresh the page.",
-      });
+      if (error.code === 'auth/configuration-not-found') {
+         setAuthError("Firebase Phone Authentication is not configured correctly. Please ensure the Phone Number sign-in provider is enabled and your app's domain is authorized in the Firebase console.");
+      } else {
+        toast({
+            variant: "destructive",
+            title: "Failed to send OTP",
+            description: "Please try again. You may need to refresh the page.",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -156,6 +167,15 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+            {authError && (
+                 <Alert variant="destructive" className="mb-4">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Configuration Error</AlertTitle>
+                    <AlertDescription>
+                        {authError} For this demo, you may need to add `localhost` to the authorized domains in the Firebase Authentication settings.
+                    </AlertDescription>
+                </Alert>
+            )}
           <div className="grid gap-4">
 <<<<<<< HEAD
             <div className="grid gap-2">
@@ -210,15 +230,19 @@ export default function LoginPage() {
             {!otpSent ? (
               <div className="grid gap-2">
                 <Label htmlFor="mobile">Mobile Number</Label>
-                <Input
-                  id="mobile"
-                  type="tel"
-                  placeholder="9876543210"
-                  required
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  disabled={isLoading}
-                />
+                <div className="flex items-center">
+                    <span className="border border-r-0 border-input rounded-l-md px-3 h-10 flex items-center bg-muted text-sm">+91</span>
+                    <Input
+                        id="mobile"
+                        type="tel"
+                        placeholder="9876543210"
+                        required
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                        disabled={isLoading}
+                        className="rounded-l-none"
+                    />
+                </div>
                  <Button onClick={handleSendOtp} className="w-full" disabled={isLoading}>
                   {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                   Send OTP
@@ -243,6 +267,14 @@ export default function LoginPage() {
               </div>
             )}
             <div id="recaptcha-container"></div>
+            <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                </div>
+            </div>
             <Button variant="outline" className="w-full" disabled>
               Login with Google
             </Button>
