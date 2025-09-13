@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Plane, Menu, Globe, Search } from 'lucide-react';
+import { Plane, Menu, Globe, Search, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserNav } from '@/components/user-nav';
 import {
@@ -22,7 +22,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import { Combobox } from '@/components/ui/combobox';
+import { ScrollArea } from './ui/scroll-area';
 
 
 const navLinks = [
@@ -95,20 +95,23 @@ export function Header() {
                 <span className="sr-only">{t('selectLanguage')}</span>
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="p-0" align="end">
-                <Combobox
-                    options={Object.entries(languages).map(([code, name]) => ({
-                        value: code,
-                        label: name,
-                    }))}
-                    value={language}
-                    onChange={(value) => {
-                        setLanguage(value);
-                        setLangPopoverOpen(false);
-                    }}
-                    placeholder={t('searchLanguage')}
-                    inputPlaceholder={t('searchLanguage')}
-                />
+            <PopoverContent className="p-1 w-48" align="end">
+                <ScrollArea className="h-64">
+                {Object.entries(languages).map(([code, name]) => (
+                    <Button
+                        key={code}
+                        variant="ghost"
+                        className={cn("w-full justify-start", language === code && "font-bold")}
+                        onClick={() => {
+                            setLanguage(code);
+                            setLangPopoverOpen(false);
+                        }}
+                    >
+                       <Check className={cn("mr-2 h-4 w-4", language === code ? "opacity-100" : "opacity-0")} />
+                       {name}
+                    </Button>
+                ))}
+                </ScrollArea>
             </PopoverContent>
         </Popover>
         <div className="md:hidden">
