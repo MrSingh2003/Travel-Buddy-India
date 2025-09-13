@@ -18,19 +18,17 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { useLanguage } from "../language-provider"
-
 
 type ComboboxProps = {
     options: { value: string; label: string }[];
-    value: string;
+    value?: string;
     onChange: (value: string) => void;
     placeholder?: string;
+    searchPlaceholder?: string;
 }
 
-export function Combobox({ options, value, onChange, placeholder }: ComboboxProps) {
+export function Combobox({ options, value, onChange, placeholder, searchPlaceholder }: ComboboxProps) {
   const [open, setOpen] = React.useState(false)
-  const { t } = useLanguage();
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -49,7 +47,7 @@ export function Combobox({ options, value, onChange, placeholder }: ComboboxProp
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
         <Command>
-          <CommandInput placeholder={t('searchLanguage')} />
+          <CommandInput placeholder={searchPlaceholder || "Search..."} />
           <CommandList>
             <CommandEmpty>No option found.</CommandEmpty>
             <CommandGroup>
