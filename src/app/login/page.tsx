@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+<<<<<<< HEAD
 import EmailPasswordLogin from './EmailPasswordLogin'
 
 import { useState } from 'react'
@@ -58,6 +60,87 @@ export default function LoginPage() {
       setLoading(false)
     }
   }
+=======
+import { auth } from "@/lib/firebase";
+import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from "firebase/auth";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
+
+export default function LoginPage() {
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [otp, setOtp] = useState("");
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const [otpSent, setOtpSent] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+        'callback': (response: any) => {
+          // reCAPTCHA solved, allow signInWithPhoneNumber.
+          console.log("reCAPTCHA verified");
+        }
+      });
+    }
+  }, []);
+
+  const handleSendOtp = async () => {
+    if (phoneNumber.length < 10) {
+      toast({
+        variant: "destructive",
+        title: "Invalid Phone Number",
+        description: "Please enter a valid 10-digit phone number.",
+      });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const formattedPhoneNumber = `+91${phoneNumber}`;
+      const appVerifier = window.recaptchaVerifier;
+      const confirmation = await signInWithPhoneNumber(auth, formattedPhoneNumber, appVerifier);
+      setConfirmationResult(confirmation);
+      setOtpSent(true);
+      toast({
+        title: "OTP Sent",
+        description: `An OTP has been sent to ${formattedPhoneNumber}.`,
+      });
+    } catch (error) {
+      console.error("Error sending OTP: ", error);
+      toast({
+        variant: "destructive",
+        title: "Failed to send OTP",
+        description: "Please try again. You may need to refresh the page.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!confirmationResult) return;
+    setIsLoading(true);
+    try {
+      await confirmationResult.confirm(otp);
+      toast({
+        title: "Login Successful",
+        description: "You have been successfully logged in.",
+      });
+      // Handle successful login, e.g., redirect to dashboard
+    } catch (error) {
+      console.error("Error verifying OTP: ", error);
+      toast({
+        variant: "destructive",
+        title: "Invalid OTP",
+        description: "The OTP you entered is incorrect. Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+>>>>>>> 733507f (File changes)
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
@@ -65,11 +148,16 @@ export default function LoginPage() {
         <CardHeader>
           <CardTitle className="text-2xl font-headline">Login</CardTitle>
           <CardDescription>
+<<<<<<< HEAD
             Login with mobile OTP or email and password.
+=======
+            Enter your mobile number to login to your account
+>>>>>>> 733507f (File changes)
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4">
+<<<<<<< HEAD
             <div className="grid gap-2">
               <Label htmlFor="mobile">Mobile Number</Label>
               <Input
@@ -118,6 +206,47 @@ export default function LoginPage() {
 
             {/* Email/Password login */}
             <EmailPasswordLogin />
+=======
+            {!otpSent ? (
+              <div className="grid gap-2">
+                <Label htmlFor="mobile">Mobile Number</Label>
+                <Input
+                  id="mobile"
+                  type="tel"
+                  placeholder="9876543210"
+                  required
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  disabled={isLoading}
+                />
+                 <Button onClick={handleSendOtp} className="w-full" disabled={isLoading}>
+                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  Send OTP
+                </Button>
+              </div>
+            ) : (
+               <div className="grid gap-2">
+                <Label htmlFor="otp">Enter OTP</Label>
+                <Input
+                  id="otp"
+                  type="text"
+                  placeholder="123456"
+                  required
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  disabled={isLoading}
+                />
+                 <Button onClick={handleVerifyOtp} className="w-full" disabled={isLoading}>
+                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  Verify OTP
+                </Button>
+              </div>
+            )}
+            <div id="recaptcha-container"></div>
+            <Button variant="outline" className="w-full" disabled>
+              Login with Google
+            </Button>
+>>>>>>> 733507f (File changes)
           </div>
           <div className="mt-4 text-center text-sm">
             Don&apos;t have an account?{" "}
