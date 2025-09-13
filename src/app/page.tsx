@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowRight, Plane, Car, Hotel, Map, Search } from "lucide-react";
+import { ArrowRight, Car, Hotel, Plane, Search } from "lucide-react";
 import Image from "next/image";
 import { useLanguage } from "@/components/language-provider";
 
@@ -38,11 +38,6 @@ export default function DashboardPage() {
       href: "/accommodations",
       icon: Hotel,
     },
-    {
-      key: "offlineMaps",
-      href: "/offline-maps",
-      icon: Map,
-    },
   ];
 
   return (
@@ -50,7 +45,7 @@ export default function DashboardPage() {
       <Card className="overflow-hidden border-0 shadow-xl">
         <div className="relative h-[500px] w-full">
           <Image
-            src="https://picsum.photos/1200/800"
+            src="https://picsum.photos/seed/42/1200/800"
             alt="A vibrant depiction of a travel destination in India"
             fill
             className="object-cover"

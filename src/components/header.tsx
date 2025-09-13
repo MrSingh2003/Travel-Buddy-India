@@ -12,24 +12,25 @@ import {
   SheetTrigger,
   SheetClose,
 } from '@/components/ui/sheet';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from './theme-toggle';
 import { Separator } from './ui/separator';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { languages, useLanguage } from './language-provider';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover"
+import { Combobox } from '@/components/ui/combobox';
+
 
 const navLinks = [
   { href: '/', labelKey: 'dashboard' },
+  { href: '/trip-planner', labelKey: 'aiTripPlanner' },
+  { href: '/explore', labelKey: 'explore' },
+  { href: '/local-transport', labelKey: 'localTransport' },
+  { href: '/accommodations', labelKey: 'accommodations' },
   { href: '/support', labelKey: 'support' },
 ];
 
@@ -37,6 +38,7 @@ export function Header() {
   const [isHidden, setIsHidden] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   const { language, setLanguage, t } = useLanguage();
+  const [langPopoverOpen, setLangPopoverOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -82,7 +84,6 @@ export function Header() {
                 className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105 hover:drop-shadow-lg"
               >
                 <Link href={link.href}>
-                {link.icon && <link.icon className="mr-2 h-4 w-4" />}
                 {t(`nav.${link.labelKey}`)}</Link>
               </Button>
               {index < navLinks.length - 1 && <Separator orientation="vertical" className="h-6" />}
@@ -91,26 +92,29 @@ export function Header() {
       </nav>
       <div className="flex items-center justify-end gap-2 ml-auto">
         <ThemeToggle />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Globe className="h-5 w-5" />
-              <span className="sr-only">Select Language</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="end"
-            className="max-h-80 overflow-y-auto"
-          >
-            <DropdownMenuLabel>{t('selectLanguage')}</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuRadioGroup value={language} onValueChange={setLanguage}>
-                {Object.entries(languages).map(([code, name]) => (
-                    <DropdownMenuRadioItem key={code} value={code}>{name}</DropdownMenuRadioItem>
-                ))}
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Popover open={langPopoverOpen} onOpenChange={setLangPopoverOpen}>
+            <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon">
+                <Globe className="h-5 w-5" />
+                <span className="sr-only">{t('selectLanguage')}</span>
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0" align="end">
+                <Combobox
+                    options={Object.entries(languages).map(([code, name]) => ({
+                        value: code,
+                        label: name,
+                    }))}
+                    value={language}
+                    onChange={(value) => {
+                        setLanguage(value);
+                        setLangPopoverOpen(false);
+                    }}
+                    placeholder={t('searchLanguage')}
+                    inputPlaceholder={t('searchLanguage')}
+                />
+            </PopoverContent>
+        </Popover>
         <div className="md:hidden">
           <Sheet>
             <SheetTrigger asChild>
@@ -127,7 +131,6 @@ export function Header() {
                       href={link.href}
                       className="flex w-full items-center py-2 text-lg font-semibold"
                     >
-                       {link.icon && <link.icon className="mr-3 h-5 w-5" />}
                       {t(`nav.${link.labelKey}`)}
                     </Link>
                   </SheetClose>
