@@ -1,3 +1,4 @@
+// src/ai/flows/book-transport.ts
 'use server';
 /**
  * @fileOverview A mock transport booking agent.
@@ -9,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {v4 as uuidv4} from 'uuid';
 
 const BookTransportInputSchema = z.object({
   service: z.enum(['cab', 'bus', 'train']),
@@ -36,12 +38,12 @@ const bookTransportFlow = ai.defineFlow(
     outputSchema: BookTransportOutputSchema,
   },
   async (input) => {
-    // This is a mock booking flow.
-    // In a real application, you would integrate with a real booking API here.
+    // This is a mock booking flow that simulates a real booking process.
     console.log(`Simulating booking for ${input.service}: ${input.details}`);
     
-    const bookingId = `BK-${Date.now()}`;
-    const message = `Your booking for "${input.details}" has been successfully confirmed! Your booking ID is ${bookingId}.`;
+    // Generate a more realistic, unique booking ID.
+    const bookingId = `TB-${uuidv4().split('-')[0].toUpperCase()}`;
+    const message = `Your booking for "${input.details}" has been successfully confirmed! Your booking confirmation ID is ${bookingId}. We've sent the details to your registered email.`;
 
     return {
       bookingId,
