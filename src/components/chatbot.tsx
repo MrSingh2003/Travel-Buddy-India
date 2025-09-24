@@ -95,8 +95,9 @@ export function Chatbot() {
                   <div className="text-center text-sm text-muted-foreground pt-8">
                     <Bot className="mx-auto h-8 w-8 mb-2" />
                     <p>
-                      Hi! I'm your AI travel assistant. Ask me anything about
-                      your trip!
+                      Welcome to Travel Buddy! 🇮🇳 Your personal guide to
+                      exploring India. How can I help you plan your adventure
+                      today?
                     </p>
                   </div>
                 ) : (
