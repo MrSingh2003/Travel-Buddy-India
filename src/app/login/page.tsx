@@ -285,7 +285,7 @@ export default function LoginPage() {
                         </div>
                     </TabsContent>
                 </div>
-              </Tabs>>
+              </Tabs>
               
               <div className="relative w-full my-4">
                 <Separator />
