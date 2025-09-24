@@ -1,3 +1,4 @@
+// src/components/chatbot.tsx
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -5,7 +6,7 @@ import {
   answerTravelQuestion,
   type AnswerTravelQuestionInput,
 } from "@/ai/flows/answer-travel-questions-with-chatbot";
-import { Bot, Send, Loader2, User } from "lucide-react";
+import { Bot, Send, Loader2, User, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +24,7 @@ type Message = {
 };
 
 export function Chatbot() {
+  const [isOpen, setIsOpen] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -72,13 +74,13 @@ export function Chatbot() {
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      <Popover>
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
           <Button
             size="icon"
             className="rounded-full h-16 w-16 shadow-lg bg-primary hover:bg-primary/90"
           >
-            <Bot className="h-8 w-8" />
+            {isOpen ? <X className="h-8 w-8" /> : <Bot className="h-8 w-8" />}
             <span className="sr-only">Open travel assistant</span>
           </Button>
         </PopoverTrigger>
