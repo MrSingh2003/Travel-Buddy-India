@@ -84,9 +84,9 @@ export function Chatbot() {
             <span className="sr-only">Open travel assistant</span>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-80 md:w-96 p-0" align="end">
+        <PopoverContent className="w-80 md:w-96 p-0 bg-background/80 backdrop-blur-sm" align="end">
           <div className="flex flex-col h-[60vh]">
-            <div className="bg-muted p-3 border-b text-center">
+            <div className="bg-muted/50 p-3 border-b text-center">
               <h3 className="font-semibold font-headline">AI Travel Assistant</h3>
             </div>
             <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
@@ -145,7 +145,7 @@ export function Chatbot() {
                 )}
               </div>
             </ScrollArea>
-            <div className="border-t p-3 bg-background">
+            <div className="border-t p-3 bg-background/80">
               <form onSubmit={handleSubmit} className="flex items-center gap-2">
                 <Input
                   value={input}
