@@ -18,6 +18,7 @@ import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
   const [fullName, setFullName] = useState("");
@@ -28,6 +29,7 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleSignup = async () => {
     if (!fullName || !email || !password || !confirmPassword) {
@@ -56,8 +58,7 @@ export default function SignupPage() {
         title: "Account Created!",
         description: "You have been successfully signed up.",
       });
-      // Optionally redirect user to another page
-      // router.push('/'); 
+      router.push('/');
     } catch (error: any) {
       let errorMessage = "An unexpected error occurred. Please try again.";
       switch (error.code) {
