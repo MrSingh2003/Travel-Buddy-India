@@ -38,6 +38,8 @@ export default function LocalTransportPage() {
     const handleBooking = async (service: 'bus' | 'train' | 'cab', details: string, id: string) => {
         setBookingState({ isLoading: true, serviceId: id });
         try {
+            // Simulate network delay for a more realistic experience
+            await new Promise(resolve => setTimeout(resolve, 1500));
             const response = await bookTransport({ service, details });
             toast({
                 title: "Booking Confirmed!",
