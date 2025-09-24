@@ -36,6 +36,7 @@ export default function LoginPage() {
   const [otp, setOtp] = useState("");
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [otpSent, setOtpSent] = useState(false);
 
@@ -43,27 +44,20 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // This effect sets up the reCAPTCHA verifier when the component mounts.
-    // It's configured to be invisible and will only show up if needed.
     const setupRecaptcha = () => {
       if (!window.recaptchaVerifier) {
         window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
           'size': 'invisible',
-          'callback': (response: any) => {
-            // reCAPTCHA solved, you can now send OTP.
-          },
+          'callback': (response: any) => {},
           'expired-callback': () => {
-            // Response expired. Ask user to solve reCAPTCHA again.
             setAuthError("reCAPTCHA expired. Please try again.");
           }
         });
       }
     };
-    // We delay setup slightly to ensure the DOM is ready.
     const timeoutId = setTimeout(setupRecaptcha, 100);
     return () => clearTimeout(timeoutId);
   }, []);
-
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -87,7 +81,7 @@ export default function LoginPage() {
   };
 
   const handleGoogleSignIn = async () => {
-    setIsLoading(true);
+    setIsGoogleLoading(true);
     setAuthError(null);
     const provider = new GoogleAuthProvider();
     try {
@@ -100,7 +94,7 @@ export default function LoginPage() {
     } catch (error: any) {
       handleAuthError(error);
     } finally {
-      setIsLoading(false);
+      setIsGoogleLoading(false);
     }
   };
 
@@ -113,7 +107,6 @@ export default function LoginPage() {
     setAuthError(null);
     try {
         const appVerifier = window.recaptchaVerifier;
-        // Firebase requires phone numbers in E.164 format (e.g., +919876543210)
         const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`;
         const confirmation = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
         setConfirmationResult(confirmation);
@@ -192,120 +185,122 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="email" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="email">Email</TabsTrigger>
-              <TabsTrigger value="phone">Mobile Number</TabsTrigger>
-            </TabsList>
-            <div className="py-6">
-                {authError && (
-                    <Alert variant="destructive" className="mb-4">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Authentication Failed</AlertTitle>
-                    <AlertDescription>{authError}</AlertDescription>
-                    </Alert>
-                )}
-                 <TabsContent value="email">
-                    <div className="grid gap-4">
-                        <div className="grid gap-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                            id="email"
-                            type="email"
-                            placeholder="m@example.com"
-                            required
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            disabled={isLoading}
-                        />
+          <div className="flex flex-col items-center gap-4">
+              <Tabs defaultValue="email" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="email">Email</TabsTrigger>
+                  <TabsTrigger value="phone">Mobile Number</TabsTrigger>
+                </TabsList>
+                <div className="py-6">
+                    {authError && (
+                        <Alert variant="destructive" className="mb-4">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Authentication Failed</AlertTitle>
+                        <AlertDescription>{authError}</AlertDescription>
+                        </Alert>
+                    )}
+                    <TabsContent value="email">
+                        <div className="grid gap-4">
+                            <div className="grid gap-2">
+                            <Label htmlFor="email">Email</Label>
+                            <Input
+                                id="email"
+                                type="email"
+                                placeholder="m@example.com"
+                                required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                disabled={isLoading || isGoogleLoading}
+                            />
+                            </div>
+                            <div className="grid gap-2">
+                            <div className="flex items-center">
+                                <Label htmlFor="password">Password</Label>
+                                <Link
+                                href="#"
+                                className="ml-auto inline-block text-sm underline"
+                                >
+                                Forgot your password?
+                                </Link>
+                            </div>
+                            <Input
+                                id="password"
+                                type="password"
+                                required
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                disabled={isLoading || isGoogleLoading}
+                            />
+                            </div>
+                            <Button onClick={handleLogin} className="w-full" disabled={isLoading || isGoogleLoading}>
+                            {isLoading && !isGoogleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            Login with Email
+                            </Button>
                         </div>
-                        <div className="grid gap-2">
-                        <div className="flex items-center">
-                            <Label htmlFor="password">Password</Label>
-                            <Link
-                            href="#"
-                            className="ml-auto inline-block text-sm underline"
-                            >
-                            Forgot your password?
-                            </Link>
+                    </TabsContent>
+                    <TabsContent value="phone">
+                        <div className="grid gap-4">
+                            {!otpSent ? (
+                                <>
+                                    <div className="grid gap-2">
+                                    <Label htmlFor="phone">Mobile Number</Label>
+                                    <Input
+                                        id="phone"
+                                        type="tel"
+                                        placeholder="9876543210"
+                                        required
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value)}
+                                        disabled={isLoading || isGoogleLoading}
+                                    />
+                                    </div>
+                                    <Button onClick={handleSendOtp} className="w-full" disabled={isLoading || isGoogleLoading}>
+                                        {isLoading && phone ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                        Send OTP
+                                    </Button>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="grid gap-2">
+                                    <Label htmlFor="otp">Enter OTP</Label>
+                                    <Input
+                                        id="otp"
+                                        type="text"
+                                        placeholder="123456"
+                                        required
+                                        value={otp}
+                                        onChange={(e) => setOtp(e.target.value)}
+                                        disabled={isLoading || isGoogleLoading}
+                                    />
+                                    </div>
+                                    <Button onClick={handleVerifyOtp} className="w-full" disabled={isLoading || isGoogleLoading}>
+                                        {isLoading && otp ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                        Verify OTP & Login
+                                    </Button>
+                                    <Button variant="link" size="sm" onClick={() => { setOtpSent(false); setAuthError(null); }} disabled={isLoading || isGoogleLoading}>
+                                        Entered wrong number?
+                                    </Button>
+                                </>
+                            )}
                         </div>
-                        <Input
-                            id="password"
-                            type="password"
-                            required
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            disabled={isLoading}
-                        />
-                        </div>
-                        <Button onClick={handleLogin} className="w-full" disabled={isLoading}>
-                        {isLoading && email ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                        Login with Email
-                        </Button>
-                    </div>
-                </TabsContent>
-                <TabsContent value="phone">
-                     <div className="grid gap-4">
-                        {!otpSent ? (
-                            <>
-                                <div className="grid gap-2">
-                                <Label htmlFor="phone">Mobile Number</Label>
-                                <Input
-                                    id="phone"
-                                    type="tel"
-                                    placeholder="9876543210"
-                                    required
-                                    value={phone}
-                                    onChange={(e) => setPhone(e.target.value)}
-                                    disabled={isLoading}
-                                />
-                                </div>
-                                <Button onClick={handleSendOtp} className="w-full" disabled={isLoading}>
-                                    {isLoading && phone ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                    Send OTP
-                                </Button>
-                            </>
-                        ) : (
-                             <>
-                                <div className="grid gap-2">
-                                <Label htmlFor="otp">Enter OTP</Label>
-                                <Input
-                                    id="otp"
-                                    type="text"
-                                    placeholder="123456"
-                                    required
-                                    value={otp}
-                                    onChange={(e) => setOtp(e.target.value)}
-                                    disabled={isLoading}
-                                />
-                                </div>
-                                <Button onClick={handleVerifyOtp} className="w-full" disabled={isLoading}>
-                                    {isLoading && otp ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                    Verify OTP & Login
-                                </Button>
-                                 <Button variant="link" size="sm" onClick={() => { setOtpSent(false); setAuthError(null); }} disabled={isLoading}>
-                                    Entered wrong number?
-                                </Button>
-                            </>
-                        )}
-                    </div>
-                </TabsContent>
-            </div>
-          </Tabs>
-          
-          <div className="relative my-4">
-            <Separator />
-            <span className="absolute left-1/2 -translate-x-1/2 -top-3 bg-background px-2 text-xs text-muted-foreground">OR</span>
-          </div>
+                    </TabsContent>
+                </div>
+              </Tabs>>
+              
+              <div className="relative w-full my-4">
+                <Separator />
+                <span className="absolute left-1/2 -translate-x-1/2 -top-3 bg-background px-2 text-xs text-muted-foreground">OR</span>
+              </div>
 
-          <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isLoading}>
-              {isLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                 <svg role="img" viewBox="0 0 24 24" className="mr-2 h-4 w-4"><path fill="currentColor" d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.02 1.02-2.62 1.62-4.55 1.62-3.87 0-7-3.13-7-7s3.13-7 7-7c1.73 0 3.26.68 4.38 1.69l2.8-2.82C17.43 2.1 15.14 1 12.48 1 7.02 1 3 5.02 3 9.5s4.02 8.5 9.48 8.5c2.5 0 4.5-.83 6.04-2.35 1.54-1.52 2.04-3.72 2.04-5.96 0-.62-.05-1.22-.16-1.8z"></path></svg>
-              )}
-             Sign in with Google
-          </Button>
+              <Button variant="outline" size="icon" className="w-12 h-12 rounded-full" onClick={handleGoogleSignIn} disabled={isLoading || isGoogleLoading}>
+                  {isGoogleLoading ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <svg role="img" viewBox="0 0 24 24" className="h-5 w-5"><path fill="currentColor" d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.02 1.02-2.62 1.62-4.55 1.62-3.87 0-7-3.13-7-7s3.13-7 7-7c1.73 0 3.26.68 4.38 1.69l2.8-2.82C17.43 2.1 15.14 1 12.48 1 7.02 1 3 5.02 3 9.5s4.02 8.5 9.48 8.5c2.5 0 4.5-.83 6.04-2.35 1.54-1.52 2.04-3.72 2.04-5.96 0-.62-.05-1.22-.16-1.8z"></path></svg>
+                  )}
+                <span className="sr-only">Sign in with Google</span>
+              </Button>
+          </div>
 
           <div className="mt-6 text-center text-sm">
             Don&apos;t have an account?{" "}
@@ -320,5 +315,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-    
