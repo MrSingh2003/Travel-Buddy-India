@@ -55,13 +55,28 @@ export default function SupportPage() {
     },
   });
 
-  function onSubmit(values: FormValues) {
-    console.log(values);
-    toast({
-      title: "Message Sent!",
-      description: "Thanks for reaching out. We'll get back to you shortly.",
-    });
-    form.reset();
+  async function onSubmit(values: FormValues) {
+    try {
+      const res = await fetch('/api/support', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+      })
+      if (!res.ok) {
+        throw new Error('Failed to submit')
+      }
+      toast({
+        title: "Message Sent!",
+        description: "Thanks for reaching out. We'll get back to you shortly.",
+      });
+      form.reset();
+    } catch (e) {
+      toast({
+        title: "Submission failed",
+        description: "Please try again in a moment.",
+        variant: "destructive",
+      })
+    }
   }
 
   return (

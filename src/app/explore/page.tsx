@@ -8,7 +8,7 @@ import { z } from "zod";
 import { Loader2, MapPin, Search, Star, Building, Utensils } from "lucide-react";
 import Image from "next/image";
 
-import { searchPlaces } from "@/ai/flows/search-places";
+// import { searchPlaces } from "@/ai/flows/search-places";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,7 +23,16 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
-type Place = Awaited<ReturnType<typeof searchPlaces>>["places"][0];
+type Place = {
+  position?: number;
+  title?: string;
+  address?: string;
+  rating?: number;
+  reviews?: number;
+  type?: string;
+  thumbnail?: string;
+  place_id?: string;
+};
 
 export default function ExplorePage() {
   const [places, setPlaces] = useState<Place[]>([]);
@@ -43,8 +52,14 @@ export default function ExplorePage() {
     setPlaces([]);
     setError(null);
     try {
-      const result = await searchPlaces(values);
-      setPlaces(result.places);
+      const res = await fetch('/api/explore', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+      })
+      if (!res.ok) throw new Error('Search failed')
+      const result = await res.json()
+      setPlaces(result.places)
     } catch (e) {
       console.error(e);
       setError("Sorry, we couldn't find any places at this time. Please try again later.");
