@@ -81,13 +81,13 @@ export function Chatbot() {
             className="rounded-full h-16 w-16 shadow-lg bg-primary hover:bg-primary/90"
           >
             {isOpen ? <X className="h-8 w-8" /> : <Bot className="h-8 w-8" />}
-            <span className="sr-only">Open travel assistant</span>
+            <span className="sr-only">Open Travel Assistant</span>
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-80 md:w-96 p-0 bg-background/80 backdrop-blur-sm" align="end">
           <div className="flex flex-col h-[60vh]">
             <div className="bg-muted/50 p-3 border-b text-center">
-              <h3 className="font-semibold font-headline">AI Travel Assistant</h3>
+              <h3 className="font-semibold font-headline">Travel Assistant</h3>
             </div>
             <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
               <div className="space-y-4 pr-4">
