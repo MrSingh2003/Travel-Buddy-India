@@ -68,8 +68,7 @@ export function Header() {
         className="flex items-center gap-2 font-semibold text-foreground"
       >
         <Plane className="h-7 w-7 text-primary" />
-        <span className="font-headline text-xl sm:hidden">TB</span>
-        <span className="font-headline text-xl hidden sm:inline-block">
+        <span className="font-headline text-xl">
           Travel Buddy
         </span>
       </Link>
