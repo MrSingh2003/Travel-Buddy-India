@@ -190,7 +190,7 @@ export default function TripPlannerPage() {
                   control={form.control}
                   name="dates"
                   render={({ field }) => (
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-4">
                       <FormItem className="flex flex-col">
                         <FormLabel>From</FormLabel>
                         <Popover>
