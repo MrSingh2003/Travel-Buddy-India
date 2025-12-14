@@ -67,6 +67,12 @@ export default function TripPlannerPage() {
       budget: 50000,
       interests: "sightseeing, food, culture",
       numberOfPeople: 1,
+      currentLocation: "",
+      location: "",
+      dates: {
+        from: undefined,
+        to: undefined,
+      },
     },
   });
 
