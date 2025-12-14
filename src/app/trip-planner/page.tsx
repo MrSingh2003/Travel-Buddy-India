@@ -6,8 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Loader2, Users, Wand2 } from "lucide-react";
-import { generatePersonalizedTrip } from "@/ai/flows/generate-personalized-trip";
+import { Calendar as CalendarIcon, Loader2, Users, Wand2, Star, IndianRupee, CloudSun, Briefcase } from "lucide-react";
+import { generatePersonalizedTrip, type PersonalizedTripOutput } from "@/ai/flows/generate-personalized-trip";
 import { cities } from "@/lib/locations";
 
 import { Button } from "@/components/ui/button";
@@ -38,6 +38,8 @@ import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Combobox } from "@/components/ui/combobox";
 import { useLanguage } from "@/components/language-provider";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 
 const formSchema = z.object({
   currentLocation: z.string({ required_error: "Please select your current location." }),
@@ -54,14 +56,15 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function TripPlannerPage() {
-  const [trip, setTrip] = useState<string | null>(null);
+  const [trip, setTrip] = useState<PersonalizedTripOutput | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useLanguage();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      budget: 1000,
+      budget: 50000,
       interests: "sightseeing, food, culture",
       numberOfPeople: 1,
     },
@@ -70,6 +73,7 @@ export default function TripPlannerPage() {
   async function onSubmit(values: FormValues) {
     setIsLoading(true);
     setTrip(null);
+    setError(null);
     try {
       const response = await generatePersonalizedTrip({
         currentLocation: values.currentLocation,
@@ -82,38 +86,46 @@ export default function TripPlannerPage() {
         interests: values.interests,
         numberOfPeople: values.numberOfPeople,
       });
-      setTrip(response.trip);
+      setTrip(response);
     } catch (error) {
       console.error("Failed to generate trip:", error);
-      setTrip(
-        t('tripPlanner.generationError')
-      );
+      setError(t('tripPlanner.generationError'));
     } finally {
       setIsLoading(false);
     }
   }
 
-  const renderTrip = (tripText: string) => {
-    const sections = tripText.split(/\n\s*\n/); // Split by double newlines
-    return sections.map((section, index) => {
-      const lines = section.trim().split('\n');
-      const title = lines[0];
-      const items = lines.slice(1);
-      
-      const isDayPlan = /day \d+/i.test(title);
+  const SuitabilityScore = ({ score, reasoning }: { score: number; reasoning: string }) => (
+    <div className="rounded-lg border bg-card p-4">
+      <h3 className="font-semibold text-lg mb-2 flex items-center gap-2"><Star className="text-primary"/> Trip Suitability Score</h3>
+      <div className="flex items-center gap-4">
+        <div className="text-3xl font-bold text-primary">{score}/10</div>
+        <Progress value={score * 10} className="w-full" />
+      </div>
+      <p className="text-sm text-muted-foreground mt-2">{reasoning}</p>
+    </div>
+  );
 
-      return (
-        <div key={index} className="mb-4">
-          <h3 className={`font-semibold text-lg mb-2 ${isDayPlan ? 'text-primary' : ''}`}>{title}</h3>
-          <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-            {items.map((item, i) => (
-              <li key={i} className="ml-4">{item.replace(/^- /, '')}</li>
-            ))}
-          </ul>
-        </div>
-      );
-    });
-  };
+  const BudgetBreakdown = ({ breakdown }: { breakdown: PersonalizedTripOutput['budgetBreakdown'] }) => (
+    <div className="rounded-lg border bg-card p-4">
+      <h3 className="font-semibold text-lg mb-3 flex items-center gap-2"><IndianRupee className="text-primary"/> Budget Breakdown</h3>
+       <div className="space-y-2 text-sm">
+        {Object.entries(breakdown).map(([key, value]) => (
+          <div key={key} className={`flex justify-between ${key === 'total' ? 'font-bold text-base pt-2 border-t' : ''}`}>
+            <span className="capitalize">{key}</span>
+            <span>{value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+  
+  const WeatherAdvisory = ({ advisory }: { advisory: string }) => (
+      <div className="rounded-lg border bg-card p-4">
+          <h3 className="font-semibold text-lg mb-2 flex items-center gap-2"><CloudSun className="text-primary" /> Weather & Packing Advisory</h3>
+          <p className="text-sm text-muted-foreground">{advisory}</p>
+      </div>
+  );
 
   return (
     <div className="grid md:grid-cols-3 gap-8">
@@ -226,7 +238,7 @@ export default function TripPlannerPage() {
                         <FormItem>
                           <FormLabel>{t('tripPlanner.budget')}</FormLabel>
                           <FormControl>
-                            <Input type="number" placeholder="1000" {...field} />
+                            <Input type="number" placeholder="50000" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -284,9 +296,9 @@ export default function TripPlannerPage() {
       <div className="md:col-span-2">
         <Card className="h-full">
           <CardHeader>
-            <CardTitle className="font-headline">{t('tripPlanner.yourTrip')}</CardTitle>
+            <CardTitle className="font-headline">{trip?.tripTitle || t('tripPlanner.yourTrip')}</CardTitle>
             <CardDescription>
-              {t('tripPlanner.yourTripDescription')}
+              {trip?.tripSummary || t('tripPlanner.yourTripDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -305,12 +317,37 @@ export default function TripPlannerPage() {
                 </div>
               </div>
             )}
-            {trip && (
-              <div className="prose-sm max-w-none">
-                {renderTrip(trip)}
+             {error && (
+              <div className="text-center text-destructive-foreground bg-destructive/80 p-4 rounded-md">
+                <p>{error}</p>
               </div>
             )}
-            {!isLoading && !trip && (
+            {trip && !isLoading && (
+              <div className="space-y-6">
+                <SuitabilityScore score={trip.suitabilityScore} reasoning={trip.suitabilityReasoning} />
+                <div className="grid md:grid-cols-2 gap-6">
+                    <BudgetBreakdown breakdown={trip.budgetBreakdown} />
+                    <WeatherAdvisory advisory={trip.weatherAdvisory} />
+                </div>
+                <Separator />
+                <div>
+                  <h3 className="font-semibold text-lg mb-3 flex items-center gap-2"><Briefcase className="text-primary"/> Daily Itinerary</h3>
+                  <div className="space-y-4">
+                  {trip.dailyItinerary.map((day) => (
+                      <div key={day.day} className="p-4 rounded-md border">
+                          <h4 className="font-semibold text-primary">Day {day.day}: {day.title}</h4>
+                          <ul className="list-disc list-inside mt-2 space-y-1 text-muted-foreground text-sm">
+                              {day.activities.map((activity, i) => (
+                                  <li key={i}>{activity}</li>
+                              ))}
+                          </ul>
+                      </div>
+                  ))}
+                  </div>
+                </div>
+              </div>
+            )}
+            {!isLoading && !trip && !error && (
               <div className="text-center text-muted-foreground py-16">
                 <Wand2 className="mx-auto h-12 w-12 mb-4" />
                 <p>{t('tripPlanner.generatedTripPlaceholder')}</p>
