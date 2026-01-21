@@ -78,7 +78,7 @@ export function Chatbot() {
         <PopoverTrigger asChild>
           <Button
             size="icon"
-            className="rounded-full h-16 w-16 shadow-lg bg-primary hover:bg-primary/90"
+            className="rounded-full h-16 w-16 shadow-lg bg-card hover:bg-muted text-primary border-2 border-primary"
           >
             {isOpen ? <X className="h-8 w-8" /> : <Bot className="h-8 w-8" />}
             <span className="sr-only">Open Travel Assistant</span>
