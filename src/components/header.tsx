@@ -1,4 +1,3 @@
-
 // src/components/header.tsx
 'use client';
 
@@ -28,7 +27,6 @@ import { ScrollArea } from './ui/scroll-area';
 
 const navLinks = [
   { href: '/', labelKey: 'dashboard' },
-  { href: '/route-check', labelKey: 'routeCheck' },
   { href: '/support', labelKey: 'support' },
 ];
 

@@ -38,11 +38,6 @@ export default function DashboardPage() {
       href: "/accommodations",
       icon: Hotel,
     },
-    {
-      key: "routeCheck",
-      href: "/route-check",
-      icon: Map,
-    },
   ];
 
   return (
