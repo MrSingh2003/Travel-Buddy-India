@@ -1,3 +1,4 @@
+
 // src/app/route-check/page.tsx
 'use client';
 
@@ -11,7 +12,7 @@ import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Map, Loader2, Route, Pin, X } from 'lucide-react';
+import { Map, Loader2, Route, Pin, X, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 
@@ -108,13 +109,19 @@ export default function RouteCheckPage() {
           <div className="space-y-2">
             <Label htmlFor='origin'>Origin</Label>
             <Autocomplete>
-              <Input type="text" placeholder="Enter starting location" ref={originRef} id="origin" />
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input type="text" placeholder="Search for a starting location..." ref={originRef} id="origin" className="pl-10" />
+              </div>
             </Autocomplete>
           </div>
           <div className="space-y-2">
             <Label htmlFor='destination'>Destination</Label>
             <Autocomplete>
-              <Input type="text" placeholder="Enter destination" ref={destinationRef} id="destination" />
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input type="text" placeholder="Search for a destination..." ref={destinationRef} id="destination" className="pl-10" />
+              </div>
             </Autocomplete>
           </div>
           <div className="flex gap-2">
