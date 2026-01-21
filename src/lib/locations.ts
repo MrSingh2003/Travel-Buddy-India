@@ -186,12 +186,17 @@ export const cities = [
   { name: "Allahabad", state: "Uttar Pradesh" },
   { name: "Kanpur", state: "Uttar Pradesh" },
   { name: "Mathura", state: "Uttar Pradesh" },
+  { name: "Meerut", state: "Uttar Pradesh" },
+  { name: "Ghaziabad", state: "Uttar Pradesh" },
+  { name: "Noida", state: "Uttar Pradesh" },
+  { name: "Muzaffarnagar", state: "Uttar Pradesh" },
   // Uttarakhand
   { name: "Dehradun", state: "Uttarakhand" },
   { name: "Rishikesh", state: "Uttarakhand" },
   { name: "Haridwar", state: "Uttarakhand" },
   { name: "Nainital", state: "Uttarakhand" },
   { name: "Mussoorie", state: "Uttarakhand" },
+  { name: "Roorkee", state: "Uttarakhand" },
   // West Bengal
   { name: "Kolkata", state: "West Bengal" },
   { name: "Darjeeling", state: "West Bengal" },
