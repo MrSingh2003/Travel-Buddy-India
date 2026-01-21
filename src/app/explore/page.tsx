@@ -5,10 +5,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, MapPin, Search, Star, Building, Utensils } from "lucide-react";
+import { Loader2, MapPin, Search, Star, Building, Utensils, Sparkles } from "lucide-react";
 import Image from "next/image";
 
-// import { searchPlaces } from "@/ai/flows/search-places";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,6 +22,7 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
 type Place = {
   position?: number;
   title?: string;
@@ -34,8 +34,14 @@ type Place = {
   place_id?: string;
 };
 
+type InspirationalImage = {
+    title: string;
+    dataUri: string;
+};
+
 export default function ExplorePage() {
   const [places, setPlaces] = useState<Place[]>([]);
+  const [inspirationalImage, setInspirationalImage] = useState<InspirationalImage | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,16 +56,36 @@ export default function ExplorePage() {
   async function onSubmit(values: FormValues) {
     setIsLoading(true);
     setPlaces([]);
+    setInspirationalImage(null);
     setError(null);
+
     try {
-      const res = await fetch('/api/explore', {
+      // Fire off both requests in parallel
+      const placesPromise = fetch('/api/explore', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values),
-      })
-      if (!res.ok) throw new Error('Search failed')
-      const result = await res.json()
-      setPlaces(result.places)
+      }).then(res => {
+        if (!res.ok) throw new Error('Search failed');
+        return res.json();
+      });
+
+      const inspirePromise = fetch('/api/inspire', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+      }).then(res => {
+        if (!res.ok) return null; // Don't throw, image is optional
+        return res.json();
+      });
+
+      const [placesResult, inspireResult] = await Promise.all([placesPromise, inspirePromise]);
+      
+      setPlaces(placesResult.places);
+      if(inspireResult) {
+        setInspirationalImage(inspireResult);
+      }
+
     } catch (e) {
       console.error(e);
       setError("Sorry, we couldn't find any places at this time. Please try again later.");
@@ -77,6 +103,46 @@ export default function ExplorePage() {
         return <Building className="h-4 w-4" />;
     }
     return <MapPin className="h-4 w-4" />;
+  }
+
+  const InspirationalImageDisplay = ({ image, isLoading }: { image: InspirationalImage | null, isLoading: boolean}) => {
+    if (!isLoading && !image) return null;
+
+    if (isLoading && !image) {
+       return (
+         <Card className="overflow-hidden animate-pulse">
+            <div className="h-64 w-full bg-muted flex items-center justify-center">
+                <div className="text-center text-muted-foreground space-y-2">
+                    <Sparkles className="mx-auto h-8 w-8"/>
+                    <p>Generating an inspirational image for you...</p>
+                </div>
+            </div>
+         </Card>
+       )
+    }
+
+    if (image) {
+        return (
+            <Card className="overflow-hidden border-0 shadow-xl w-full">
+                <div className="relative h-64 w-full">
+                <Image
+                    src={image.dataUri}
+                    alt={image.title}
+                    fill
+                    className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <div className="absolute bottom-0 left-0 p-6">
+                    <h2 className="text-2xl md:text-3xl font-bold font-headline text-white drop-shadow-lg">
+                        {image.title}
+                    </h2>
+                </div>
+                </div>
+            </Card>
+        )
+    }
+    
+    return null;
   }
 
   return (
@@ -139,8 +205,10 @@ export default function ExplorePage() {
           </Form>
         </CardContent>
       </Card>
+      
+      <InspirationalImageDisplay image={inspirationalImage} isLoading={isLoading}/>
 
-      {isLoading && (
+      {isLoading && places.length === 0 && (
          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {[...Array(8)].map((_, i) => (
                 <Card key={i} className="animate-pulse">

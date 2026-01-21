@@ -6,3 +6,4 @@ import '@/ai/flows/answer-travel-questions-with-chatbot.ts';
 import '@/ai/flows/book-transport.ts';
 import '@/ai/flows/search-places.ts';
 import '@/ai/flows/generate-avatar.ts';
+import '@/ai/flows/generate-inspirational-image.ts';
