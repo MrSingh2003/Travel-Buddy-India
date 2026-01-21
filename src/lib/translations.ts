@@ -1,3 +1,4 @@
+
 // src/lib/translations.ts
 
 export type LanguageCode = 'en' | 'hi' | 'bn' | 'gu' | 'kn' | 'ml' | 'mr' | 'pa' | 'ta' | 'te';
@@ -17,6 +18,7 @@ export const translations: Translations = {
       localTransport: 'Local Transport',
       accommodations: 'Accommodations',
       support: 'Support',
+      routePlanner: 'Route Planner',
     },
     selectLanguage: 'Select Language',
     searchLanguage: 'Search language...',
@@ -42,6 +44,10 @@ export const translations: Translations = {
         title: 'Budget-Friendly Stays',
         description: 'Discover and compare hotels & dharamshalas that fit your budget.',
       },
+      routePlanner: {
+        title: 'Interactive Route Planner',
+        description: 'Visualize your travel path, get driving directions, and estimate travel times with our interactive map.',
+      },
     },
     tripPlanner: {
       title: 'AI-Powered Trip Assistant',
@@ -63,6 +69,21 @@ export const translations: Translations = {
       generatedTripPlaceholder: 'Your generated decision-support plan will appear here.',
       generationError: "Sorry, we couldn't generate your trip at this time. Please try again later.",
       searchLocation: 'Search location...',
+    },
+    routePlanner: {
+      title: 'Plan Your Driving Route',
+      description: 'Find the best route for your journey and get an estimate of distance and time.',
+      originPlaceholder: 'Search for a starting point...',
+      destinationPlaceholder: 'Search for a destination...',
+      calculateButton: 'Calculate Route',
+      clearButton: 'Clear',
+      error: {
+        missingFields: 'Please enter both an origin and a destination.',
+        noRoute: 'Could not find a route. Please check your locations and try again.',
+        mapLoadTitle: 'Map Error',
+        mapLoadDescription: 'Google Maps could not be loaded. Please check your API key and network connection.',
+        title: 'Error'
+      }
     }
   },
   hi: {
@@ -73,6 +94,7 @@ export const translations: Translations = {
       localTransport: 'स्थानीय परिवहन',
       accommodations: 'आवास',
       support: 'सहायता',
+      routePlanner: 'मार्ग योजनाकार',
     },
     selectLanguage: 'भाषा चुनें',
     searchLanguage: 'भाषा खोजें...',
@@ -98,6 +120,10 @@ export const translations: Translations = {
         title: 'बजट-अनुकूल प्रवास',
         description: 'अपने बजट में फिट होने वाले होटल और धर्मशालाएं खोजें और तुलना करें।',
       },
+      routePlanner: {
+        title: 'इंटरैक्टिव मार्ग योजनाकार',
+        description: 'हमारे इंटरैक्टिव मानचित्र के साथ अपनी यात्रा का मार्ग देखें, ड्राइविंग दिशा-निर्देश प्राप्त करें, और यात्रा के समय का अनुमान लगाएं।',
+      },
     },
     tripPlanner: {
       title: 'एआई-संचालित यात्रा सहायक',
@@ -119,6 +145,21 @@ export const translations: Translations = {
       generatedTripPlaceholder: 'आपकी उत्पन्न निर्णय-समर्थन योजना यहाँ दिखाई देगी।',
       generationError: 'क्षमा करें, हम इस समय आपकी यात्रा उत्पन्न नहीं कर सके। कृपया बाद में पुन: प्रयास करें।',
       searchLocation: 'स्थान खोजें...',
+    },
+    routePlanner: {
+      title: 'अपना ड्राइविंग मार्ग नियोजित करें',
+      description: 'अपनी यात्रा के लिए सर्वोत्तम मार्ग खोजें और दूरी और समय का अनुमान प्राप्त करें।',
+      originPlaceholder: 'एक प्रारंभिक बिंदु खोजें...',
+      destinationPlaceholder: 'एक गंतव्य खोजें...',
+      calculateButton: 'मार्ग की गणना करें',
+      clearButton: 'साफ़ करें',
+      error: {
+        missingFields: 'कृपया मूल और गंतव्य दोनों दर्ज करें।',
+        noRoute: 'कोई मार्ग नहीं मिला। कृपया अपने स्थान जांचें और पुनः प्रयास करें।',
+        mapLoadTitle: 'मानचित्र त्रुटि',
+        mapLoadDescription: 'Google मानचित्र लोड नहीं हो सका। कृपया अपनी API कुंजी और नेटवर्क कनेक्शन जांचें।',
+        title: 'त्रुटि'
+      }
     }
   },
   // Add other languages here...
@@ -130,6 +171,7 @@ export const translations: Translations = {
         explore: 'অন্বেষণ',
         localTransport: 'স্থানীয় পরিবহন',
         accommodations: 'থাকার ব্যবস্থা',
+        routePlanner: 'রুট প্ল্যানার',
     },
     selectLanguage: 'ভাষা নির্বাচন করুন',
     searchLanguage: 'ভাষা অনুসন্ধান করুন...',
@@ -143,6 +185,7 @@ export const translations: Translations = {
         explore: { title: 'পছন্দ-সচেতন অনুসন্ধান', description: 'আপনার আগ্রহ এবং ভ্রমণ শৈলীর সাথে মেলে এমন জায়গাগুলি আবিষ্কার করুন, শুধু জনপ্রিয় স্থান নয়।' },
         localTransport: { title: 'অনুকূলিত পরিবহন', description: 'স্বচ্ছ মূল্য সহ যাচাইকৃত স্থানীয় ক্যাব, বাস এবং ট্রেন খুঁজুন এবং তুলনা করুন।' },
         accommodations: { title: 'বাজেট-বান্ধব আবাসন', description: 'আপনার বাজেটের সাথে মানানসই হোটেল এবং ধর্মশালা আবিষ্কার করুন এবং তুলনা করুন।' },
+        routePlanner: { title: 'ইন্টারেক্টিভ রুট প্ল্যানার', description: 'আমাদের ইন্টারেক্টিভ ম্যাপ দিয়ে আপনার ভ্রমণের পথ কল্পনা করুন, ড্রাইভিং নির্দেশনা পান এবং ভ্রমণের সময় অনুমান করুন।' },
     },
     tripPlanner: {
       title: 'AI-চালিত ট্রিপ সহকারী',
@@ -164,6 +207,21 @@ export const translations: Translations = {
       generatedTripPlaceholder: 'আপনার জেনারেট করা সিদ্ধান্ত-সহায়তা পরিকল্পনা এখানে প্রদর্শিত হবে।',
       generationError: 'দুঃখিত, আমরা এই মুহূর্তে আপনার ট্রিপ জেনারেট করতে পারিনি। অনুগ্রহ করে পরে আবার চেষ্টা করুন।',
       searchLocation: 'অবস্থান অনুসন্ধান করুন...',
+    },
+    routePlanner: {
+      title: 'আপনার ড্রাইভিং রুট পরিকল্পনা করুন',
+      description: 'আপনার ভ্রমণের জন্য সেরা রুট খুঁজুন এবং দূরত্ব ও সময়ের অনুমান পান।',
+      originPlaceholder: 'একটি প্রারম্ভিক বিন্দু খুঁজুন...',
+      destinationPlaceholder: 'একটি গন্তব্য খুঁজুন...',
+      calculateButton: 'রুট গণনা করুন',
+      clearButton: 'পরিষ্কার করুন',
+      error: {
+        missingFields: 'অনুগ্রহ করে একটি উৎস এবং একটি গন্তব্য উভয়ই লিখুন।',
+        noRoute: 'কোনো রুট পাওয়া যায়নি। অনুগ্রহ করে আপনার অবস্থানগুলি পরীক্ষা করে আবার চেষ্টা করুন।',
+        mapLoadTitle: 'ম্যাপ ত্রুটি',
+        mapLoadDescription: 'গুগল ম্যাপ লোড করা যায়নি। অনুগ্রহ করে আপনার API কী এবং নেটওয়ার্ক সংযোগ পরীক্ষা করুন।',
+        title: 'ত্রুটি'
+      }
     }
   },
   gu: {
@@ -174,6 +232,7 @@ export const translations: Translations = {
         explore: 'અન્વેષણ',
         localTransport: 'સ્થાનિક પરિવહન',
         accommodations: 'રહેઠાણ',
+        routePlanner: 'રૂટ પ્લાનર',
     },
     selectLanguage: 'ભાષા પસંદ કરો',
     searchLanguage: 'ભાષા શોધો...',
@@ -187,6 +246,7 @@ export const translations: Translations = {
         explore: { title: 'પસંદગી-જાગૃત શોધ', description: 'ફક્ત લોકપ્રિય સ્થળો જ નહીં, તમારી રુચિઓ અને પ્રવાસ શૈલી સાથે મેળ ખાતા સ્થળો શોધો.' },
         localTransport: { title: 'ઑપ્ટિમાઇઝ્ડ પરિવહન', description: 'સ્પષ્ટ ભાવો સાથે ચકાસાયેલ સ્થાનિક કેબ, બસો અને ટ્રેનો શોધો અને સરખામણી કરો.' },
         accommodations: { title: 'બજેટ-ફ્રેંડલી નિવાસ', description: 'તમારા બજેટમાં બંધબેસતા હોટેલ્સ અને ધર્મશાળાઓ શોધો અને સરખામણી કરો.' },
+        routePlanner: { title: 'ઇન્ટરેક્ટિવ રૂટ પ્લાનર', description: 'અમારી ઇન્ટરેક્ટિવ નકશા સાથે તમારી મુસાફરીનો માર્ગ જુઓ, ડ્રાઇવિંગ દિશાઓ મેળવો અને મુસાફરીના સમયનો અંદાજ કાઢો.' },
     },
     tripPlanner: {
       title: 'AI-સંચાલિત ટ્રિપ સહાયક',
@@ -208,6 +268,21 @@ export const translations: Translations = {
       generatedTripPlaceholder: 'તમારી જનરેટ થયેલ નિર્ણય-સહાય યોજના અહીં દેખાશે.',
       generationError: 'માફ કરશો, અમે આ સમયે તમારી ટ્રિપ જનરેટ કરી શક્યા નથી. કૃપા કરીને પછીથી ફરી પ્રયાસ કરો.',
       searchLocation: 'સ્થાન શોધો...',
+    },
+    routePlanner: {
+      title: 'તમારો ડ્રાઇવિંગ રૂટ પ્લાન કરો',
+      description: 'તમારી મુસાફરી માટે શ્રેષ્ઠ માર્ગ શોધો અને અંતર અને સમયનો અંદાજ મેળવો.',
+      originPlaceholder: 'શરૂઆતી બિંદુ શોધો...',
+      destinationPlaceholder: 'ગંતવ્ય શોધો...',
+      calculateButton: 'રૂટની ગણતરી કરો',
+      clearButton: 'સાફ કરો',
+      error: {
+        missingFields: 'કૃપા કરીને મૂળ અને ગંતવ્ય બંને દાખલ કરો.',
+        noRoute: 'કોઈ માર્ગ મળ્યો નથી. કૃપા કરીને તમારા સ્થાનો તપાસો અને ફરીથી પ્રયાસ કરો.',
+        mapLoadTitle: 'નકશાની ભૂલ',
+        mapLoadDescription: 'Google નકશો લોડ કરી શકાયો નથી. કૃપા કરીને તમારી API કી અને નેટવર્ક કનેક્શન તપાસો.',
+        title: 'ભૂલ'
+      }
     }
   },
   kn: {
@@ -218,6 +293,7 @@ export const translations: Translations = {
         explore: 'ಅನ್ವೇಷಿಸಿ',
         localTransport: 'ಸ್ಥಳೀಯ ಸಾರಿಗೆ',
         accommodations: 'ವಸತಿ',
+        routePlanner: 'ಮಾರ್ಗ ಯೋಜಕ',
     },
     selectLanguage: 'ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ',
     searchLanguage: 'ಭಾಷೆ ಹುಡುಕಿ...',
@@ -231,6 +307,7 @@ export const translations: Translations = {
         explore: { title: 'ಆದ್ಯತೆ-ಅರಿವಿನ ಹುಡುಕಾಟ', description: 'ಕೇವಲ ಜನಪ್ರಿಯ ಸ್ಥಳಗಳಲ್ಲ, ನಿಮ್ಮ ಆಸಕ್ತಿಗಳು ಮತ್ತು ಪ್ರಯಾಣ ಶೈಲಿಗೆ ಹೊಂದುವ ಸ್ಥಳಗಳನ್ನು ಅನ್ವೇಷಿಸಿ.' },
         localTransport: { title: 'ಆಪ್ಟಿಮೈಸ್ಡ್ ಸಾರಿಗೆ', description: 'ಸ್ಪಷ್ಟ ಬೆಲೆಗಳೊಂದಿಗೆ ಪರಿಶೀಲಿಸಿದ ಸ್ಥಳೀಯ ಕ್ಯಾಬ್‌ಗಳು, ಬಸ್‌ಗಳು ಮತ್ತು ರೈಲುಗಳನ್ನು ಹುಡುಕಿ ಮತ್ತು ಹೋಲಿಕೆ ಮಾಡಿ.' },
         accommodations: { title: 'ಬಜೆಟ್-ಸ್ನೇಹಿ ವಸತಿಗಳು', description: 'ನಿಮ್ಮ ಬಜೆಟ್‌ಗೆ ಸರಿಹೊಂದುವ ಹೋಟೆಲ್‌ಗಳು ಮತ್ತು ಧರ್ಮಶಾಲೆಗಳನ್ನು ಅನ್ವೇಷಿಸಿ ಮತ್ತು ಹೋಲಿಕೆ ಮಾಡಿ.' },
+        routePlanner: { title: 'ಸಂವಾದಾತ್ಮಕ ಮಾರ್ಗ ಯೋಜಕ', description: 'ನಮ್ಮ ಸಂವಾದಾತ್ಮಕ ನಕ್ಷೆಯೊಂದಿಗೆ ನಿಮ್ಮ ಪ್ರಯಾಣದ ಮಾರ್ಗವನ್ನು ದೃಶ್ಯೀಕರಿಸಿ, ಚಾಲನಾ ನಿರ್ದೇಶನಗಳನ್ನು ಪಡೆಯಿರಿ ಮತ್ತು ಪ್ರಯಾಣದ ಸಮಯವನ್ನು ಅಂದಾಜು ಮಾಡಿ.' },
     },
     tripPlanner: {
       title: 'ಎಐ-ಚಾಲಿತ ಪ್ರವಾಸ ಸಹಾಯಕ',
@@ -252,6 +329,21 @@ export const translations: Translations = {
       generatedTripPlaceholder: 'ನಿಮ್ಮ ರಚಿತ ನಿರ್ಧಾರ-ಬೆಂಬಲ ಯೋಜನೆ ಇಲ್ಲಿ ಕಾಣಿಸುತ್ತದೆ.',
       generationError: 'ಕ್ಷಮಿಸಿ, ಈ ಸಮಯದಲ್ಲಿ ನಿಮ್ಮ ಪ್ರವಾಸವನ್ನು ರಚಿಸಲು ನಮಗೆ ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.',
       searchLocation: 'ಸ್ಥಳವನ್ನು ಹುಡುಕಿ...',
+    },
+    routePlanner: {
+      title: 'ನಿಮ್ಮ ಚಾಲನಾ ಮಾರ್ಗವನ್ನು ಯೋಜಿಸಿ',
+      description: 'ನಿಮ್ಮ ಪ್ರಯಾಣಕ್ಕಾಗಿ ಉತ್ತಮ ಮಾರ್ಗವನ್ನು ಹುಡುಕಿ ಮತ್ತು ದೂರ ಮತ್ತು ಸಮಯದ ಅಂದಾಜು ಪಡೆಯಿರಿ.',
+      originPlaceholder: 'ಪ್ರಾರಂಭದ ಬಿಂದುವನ್ನು ಹುಡುಕಿ...',
+      destinationPlaceholder: 'ಗಮ್ಯಸ್ಥಾನವನ್ನು ಹುಡುಕಿ...',
+      calculateButton: 'ಮಾರ್ಗವನ್ನು ಲೆಕ್ಕಹಾಕಿ',
+      clearButton: 'ತೆರವುಗೊಳಿಸಿ',
+      error: {
+        missingFields: 'ದಯವಿಟ್ಟು ಮೂಲ ಮತ್ತು ಗಮ್ಯಸ್ಥಾನ ಎರಡನ್ನೂ ನಮೂದಿಸಿ.',
+        noRoute: 'ಯಾವುದೇ ಮಾರ್ಗ ಕಂಡುಬಂದಿಲ್ಲ. ದಯವಿಟ್ಟು ನಿಮ್ಮ ಸ್ಥಳಗಳನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.',
+        mapLoadTitle: 'ನಕ್ಷೆ ದೋಷ',
+        mapLoadDescription: 'Google ನಕ್ಷೆಗಳನ್ನು ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ನಿಮ್ಮ API ಕೀ ಮತ್ತು ನೆಟ್‌ವರ್ಕ್ ಸಂಪರ್ಕವನ್ನು ಪರಿಶೀಲಿಸಿ.',
+        title: 'ದೋಷ'
+      }
     }
   },
   ml: {
@@ -262,6 +354,7 @@ export const translations: Translations = {
         explore: 'കണ്ടെത്തുക',
         localTransport: 'പ്രാദേശിക ഗതാഗതം',
         accommodations: 'താമസ സൗകര്യങ്ങൾ',
+        routePlanner: 'റൂട്ട് പ്ലാനർ',
     },
     selectLanguage: 'ഭാഷ തിരഞ്ഞെടുക്കുക',
     searchLanguage: 'ഭാഷ തിരയുക...',
@@ -275,6 +368,7 @@ export const translations: Translations = {
         explore: { title: 'മുൻഗണന-അധിഷ്ഠിത തിരയൽ', description: 'ജനപ്രിയ സ്ഥലങ്ങൾ മാത്രമല്ല, നിങ്ങളുടെ താൽപ്പര്യങ്ങൾക്കും യാത്രാ ശൈലിക്കും അനുയോജ്യമായ സ്ഥലങ്ങൾ കണ്ടെത്തുക.' },
         localTransport: { title: 'ഒപ്റ്റിമൈസ് ചെയ്ത ഗതാഗതം', description: 'വ്യക്തമായ വിലനിർണ്ണയത്തോടെ പരിശോധിച്ചുറപ്പിച്ച പ്രാദേശിക ക്യാബുകൾ, ബസുകൾ, ട്രെയിനുകൾ എന്നിവ കണ്ടെത്തുകയും താരതമ്യം ചെയ്യുകയും ചെയ്യുക.' },
         accommodations: { title: 'ബജറ്റ്-സൗഹൃദ താമസങ്ങൾ', description: 'നിങ്ങളുടെ ബജറ്റിന് അനുയോജ്യമായ ഹോട്ടലുകളും ധർമ്മശാലകളും കണ്ടെത്തുകയും താരതമ്യം ചെയ്യുകയും ചെയ്യുക.' },
+        routePlanner: { title: 'ഇന്ററാക്ടീവ് റൂട്ട് പ്ലാനർ', description: 'ഞങ്ങളുടെ ഇന്ററാക്ടീവ് മാപ്പ് ഉപയോഗിച്ച് നിങ്ങളുടെ യാത്രാ പാത ദൃശ്യവൽക്കരിക്കുക, ഡ്രൈവിംഗ് ദിശകൾ നേടുക, യാത്രാ സമയം കണക്കാക്കുക.' },
     },
     tripPlanner: {
       title: 'AI-പവർഡ് ട്രിപ്പ് അസിസ്റ്റന്റ്',
@@ -296,6 +390,21 @@ export const translations: Translations = {
       generatedTripPlaceholder: 'നിങ്ങൾ സൃഷ്ടിച്ച തീരുമാന-പിന്തുണ പ്ലാൻ ഇവിടെ ദൃശ്യമാകും.',
       generationError: 'ക്ഷമിക്കണം, ഈ സമയം നിങ്ങളുടെ യാത്ര സൃഷ്ടിക്കാൻ ഞങ്ങൾക്ക് കഴിഞ്ഞില്ല. ദയവായി പിന്നീട് വീണ്ടും ശ്രമിക്കുക.',
       searchLocation: 'സ്ഥലം തിരയുക...',
+    },
+    routePlanner: {
+      title: 'നിങ്ങളുടെ ഡ്രൈവിംഗ് റൂട്ട് ആസൂത്രണം ചെയ്യുക',
+      description: 'നിങ്ങളുടെ യാത്രയ്ക്കുള്ള മികച്ച റൂട്ട് കണ്ടെത്തുകയും ദൂരവും സമയവും കണക്കാക്കുകയും ചെയ്യുക.',
+      originPlaceholder: 'ഒരു ആരംഭ പോയിന്റ് തിരയുക...',
+      destinationPlaceholder: 'ഒരു ലക്ഷ്യസ്ഥാനം തിരയുക...',
+      calculateButton: 'റൂട്ട് കണക്കാക്കുക',
+      clearButton: 'മായ്ക്കുക',
+      error: {
+        missingFields: 'ദയവായി ഒരു ഉത്ഭവവും ലക്ഷ്യസ്ഥാനവും നൽകുക.',
+        noRoute: 'റൂട്ട് കണ്ടെത്താനായില്ല. ദയവായി നിങ്ങളുടെ ലൊക്കേഷനുകൾ പരിശോധിച്ച് വീണ്ടും ശ്രമിക്കുക.',
+        mapLoadTitle: 'മാപ്പ് പിശക്',
+        mapLoadDescription: 'Google മാപ്‌സ് ലോഡുചെയ്യാൻ കഴിഞ്ഞില്ല. ദയവായി നിങ്ങളുടെ API കീയും നെറ്റ്‌വർക്ക് കണക്ഷനും പരിശോധിക്കുക.',
+        title: 'പിശക്'
+      }
     }
   },
   mr: {
@@ -306,6 +415,7 @@ export const translations: Translations = {
         explore: 'शोधा',
         localTransport: 'स्थानिक वाहतूक',
         accommodations: 'निवास',
+        routePlanner: 'मार्ग नियोजक',
     },
     selectLanguage: 'भाषा निवडा',
     searchLanguage: 'भाषा शोधा...',
@@ -319,6 +429,7 @@ export const translations: Translations = {
         explore: { title: 'पसंती-जागरूक शोध', description: 'केवळ लोकप्रिय ठिकाणेच नव्हे, तर तुमच्या आवडी आणि प्रवास शैलीशी जुळणारी ठिकाणे शोधा.' },
         localTransport: { title: 'ऑप्टिमाइझ केलेली वाहतूक', description: 'स्पष्ट किंमतींसह सत्यापित स्थानिक कॅब, बस आणि ट्रेन शोधा आणि त्यांची तुलना करा.' },
         accommodations: { title: 'बजेट-फ्रेंडली निवास', description: 'तुमच्या बजेटमध्ये बसणारी हॉटेल्स आणि धर्मशाळा शोधा आणि त्यांची तुलना करा.' },
+        routePlanner: { title: 'परस्परसंवादी मार्ग नियोजक', description: 'आमच्या परस्परसंवादी नकाशासह तुमच्या प्रवासाचा मार्ग दृष्य करा, ड्रायव्हिंग दिशानिर्देश मिळवा आणि प्रवासाच्या वेळेचा अंदाज घ्या.' },
     },
     tripPlanner: {
       title: 'AI-शक्तीवर चालणारे ट्रिप सहाय्यक',
@@ -340,6 +451,21 @@ export const translations: Translations = {
       generatedTripPlaceholder: 'तुमची तयार केलेली निर्णय-समर्थन योजना येथे दिसेल.',
       generationError: 'क्षमस्व, आम्ही यावेळी तुमची सहल तयार करू शकलो नाही. कृपया नंतर पुन्हा प्रयत्न करा.',
       searchLocation: 'स्थान शोधा...',
+    },
+    routePlanner: {
+      title: 'तुमचा ड्रायव्हिंग मार्ग योजना करा',
+      description: 'तुमच्या प्रवासासाठी सर्वोत्तम मार्ग शोधा आणि अंतर आणि वेळेचा अंदाज मिळवा.',
+      originPlaceholder: 'सुरुवातीचे ठिकाण शोधा...',
+      destinationPlaceholder: 'गंतव्य शोधा...',
+      calculateButton: 'मार्ग गणना करा',
+      clearButton: 'स्वच्छ करा',
+      error: {
+        missingFields: 'कृपया मूळ आणि गंतव्य दोन्ही प्रविष्ट करा.',
+        noRoute: 'कोणताही मार्ग सापडला नाही. कृपया तुमची ठिकाणे तपासा आणि पुन्हा प्रयत्न करा.',
+        mapLoadTitle: 'नकाशा त्रुटी',
+        mapLoadDescription: 'Google नकाशे लोड होऊ शकले नाहीत. कृपया तुमची API की आणि नेटवर्क कनेक्शन तपासा.',
+        title: 'त्रुटी'
+      }
     }
   },
   pa: {
@@ -350,6 +476,7 @@ export const translations: Translations = {
         explore: 'ਪੜਚੋਲ',
         localTransport: 'ਸਥਾਨਕ ਆਵਾਜਾਈ',
         accommodations: 'ਰਿਹਾਇਸ਼',
+        routePlanner: 'ਰੂਟ ਪਲੈਨਰ',
     },
     selectLanguage: 'ਭਾਸ਼ਾ ਚੁਣੋ',
     searchLanguage: 'ਭਾਸ਼ਾ ਖੋਜੋ...',
@@ -363,6 +490,7 @@ export const translations: Translations = {
         explore: { title: 'ਤਰਜੀਹ-ਜਾਗਰੂਕ ਖੋਜ', description: 'ਸਿਰਫ਼ ਪ੍ਰਸਿੱਧ ਥਾਵਾਂ ਹੀ ਨਹੀਂ, ਸਗੋਂ ਤੁਹਾਡੀਆਂ ਰੁਚੀਆਂ ਅਤੇ ਯਾਤਰਾ ਸ਼ੈਲੀ ਨਾਲ ਮੇਲ ਖਾਂਦੀਆਂ ਥਾਵਾਂ ਦੀ ਖੋਜ ਕਰੋ।' },
         localTransport: { title: 'ਅਨੁਕੂਲਿਤ ਆਵਾਜਾਈ', description: 'ਸਪਸ਼ਟ ਕੀਮਤਾਂ ਨਾਲ ਪ੍ਰਮਾਣਿਤ ਸਥਾਨਕ ਕੈਬ, ਬੱਸਾਂ ਅਤੇ ਰੇਲ ਗੱਡੀਆਂ ਲੱਭੋ ਅਤੇ ਤੁਲਨਾ ਕਰੋ।' },
         accommodations: { title: 'ਬਜਟ-ਅਨੁਕੂਲ ਰਿਹਾਇਸ਼', description: 'ਤੁਹਾਡੇ ਬਜਟ ਵਿੱਚ ਫਿੱਟ ਹੋਣ ਵਾਲੇ ਹੋਟਲ ਅਤੇ ਧਰਮਸ਼ਾਲਾ ਲੱਭੋ ਅਤੇ ਤੁਲਨਾ ਕਰੋ।' },
+        routePlanner: { title: 'ਇੰਟਰਐਕਟਿਵ ਰੂਟ ਪਲੈਨਰ', description: 'ਸਾਡੇ ਇੰਟਰਐਕਟਿਵ ਨਕਸ਼ੇ ਨਾਲ ਆਪਣੇ ਯਾਤਰਾ ਮਾਰਗ ਦੀ ਕਲਪਨਾ ਕਰੋ, ਡਰਾਈਵਿੰਗ ਦਿਸ਼ਾ-ਨਿਰਦੇਸ਼ ਪ੍ਰਾਪਤ ਕਰੋ, ਅਤੇ ਯਾਤਰਾ ਦੇ ਸਮੇਂ ਦਾ ਅੰਦਾਜ਼ਾ ਲਗਾਓ।' },
     },
     tripPlanner: {
       title: 'ਏਆਈ-ਸੰਚਾਲਿਤ ਯਾਤਰਾ ਸਹਾਇਕ',
@@ -384,6 +512,21 @@ export const translations: Translations = {
       generatedTripPlaceholder: 'ਤੁਹਾਡੀ ਤਿਆਰ ਕੀਤੀ ਫੈਸਲਾ-ਸਹਾਇਤਾ ਯੋਜਨਾ ਇੱਥੇ ਦਿਖਾਈ ਦੇਵੇਗੀ।',
       generationError: 'ਮੁਆਫ ਕਰਨਾ, ਅਸੀਂ ਇਸ ਸਮੇਂ ਤੁਹਾਡੀ ਯਾਤਰਾ ਤਿਆਰ ਨਹੀਂ ਕਰ ਸਕੇ। ਕਿਰਪਾ ਕਰਕੇ ਬਾਅਦ ਵਿੱਚ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
       searchLocation: 'ਸਥਾਨ ਖੋਜੋ...',
+    },
+    routePlanner: {
+      title: 'ਆਪਣੇ ਡਰਾਈਵਿੰਗ ਰੂਟ ਦੀ ਯੋਜਨਾ ਬਣਾਓ',
+      description: 'ਆਪਣੀ ਯਾਤਰਾ ਲਈ ਸਭ ਤੋਂ ਵਧੀਆ ਰਸਤਾ ਲੱਭੋ ਅਤੇ ਦੂਰੀ ਅਤੇ ਸਮੇਂ ਦਾ ਅਨੁਮਾਨ ਪ੍ਰਾਪਤ ਕਰੋ।',
+      originPlaceholder: 'ਇੱਕ ਸ਼ੁਰੂਆਤੀ ਬਿੰਦੂ ਦੀ ਖੋਜ ਕਰੋ...',
+      destinationPlaceholder: 'ਇੱਕ ਮੰਜ਼ਿਲ ਦੀ ਖੋਜ ਕਰੋ...',
+      calculateButton: 'ਰੂਟ ਦੀ ਗਣਨਾ ਕਰੋ',
+      clearButton: 'ਸਾਫ਼ ਕਰੋ',
+      error: {
+        missingFields: 'ਕਿਰਪਾ ਕਰਕੇ ਇੱਕ ਮੂਲ ਅਤੇ ਇੱਕ ਮੰਜ਼ਿਲ ਦੋਵੇਂ ਦਾਖਲ ਕਰੋ।',
+        noRoute: 'ਕੋਈ ਰਸਤਾ ਨਹੀਂ ਮਿਲਿਆ। ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੇ ਸਥਾਨਾਂ ਦੀ ਜਾਂਚ ਕਰੋ ਅਤੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
+        mapLoadTitle: 'ਨਕਸ਼ਾ ਗਲਤੀ',
+        mapLoadDescription: 'ਗੂਗਲ ਨਕਸ਼ੇ ਲੋਡ ਨਹੀਂ ਕੀਤੇ ਜਾ ਸਕੇ। ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੀ API ਕੁੰਜੀ ਅਤੇ ਨੈੱਟਵਰਕ ਕਨੈਕਸ਼ਨ ਦੀ ਜਾਂਚ ਕਰੋ।',
+        title: 'ਗਲਤੀ'
+      }
     }
   },
   ta: {
@@ -394,6 +537,7 @@ export const translations: Translations = {
         explore: 'ஆராயுங்கள்',
         localTransport: 'உள்ளூர் போக்குவரத்து',
         accommodations: 'தங்குமிடங்கள்',
+        routePlanner: 'பாதை திட்டமிடுபவர்',
     },
     selectLanguage: 'மொழியை தேர்ந்தெடு',
     searchLanguage: 'மொழியைத் தேடு...',
@@ -407,6 +551,7 @@ export const translations: Translations = {
         explore: { title: 'விருப்பம்-விழிப்புணர்வு தேடல்', description: 'பிரபலமான இடங்கள் மட்டுமல்ல, உங்கள் ஆர்வங்கள் மற்றும் பயண பாணியுடன் பொருந்தக்கூடிய இடங்களைக் கண்டறியவும்.' },
         localTransport: { title: 'மேம்படுத்தப்பட்ட போக்குவரத்து', description: 'தெளிவான விலைகளுடன் சரிபார்க்கப்பட்ட உள்ளூர் வண்டிகள், பேருந்துகள் மற்றும் ரயில்களைக் கண்டுபிடித்து ஒப்பிடவும்.' },
         accommodations: { title: 'பட்ஜெட்-நட்பு தங்குமிடங்கள்', description: 'உங்கள் பட்ஜெட்டுக்கு ஏற்ற ஹோட்டல்கள் மற்றும் தர்மசாலாக்களைக் கண்டுபிடித்து ஒப்பிடவும்.' },
+        routePlanner: { title: 'ஊடாடும் பாதை திட்டமிடுபவர்', description: 'எங்கள் ஊடாடும் வரைபடத்துடன் உங்கள் பயணப் பாதையைப் பார்க்கவும், ஓட்டுநர் திசைகளைப் பெறவும், பயண நேரங்களைக் கணக்கிடவும்.' },
     },
     tripPlanner: {
       title: 'AI-இயங்கும் பயண உதவியாளர்',
@@ -428,6 +573,21 @@ export const translations: Translations = {
       generatedTripPlaceholder: 'உங்களால் உருவாக்கப்பட்ட முடிவு-ஆதரவுத் திட்டம் இங்கே தோன்றும்.',
       generationError: 'மன்னிக்கவும், இந்த நேரத்தில் உங்கள் பயணத்தை எங்களால் உருவாக்க முடியவில்லை. தயவுசெய்து பின்னர் மீண்டும் முயற்சிக்கவும்.',
       searchLocation: 'இடத்தைத் தேடுங்கள்...',
+    },
+    routePlanner: {
+      title: 'உங்கள் ஓட்டுநர் வழியைத் திட்டமிடுங்கள்',
+      description: 'உங்கள் பயணத்திற்கான சிறந்த வழியைக் கண்டுபிடித்து, தூரம் மற்றும் நேரத்தின் மதிப்பீட்டைப் பெறுங்கள்.',
+      originPlaceholder: 'ஒரு தொடக்க புள்ளியைத் தேடுங்கள்...',
+      destinationPlaceholder: 'ஒரு இலக்கைத் தேடுங்கள்...',
+      calculateButton: 'வழியைக் கணக்கிடு',
+      clearButton: 'அழி',
+      error: {
+        missingFields: 'தயவுசெய்து ஒரு தொடக்கத்தையும் ஒரு இலக்கையும் உள்ளிடவும்.',
+        noRoute: 'பாதை கண்டுபிடிக்க முடியவில்லை. தயவுசெய்து உங்கள் இருப்பிடங்களைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.',
+        mapLoadTitle: 'வரைபடப் பிழை',
+        mapLoadDescription: 'கூகிள் வரைபடங்களை ஏற்ற முடியவில்லை. தயவுசெய்து உங்கள் API விசை மற்றும் பிணைய இணைப்பைச் சரிபார்க்கவும்.',
+        title: 'பிழை'
+      }
     }
   },
   te: {
@@ -438,6 +598,7 @@ export const translations: Translations = {
         explore: 'అన్వేషించండి',
         localTransport: 'స్థానిక రవాణా',
         accommodations: 'వసతులు',
+        routePlanner: 'మార్గ ప్లానర్',
     },
     selectLanguage: 'భాషను ఎంచుకోండి',
     searchLanguage: 'భాషను శోధించండి...',
@@ -451,6 +612,7 @@ export const translations: Translations = {
         explore: { title: 'ప్రాధాన్యత-అవగాహన శోధన', description: 'కేవలం பிரபலமான ప్రదేశాలు మాత్రమే కాకుండా, మీ ఆసక్తులు మరియు ప్రయాణ శైలికి సరిపోయే ప్రదేశాలను కనుగొనండి.' },
         localTransport: { title: 'ఆప్టిమైజ్ చేయబడిన రవాణా', description: 'స్పష్టమైన ధరలతో ధృవీకరించబడిన స్థానిక క్యాబ్‌లు, బస్సులు మరియు రైళ్లను కనుగొని పోల్చండి.' },
         accommodations: { title: 'బడ్జెట్-స్నేహపూర్వక బసలు', description: 'మీ బడ్జెట్‌కు సరిపోయే హోటళ్ళు మరియు ధర్మశాలలను కనుగొని పోల్చండి.' },
+        routePlanner: { title: 'ఇంటరాక్టివ్ రూట్ ప్లానర్', description: 'మా ఇంటరాక్టివ్ మ్యాప్‌తో మీ ప్రయాణ మార్గాన్ని దృశ్యమానం చేయండి, డ్రైవింగ్ దిశలను పొందండి మరియు ప్రయాణ సమయాలను అంచనా వేయండి.' },
     },
     tripPlanner: {
       title: 'AI- శక్తితో కూడిన ట్రిప్ అసిస్టెంట్',
@@ -472,6 +634,21 @@ export const translations: Translations = {
       generatedTripPlaceholder: 'మీరు రూపొందించిన నిర్ణయ-మద్దతు ప్రణాళిక ఇక్కడ కనిపిస్తుంది.',
       generationError: 'క్షమించండి, మేము ఈ సమయంలో మీ యాత్రను రూపొందించలేకపోయాము. దయచేసి తర్వాత మళ్లీ ప్రయత్నించండి.',
       searchLocation: 'స్థానాన్ని శోధించండి...',
+    },
+    routePlanner: {
+      title: 'మీ డ్రైవింగ్ మార్గాన్ని ప్లాన్ చేయండి',
+      description: 'మీ ప్రయాణానికి ఉత్తమ మార్గాన్ని కనుగొని, దూరం మరియు సమయం యొక్క అంచనాను పొందండి.',
+      originPlaceholder: 'ప్రారంభ స్థానం కోసం శోధించండి...',
+      destinationPlaceholder: 'గమ్యస్థానం కోసం శోధించండి...',
+      calculateButton: 'మార్గాన్ని లెక్కించండి',
+      clearButton: 'క్లియర్ చేయండి',
+      error: {
+        missingFields: 'దయచేసి మూలం మరియు గమ్యస్థానం రెండింటినీ నమోదు చేయండి.',
+        noRoute: 'మార్గం కనుగొనబడలేదు. దయచేసి మీ స్థానాలను తనిఖీ చేసి, మళ్లీ ప్రయత్నించండి.',
+        mapLoadTitle: 'మ్యాప్ లోపం',
+        mapLoadDescription: 'Google మ్యాప్స్ లోడ్ కాలేదు. దయచేసి మీ API కీ మరియు నెట్‌వర్క్ కనెక్షన్‌ను తనిఖీ చేయండి.',
+        title: 'లోపం'
+      }
     }
   },
 };

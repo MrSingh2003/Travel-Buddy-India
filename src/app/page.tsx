@@ -1,3 +1,4 @@
+
 // src/app/page.tsx
 "use client";
 
@@ -37,6 +38,11 @@ export default function DashboardPage() {
       key: "accommodations",
       href: "/accommodations",
       icon: Hotel,
+    },
+    {
+      key: "routePlanner",
+      href: "/route-planner",
+      icon: Map,
     },
   ];
 
