@@ -1,73 +1,170 @@
 // src/app/route-check/page.tsx
-"use client";
+'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Printer, MapPinned } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+  useJsApiLoader,
+  GoogleMap,
+  DirectionsRenderer,
+  Autocomplete,
+} from '@react-google-maps/api';
+import { useRef, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Map, Loader2, Route, Pin, X } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { Label } from '@/components/ui/label';
+
+const center = { lat: 20.5937, lng: 78.9629 }; // Center of India
 
 export default function RouteCheckPage() {
-  const [isClient, setIsClient] = useState(false);
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
+    libraries: ['places'],
+  });
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const [directionsResponse, setDirectionsResponse] = useState<google.maps.DirectionsResult | null>(null);
+  const [distance, setDistance] = useState('');
+  const [duration, setDuration] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handlePrint = () => {
-    if (typeof window !== "undefined") {
-      window.print();
+  const originRef = useRef<HTMLInputElement>(null);
+  const destinationRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+
+  async function calculateRoute() {
+    if (!originRef.current?.value || !destinationRef.current?.value) {
+      toast({
+        variant: 'destructive',
+        title: 'Input Missing',
+        description: 'Please enter both an origin and a destination.',
+      });
+      return;
     }
-  };
+    
+    setIsLoading(true);
+    setDirectionsResponse(null); // Clear previous route
+    setDistance('');
+    setDuration('');
+
+    const directionsService = new google.maps.DirectionsService();
+    try {
+      const results = await directionsService.route({
+        origin: originRef.current.value,
+        destination: destinationRef.current.value,
+        travelMode: google.maps.TravelMode.DRIVING,
+      });
+      setDirectionsResponse(results);
+      if (results.routes[0] && results.routes[0].legs[0]) {
+        setDistance(results.routes[0].legs[0].distance?.text || '');
+        setDuration(results.routes[0].legs[0].duration?.text || '');
+      }
+    } catch (error) {
+      console.error('Directions request failed:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Route Not Found',
+        description: "We couldn't find a route for the locations you entered. Please check them and try again.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  function clearRoute() {
+    setDirectionsResponse(null);
+    setDistance('');
+    setDuration('');
+    if (originRef.current) originRef.current.value = '';
+    if (destinationRef.current) destinationRef.current.value = '';
+  }
+
+  if (loadError) {
+    return <div className="text-center p-8 text-destructive">Error loading maps. Please check your API key and network connection.</div>;
+  }
   
+  if (!isLoaded) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        <p className="ml-4 text-muted-foreground">Loading Map...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-4xl mx-auto">
-       <Card>
+    <div className="flex flex-col md:flex-row gap-6 h-[calc(100vh-120px)] md:h-[calc(100vh-144px)]">
+      <Card className="w-full md:w-[400px] flex flex-col">
         <CardHeader>
-          <div className="flex items-center gap-4">
-             <MapPinned className="h-8 w-8 text-primary"/>
-             <CardTitle className="font-headline text-3xl">Route Check</CardTitle>
-          </div>
-          <CardDescription className="pt-2">
-            Plan and save your routes. Navigate with confidence even in areas with poor or no internet connectivity.
+          <CardTitle className="font-headline flex items-center gap-2">
+            <Map className="h-6 w-6 text-primary" />
+            Route Planner
+          </CardTitle>
+          <CardDescription>
+            Find the best driving route between two points in India.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-            <div>
-                <h3 className="font-semibold text-lg mb-2">How to Prepare for Offline Navigation</h3>
-                <p className="text-muted-foreground">
-                    While our app doesn't have a live map, you can prepare for your trip by saving route information from services like Google Maps beforehand. We strongly recommend this for remote areas.
-                </p>
-                <ul className="list-disc list-inside text-muted-foreground mt-2 space-y-1">
-                    <li>Use your browser's "Print to PDF" function to save map images and directions.</li>
-                    <li>Take screenshots of your route on Google Maps or a similar service.</li>
-                    <li>For text directions, copy and paste them into a note-taking app on your phone.</li>
-                </ul>
-            </div>
-            <div className="border rounded-lg p-4 bg-muted/50">
-                <h4 className="font-semibold mb-2">Sample Route: Delhi to Agra</h4>
-                <div className="prose prose-sm max-w-none text-muted-foreground">
-                    <p>This is an example of text-based directions you can save for offline access.</p>
-                    <ol className="space-y-1 pl-4">
-                        <li><strong>Start:</strong> Connaught Place, New Delhi.</li>
-                        <li>Head south-east on the C-Hexagon towards India Gate.</li>
-                        <li>Take NH44 and then merge onto Yamuna Expressway towards Agra.</li>
-                        <li>Continue on Yamuna Expressway for approximately 200km.</li>
-                        <li>Take the exit towards Taj Mahal / Agra City.</li>
-                        <li>Follow local signs to the Taj Mahal East Gate parking area.</li>
-                    </ol>
+        <CardContent className="space-y-4 flex-grow">
+          <div className="space-y-2">
+            <Label htmlFor='origin'>Origin</Label>
+            <Autocomplete>
+              <Input type="text" placeholder="Enter starting location" ref={originRef} id="origin" />
+            </Autocomplete>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor='destination'>Destination</Label>
+            <Autocomplete>
+              <Input type="text" placeholder="Enter destination" ref={destinationRef} id="destination" />
+            </Autocomplete>
+          </div>
+          <div className="flex gap-2">
+            <Button onClick={calculateRoute} disabled={isLoading} className="w-full">
+              {isLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Route className="mr-2 h-4 w-4" />
+              )}
+              Calculate Route
+            </Button>
+            <Button variant="outline" onClick={clearRoute} disabled={isLoading} title="Clear Route">
+              <X className="h-4 w-4"/>
+            </Button>
+          </div>
+          {distance && duration && (
+            <Card className="bg-muted/50">
+              <CardContent className="p-4 space-y-2 text-sm">
+                <div className="flex justify-between items-center">
+                  <p className="font-semibold">Distance:</p>
+                  <p>{distance}</p>
                 </div>
-                <div className="mt-4 flex gap-2">
-                    <Button onClick={handlePrint} variant="outline" disabled={!isClient}>
-                        <Printer className="mr-2 h-4 w-4"/>
-                        Print / Save as PDF
-                    </Button>
+                 <div className="flex justify-between items-center">
+                  <p className="font-semibold">Duration:</p>
+                  <p>{duration}</p>
                 </div>
-            </div>
-            <div className="text-sm text-muted-foreground">
-                <strong>Pro Tip:</strong> Before you leave an area with Wi-Fi, open Google Maps, find your destination area, and type "ok maps" in the search bar to download the map for offline use on your phone.
-            </div>
+              </CardContent>
+            </Card>
+          )}
         </CardContent>
-       </Card>
+        <div className="p-4 text-xs text-muted-foreground border-t">
+          <Pin className="inline h-3 w-3 mr-1" />
+          Pro-tip: Use the autocomplete suggestions for more accurate results.
+        </div>
+      </Card>
+      <div className="flex-grow h-full rounded-lg overflow-hidden shadow-md border">
+        <GoogleMap
+          center={center}
+          zoom={5}
+          mapContainerStyle={{ width: '100%', height: '100%' }}
+          options={{
+            zoomControl: true,
+            streetViewControl: false,
+            mapTypeControl: false,
+            fullscreenControl: false,
+          }}
+        >
+          {directionsResponse && <DirectionsRenderer directions={directionsResponse} />}
+        </GoogleMap>
+      </div>
     </div>
   );
 }
