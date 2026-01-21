@@ -25,7 +25,7 @@ export default function RouteCheckPage() {
         <CardHeader>
           <div className="flex items-center gap-4">
              <MapPinned className="h-8 w-8 text-primary"/>
-             <CardTitle className="font-headline text-3xl">Route Check & Offline Maps</CardTitle>
+             <CardTitle className="font-headline text-3xl">Route Check</CardTitle>
           </div>
           <CardDescription className="pt-2">
             Plan and save your routes. Navigate with confidence even in areas with poor or no internet connectivity.
