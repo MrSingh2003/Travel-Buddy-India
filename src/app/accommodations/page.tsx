@@ -17,15 +17,16 @@ import { Button } from "@/components/ui/button";
 import { hotels, dharamshalas } from "@/lib/mock-data";
 import { Star, MapPin } from "lucide-react";
 import { Combobox } from "@/components/ui/combobox";
+import { cities } from "@/lib/locations";
 
 export default function AccommodationsPage() {
   const [selectedLocation, setSelectedLocation] = useState("all");
 
   const locationOptions = useMemo(() => {
-    const allHotelLocations = hotels.map((h) => h.location);
-    const allDharamshalaLocations = dharamshalas.map((d) => d.location);
-    const uniqueLocations = [...new Set([...allHotelLocations, ...allDharamshalaLocations])];
-    const options = uniqueLocations.map((loc) => ({ value: loc, label: loc }));
+    const options = cities.map((city) => ({
+      value: `${city.name}, ${city.state}`,
+      label: `${city.name}, ${city.state}`,
+    }));
     return [{ value: "all", label: "All Locations" }, ...options];
   }, []);
 
@@ -33,14 +34,16 @@ export default function AccommodationsPage() {
     if (selectedLocation === "all") {
       return hotels;
     }
-    return hotels.filter((hotel) => hotel.location === selectedLocation);
+    const city = selectedLocation.split(',')[0];
+    return hotels.filter((hotel) => hotel.location.includes(city));
   }, [selectedLocation]);
 
   const filteredDharamshalas = useMemo(() => {
     if (selectedLocation === "all") {
       return dharamshalas;
     }
-    return dharamshalas.filter((item) => item.location === selectedLocation);
+    const city = selectedLocation.split(',')[0];
+    return dharamshalas.filter((item) => item.location.includes(city));
   }, [selectedLocation]);
 
   const NoResults = () => (
