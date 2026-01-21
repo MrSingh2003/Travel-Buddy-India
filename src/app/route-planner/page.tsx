@@ -142,51 +142,62 @@ export default function RoutePlannerPage() {
             <CardDescription>{t('routePlanner.description')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <form onSubmit={calculateRoute}>
+             {!isLoaded ? (
               <div className="space-y-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Autocomplete>
-                    <Input
-                      type="text"
-                      placeholder={t('routePlanner.originPlaceholder')}
-                      ref={originRef}
-                      className="pl-10"
-                    />
-                  </Autocomplete>
-                </div>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Autocomplete>
-                    <Input
-                      type="text"
-                      placeholder={t('routePlanner.destinationPlaceholder')}
-                      ref={destinationRef}
-                      className="pl-10"
-                    />
-                  </Autocomplete>
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
                 </div>
               </div>
-              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                <Button type="submit" className="w-full" disabled={!isLoaded || isLoading}>
-                  {isLoading ? (
-                    <Loader2 className="animate-spin" />
-                  ) : (
-                    <Route />
-                  )}
-                  <span>{t('routePlanner.calculateButton')}</span>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={clearRoute}
-                  disabled={!isLoaded}
-                >
-                  {t('routePlanner.clearButton')}
-                </Button>
-              </div>
-            </form>
+            ) : (
+              <form onSubmit={calculateRoute}>
+                <div className="space-y-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Autocomplete>
+                      <Input
+                        type="text"
+                        placeholder={t('routePlanner.originPlaceholder')}
+                        ref={originRef}
+                        className="pl-10"
+                      />
+                    </Autocomplete>
+                  </div>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Autocomplete>
+                      <Input
+                        type="text"
+                        placeholder={t('routePlanner.destinationPlaceholder')}
+                        ref={destinationRef}
+                        className="pl-10"
+                      />
+                    </Autocomplete>
+                  </div>
+                </div>
+                <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                  <Button type="submit" className="w-full" disabled={!isLoaded || isLoading}>
+                    {isLoading ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      <Route />
+                    )}
+                    <span>{t('routePlanner.calculateButton')}</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={clearRoute}
+                    disabled={!isLoaded}
+                  >
+                    {t('routePlanner.clearButton')}
+                  </Button>
+                </div>
+              </form>
+            )}
             {error && (
               <Alert variant="destructive" className="mt-4">
                 <AlertCircle className="h-4 w-4" />
@@ -194,7 +205,7 @@ export default function RoutePlannerPage() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            {distance && duration && (
+            {directionsResponse && distance && duration && (
               <Card className="mt-4 bg-muted/50">
                 <CardContent className="flex items-center justify-around p-4 text-sm">
                   <div className="flex items-center gap-2">
