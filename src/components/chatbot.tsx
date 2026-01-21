@@ -94,7 +94,7 @@ export function Chatbot() {
                 {messages.length === 0 ? (
                   <div className="text-center text-sm text-muted-foreground pt-8">
                     <Bot className="mx-auto h-8 w-8 mb-2" />
-                    <p>
+                    <p className="text-destructive">
                       Welcome to Travel Buddy! 🇮🇳 Your personal guide to
                       exploring India. How can I help you plan your adventure
                       today?
