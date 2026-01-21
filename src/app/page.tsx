@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowRight, Car, Hotel, Plane, Search } from "lucide-react";
+import { ArrowRight, Car, Hotel, Plane, Search, Map } from "lucide-react";
 import Image from "next/image";
 import { useLanguage } from "@/components/language-provider";
 
@@ -37,6 +37,11 @@ export default function DashboardPage() {
       key: "accommodations",
       href: "/accommodations",
       icon: Hotel,
+    },
+    {
+      key: "routeCheck",
+      href: "/route-check",
+      icon: Map,
     },
   ];
 
@@ -70,7 +75,7 @@ export default function DashboardPage() {
 
       <div>
         <h2 className="text-3xl font-bold font-headline text-center mb-8">{t('featuresTitle')}</h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {features.map((feature) => (
             <Card
               key={feature.key}

@@ -17,6 +17,7 @@ export const translations: Translations = {
       localTransport: 'Local Transport',
       accommodations: 'Accommodations',
       support: 'Support',
+      routeCheck: 'Route Check',
     },
     selectLanguage: 'Select Language',
     searchLanguage: 'Search language...',
@@ -41,6 +42,10 @@ export const translations: Translations = {
       accommodations: {
         title: 'Budget-Friendly Stays',
         description: 'Discover and compare hotels & dharamshalas that fit your budget.',
+      },
+      routeCheck: {
+        title: 'Route Check & Offline Maps',
+        description: 'Save routes and prepare for offline navigation in areas with poor connectivity.',
       },
     },
     tripPlanner: {
@@ -73,6 +78,7 @@ export const translations: Translations = {
       localTransport: 'स्थानीय परिवहन',
       accommodations: 'आवास',
       support: 'सहायता',
+      routeCheck: 'मार्ग जांच',
     },
     selectLanguage: 'भाषा चुनें',
     searchLanguage: 'भाषा खोजें...',
@@ -97,6 +103,10 @@ export const translations: Translations = {
       accommodations: {
         title: 'बजट-अनुकूल प्रवास',
         description: 'अपने बजट में फिट होने वाले होटल और धर्मशालाएं खोजें और तुलना करें।',
+      },
+      routeCheck: {
+        title: 'मार्ग जांच और ऑफ़लाइन मानचित्र',
+        description: 'खराब कनेक्टिविटी वाले क्षेत्रों में ऑफ़लाइन नेविगेशन के लिए मार्ग सहेजें और तैयारी करें।',
       },
     },
     tripPlanner: {
@@ -130,6 +140,7 @@ export const translations: Translations = {
         explore: 'অন্বেষণ',
         localTransport: 'স্থানীয় পরিবহন',
         accommodations: 'থাকার ব্যবস্থা',
+        routeCheck: 'রুট চেক',
     },
     selectLanguage: 'ভাষা নির্বাচন করুন',
     searchLanguage: 'ভাষা অনুসন্ধান করুন...',
@@ -143,6 +154,7 @@ export const translations: Translations = {
         explore: { title: 'পছন্দ-সচেতন অনুসন্ধান', description: 'আপনার আগ্রহ এবং ভ্রমণ শৈলীর সাথে মেলে এমন জায়গাগুলি আবিষ্কার করুন, শুধু জনপ্রিয় স্থান নয়।' },
         localTransport: { title: 'অনুকূলিত পরিবহন', description: 'স্বচ্ছ মূল্য সহ যাচাইকৃত স্থানীয় ক্যাব, বাস এবং ট্রেন খুঁজুন এবং তুলনা করুন।' },
         accommodations: { title: 'বাজেট-বান্ধব আবাসন', description: 'আপনার বাজেটের সাথে মানানসই হোটেল এবং ধর্মশালা আবিষ্কার করুন এবং তুলনা করুন।' },
+        routeCheck: { title: 'রুট চেক এবং অফলাইন মানচিত্র', description: 'দুর্বল সংযোগ সহ এলাকায় অফলাইন নেভিগেশনের জন্য রুটগুলি সংরক্ষণ করুন এবং প্রস্তুত করুন।' },
     },
     tripPlanner: {
       title: 'AI-চালিত ট্রিপ সহকারী',
@@ -174,6 +186,7 @@ export const translations: Translations = {
         explore: 'અન્વેષણ',
         localTransport: 'સ્થાનિક પરિવહન',
         accommodations: 'રહેઠાણ',
+        routeCheck: 'રૂટ તપાસો',
     },
     selectLanguage: 'ભાષા પસંદ કરો',
     searchLanguage: 'ભાષા શોધો...',
@@ -187,6 +200,7 @@ export const translations: Translations = {
         explore: { title: 'પસંદગી-જાગૃત શોધ', description: 'ફક્ત લોકપ્રિય સ્થળો જ નહીં, તમારી રુચિઓ અને પ્રવાસ શૈલી સાથે મેળ ખાતા સ્થળો શોધો.' },
         localTransport: { title: 'ઑપ્ટિમાઇઝ્ડ પરિવહન', description: 'સ્પષ્ટ ભાવો સાથે ચકાસાયેલ સ્થાનિક કેબ, બસો અને ટ્રેનો શોધો અને સરખામણી કરો.' },
         accommodations: { title: 'બજેટ-ફ્રેંડલી નિવાસ', description: 'તમારા બજેટમાં બંધબેસતા હોટેલ્સ અને ધર્મશાળાઓ શોધો અને સરખામણી કરો.' },
+        routeCheck: { title: 'રૂટ તપાસ અને ઑફલાઇન નકશા', description: 'નબળા કનેક્ટિવિટીવાળા વિસ્તારોમાં ઑફલાઇન નેવિગેશન માટે માર્ગો સાચવો અને તૈયાર કરો.' },
     },
     tripPlanner: {
       title: 'AI-સંચાલિત ટ્રિપ સહાયક',
@@ -218,6 +232,7 @@ export const translations: Translations = {
         explore: 'ಅನ್ವೇಷಿಸಿ',
         localTransport: 'ಸ್ಥಳೀಯ ಸಾರಿಗೆ',
         accommodations: 'ವಸತಿ',
+        routeCheck: 'ಮಾರ್ಗ ಪರಿಶೀಲಿಸಿ',
     },
     selectLanguage: 'ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ',
     searchLanguage: 'ಭಾಷೆ ಹುಡುಕಿ...',
@@ -231,6 +246,7 @@ export const translations: Translations = {
         explore: { title: 'ಆದ್ಯತೆ-ಅರಿವಿನ ಹುಡುಕಾಟ', description: 'ಕೇವಲ ಜನಪ್ರಿಯ ಸ್ಥಳಗಳಲ್ಲ, ನಿಮ್ಮ ಆಸಕ್ತಿಗಳು ಮತ್ತು ಪ್ರಯಾಣ ಶೈಲಿಗೆ ಹೊಂದುವ ಸ್ಥಳಗಳನ್ನು ಅನ್ವೇಷಿಸಿ.' },
         localTransport: { title: 'ಆಪ್ಟಿಮೈಸ್ಡ್ ಸಾರಿಗೆ', description: 'ಸ್ಪಷ್ಟ ಬೆಲೆಗಳೊಂದಿಗೆ ಪರಿಶೀಲಿಸಿದ ಸ್ಥಳೀಯ ಕ್ಯಾಬ್‌ಗಳು, ಬಸ್‌ಗಳು ಮತ್ತು ರೈಲುಗಳನ್ನು ಹುಡುಕಿ ಮತ್ತು ಹೋಲಿಕೆ ಮಾಡಿ.' },
         accommodations: { title: 'ಬಜೆಟ್-ಸ್ನೇಹಿ ವಸತಿಗಳು', description: 'ನಿಮ್ಮ ಬಜೆಟ್‌ಗೆ ಸರಿಹೊಂದುವ ಹೋಟೆಲ್‌ಗಳು ಮತ್ತು ಧರ್ಮಶಾಲೆಗಳನ್ನು ಅನ್ವೇಷಿಸಿ ಮತ್ತು ಹೋಲಿಕೆ ಮಾಡಿ.' },
+        routeCheck: { title: 'ಮಾರ್ಗ ಪರಿಶೀಲನೆ ಮತ್ತು ಆಫ್‌ಲೈನ್ ನಕ್ಷೆಗಳು', description: 'ಕಳಪೆ ಸಂಪರ್ಕವಿರುವ ಪ್ರದೇಶಗಳಲ್ಲಿ ಆಫ್‌ಲೈನ್ ಸಂಚರಣೆಗಾಗಿ ಮಾರ್ಗಗಳನ್ನು ಉಳಿಸಿ ಮತ್ತು ಸಿದ್ಧಪಡಿಸಿಕೊಳ್ಳಿ.' },
     },
     tripPlanner: {
       title: 'ಎಐ-ಚಾಲಿತ ಪ್ರವಾಸ ಸಹಾಯಕ',
@@ -262,6 +278,7 @@ export const translations: Translations = {
         explore: 'കണ്ടെത്തുക',
         localTransport: 'പ്രാദേശിക ഗതാഗതം',
         accommodations: 'താമസ സൗകര്യങ്ങൾ',
+        routeCheck: 'റൂട്ട് പരിശോധിക്കുക',
     },
     selectLanguage: 'ഭാഷ തിരഞ്ഞെടുക്കുക',
     searchLanguage: 'ഭാഷ തിരയുക...',
@@ -275,6 +292,7 @@ export const translations: Translations = {
         explore: { title: 'മുൻഗണന-അധിഷ്ഠിത തിരയൽ', description: 'ജനപ്രിയ സ്ഥലങ്ങൾ മാത്രമല്ല, നിങ്ങളുടെ താൽപ്പര്യങ്ങൾക്കും യാത്രാ ശൈലിക്കും അനുയോജ്യമായ സ്ഥലങ്ങൾ കണ്ടെത്തുക.' },
         localTransport: { title: 'ഒപ്റ്റിമൈസ് ചെയ്ത ഗതാഗതം', description: 'വ്യക്തമായ വിലനിർണ്ണയത്തോടെ പരിശോധിച്ചുറപ്പിച്ച പ്രാദേശിക ക്യാബുകൾ, ബസുകൾ, ട്രെയിനുകൾ എന്നിവ കണ്ടെത്തുകയും താരതമ്യം ചെയ്യുകയും ചെയ്യുക.' },
         accommodations: { title: 'ബജറ്റ്-സൗഹൃദ താമസങ്ങൾ', description: 'നിങ്ങളുടെ ബജറ്റിന് അനുയോജ്യമായ ഹോട്ടലുകളും ധർമ്മശാലകളും കണ്ടെത്തുകയും താരതമ്യം ചെയ്യുകയും ചെയ്യുക.' },
+        routeCheck: { title: 'റൂട്ട് പരിശോധനയും ഓഫ്‌ലൈൻ മാപ്പുകളും', description: 'മോശം കണക്റ്റിവിറ്റിയുള്ള പ്രദേശങ്ങളിൽ ഓഫ്‌ലൈൻ നാവിഗേഷനായി റൂട്ടുകൾ സംരക്ഷിക്കുകയും തയ്യാറാകുകയും ചെയ്യുക.' },
     },
     tripPlanner: {
       title: 'AI-പവർഡ് ട്രിപ്പ് അസിസ്റ്റന്റ്',
@@ -306,6 +324,7 @@ export const translations: Translations = {
         explore: 'शोधा',
         localTransport: 'स्थानिक वाहतूक',
         accommodations: 'निवास',
+        routeCheck: 'मार्ग तपासा',
     },
     selectLanguage: 'भाषा निवडा',
     searchLanguage: 'भाषा शोधा...',
@@ -319,6 +338,7 @@ export const translations: Translations = {
         explore: { title: 'पसंती-जागरूक शोध', description: 'केवळ लोकप्रिय ठिकाणेच नव्हे, तर तुमच्या आवडी आणि प्रवास शैलीशी जुळणारी ठिकाणे शोधा.' },
         localTransport: { title: 'ऑप्टिमाइझ केलेली वाहतूक', description: 'स्पष्ट किंमतींसह सत्यापित स्थानिक कॅब, बस आणि ट्रेन शोधा आणि त्यांची तुलना करा.' },
         accommodations: { title: 'बजेट-फ्रेंडली निवास', description: 'तुमच्या बजेटमध्ये बसणारी हॉटेल्स आणि धर्मशाळा शोधा आणि त्यांची तुलना करा.' },
+        routeCheck: { title: 'मार्ग तपासणी आणि ऑफलाइन नकाशे', description: 'खराब कनेक्टिव्हिटी असलेल्या भागात ऑफलाइन नेव्हिगेशनसाठी मार्ग जतन करा आणि तयारी करा.' },
     },
     tripPlanner: {
       title: 'AI-शक्तीवर चालणारे ट्रिप सहाय्यक',
@@ -350,6 +370,7 @@ export const translations: Translations = {
         explore: 'ਪੜਚੋਲ',
         localTransport: 'ਸਥਾਨਕ ਆਵਾਜਾਈ',
         accommodations: 'ਰਿਹਾਇਸ਼',
+        routeCheck: 'ਰੂਟ ਚੈੱਕ ਕਰੋ',
     },
     selectLanguage: 'ਭਾਸ਼ਾ ਚੁਣੋ',
     searchLanguage: 'ਭਾਸ਼ਾ ਖੋਜੋ...',
@@ -363,6 +384,7 @@ export const translations: Translations = {
         explore: { title: 'ਤਰਜੀਹ-ਜਾਗਰੂਕ ਖੋਜ', description: 'ਸਿਰਫ਼ ਪ੍ਰਸਿੱਧ ਥਾਵਾਂ ਹੀ ਨਹੀਂ, ਸਗੋਂ ਤੁਹਾਡੀਆਂ ਰੁਚੀਆਂ ਅਤੇ ਯਾਤਰਾ ਸ਼ੈਲੀ ਨਾਲ ਮੇਲ ਖਾਂਦੀਆਂ ਥਾਵਾਂ ਦੀ ਖੋਜ ਕਰੋ।' },
         localTransport: { title: 'ਅਨੁਕੂਲਿਤ ਆਵਾਜਾਈ', description: 'ਸਪਸ਼ਟ ਕੀਮਤਾਂ ਨਾਲ ਪ੍ਰਮਾਣਿਤ ਸਥਾਨਕ ਕੈਬ, ਬੱਸਾਂ ਅਤੇ ਰੇਲ ਗੱਡੀਆਂ ਲੱਭੋ ਅਤੇ ਤੁਲਨਾ ਕਰੋ।' },
         accommodations: { title: 'ਬਜਟ-ਅਨੁਕੂਲ ਰਿਹਾਇਸ਼', description: 'ਤੁਹਾਡੇ ਬਜਟ ਵਿੱਚ ਫਿੱਟ ਹੋਣ ਵਾਲੇ ਹੋਟਲ ਅਤੇ ਧਰਮਸ਼ਾਲਾ ਲੱਭੋ ਅਤੇ ਤੁਲਨਾ ਕਰੋ।' },
+        routeCheck: { title: 'ਰੂਟ ਚੈੱਕ ਅਤੇ ਔਫਲਾਈਨ ਨਕਸ਼ੇ', description: 'ਖਰਾਬ ਕਨੈਕਟੀਵਿਟੀ ਵਾਲੇ ਖੇਤਰਾਂ ਵਿੱਚ ਔਫਲਾਈਨ ਨੈਵੀਗੇਸ਼ਨ ਲਈ ਰੂਟਾਂ ਨੂੰ ਸੁਰੱਖਿਅਤ ਕਰੋ ਅਤੇ ਤਿਆਰ ਕਰੋ।' },
     },
     tripPlanner: {
       title: 'ਏਆਈ-ਸੰਚਾਲਿਤ ਯਾਤਰਾ ਸਹਾਇਕ',
@@ -394,6 +416,7 @@ export const translations: Translations = {
         explore: 'ஆராயுங்கள்',
         localTransport: 'உள்ளூர் போக்குவரத்து',
         accommodations: 'தங்குமிடங்கள்',
+        routeCheck: 'பாதை சரிபார்ப்பு',
     },
     selectLanguage: 'மொழியை தேர்ந்தெடு',
     searchLanguage: 'மொழியைத் தேடு...',
@@ -407,6 +430,7 @@ export const translations: Translations = {
         explore: { title: 'விருப்பம்-விழிப்புணர்வு தேடல்', description: 'பிரபலமான இடங்கள் மட்டுமல்ல, உங்கள் ஆர்வங்கள் மற்றும் பயண பாணியுடன் பொருந்தக்கூடிய இடங்களைக் கண்டறியவும்.' },
         localTransport: { title: 'மேம்படுத்தப்பட்ட போக்குவரத்து', description: 'தெளிவான விலைகளுடன் சரிபார்க்கப்பட்ட உள்ளூர் வண்டிகள், பேருந்துகள் மற்றும் ரயில்களைக் கண்டுபிடித்து ஒப்பிடவும்.' },
         accommodations: { title: 'பட்ஜெட்-நட்பு தங்குமிடங்கள்', description: 'உங்கள் பட்ஜெட்டுக்கு ஏற்ற ஹோட்டல்கள் மற்றும் தர்மசாலாக்களைக் கண்டுபிடித்து ஒப்பிடவும்.' },
+        routeCheck: { title: 'பாதை சரிபார்ப்பு மற்றும் ஆஃப்லைன் வரைபடங்கள்', description: 'மோசமான இணைப்பு உள்ள பகுதிகளில் ஆஃப்லைன் வழிசெலுத்தலுக்கான வழிகளைச் சேமித்துத் தயாரிக்கவும்.' },
     },
     tripPlanner: {
       title: 'AI-இயங்கும் பயண உதவியாளர்',
@@ -438,6 +462,7 @@ export const translations: Translations = {
         explore: 'అన్వేషించండి',
         localTransport: 'స్థానిక రవాణా',
         accommodations: 'వసతులు',
+        routeCheck: 'మార్గం తనిఖీ',
     },
     selectLanguage: 'భాషను ఎంచుకోండి',
     searchLanguage: 'భాషను శోధించండి...',
@@ -451,6 +476,7 @@ export const translations: Translations = {
         explore: { title: 'ప్రాధాన్యత-అవగాహన శోధన', description: 'కేవలం பிரபலமான ప్రదేశాలు మాత్రమే కాకుండా, మీ ఆసక్తులు మరియు ప్రయాణ శైలికి సరిపోయే ప్రదేశాలను కనుగొనండి.' },
         localTransport: { title: 'ఆప్టిమైజ్ చేయబడిన రవాణా', description: 'స్పష్టమైన ధరలతో ధృవీకరించబడిన స్థానిక క్యాబ్‌లు, బస్సులు మరియు రైళ్లను కనుగొని పోల్చండి.' },
         accommodations: { title: 'బడ్జెట్-స్నేహపూర్వక బసలు', description: 'మీ బడ్జెట్‌కు సరిపోయే హోటళ్ళు మరియు ధర్మశాలలను కనుగొని పోల్చండి.' },
+        routeCheck: { title: 'మార్గం తనిఖీ & ఆఫ్‌లైన్ మ్యాప్‌లు', description: 'పేలవమైన కనెక్టివిటీ ఉన్న ప్రాంతాల్లో ఆఫ్‌లైన్ నావిగేషన్ కోసం మార్గాలను సేవ్ చేయండి మరియు సిద్ధం చేయండి.' },
     },
     tripPlanner: {
       title: 'AI- శక్తితో కూడిన ట్రిప్ అసిస్టెంట్',
