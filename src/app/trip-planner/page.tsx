@@ -186,83 +186,55 @@ export default function TripPlannerPage() {
                     </FormItem>
                   )}
                 />
-                 <FormField
+                <FormField
                   control={form.control}
                   name="dates"
                   render={({ field }) => (
-                    <div className="space-y-4">
-                      <FormItem className="flex flex-col">
-                        <FormLabel>From</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full justify-start text-left font-normal",
-                                  !field.value?.from && "text-muted-foreground"
-                                )}
-                              >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {field.value?.from ? (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>{t('tripPlanner.travelDates')}</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              id="date"
+                              variant={"outline"}
+                              className={cn(
+                                "w-full justify-start text-left font-normal",
+                                !field.value?.from && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {field.value?.from ? (
+                                field.value.to ? (
+                                  <>
+                                    {format(field.value.from, "LLL dd, y")} -{" "}
+                                    {format(field.value.to, "LLL dd, y")}
+                                  </>
+                                ) : (
                                   format(field.value.from, "LLL dd, y")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              initialFocus
-                              mode="single"
-                              selected={field.value.from}
-                              onSelect={(date) => field.onChange({ ...field.value, from: date })}
-                              disabled={(date) =>
-                                date < new Date(new Date().setHours(0, 0, 0, 0)) || (!!field.value?.to && date > field.value.to)
-                              }
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                      <FormItem className="flex flex-col">
-                        <FormLabel>To</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full justify-start text-left font-normal",
-                                  !field.value?.to && "text-muted-foreground"
-                                )}
-                                disabled={!field.value?.from}
-                              >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {field.value?.to ? (
-                                  format(field.value.to, "LLL dd, y")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              initialFocus
-                              mode="single"
-                              selected={field.value.to}
-                              onSelect={(date) => field.onChange({ ...field.value, to: date })}
-                              disabled={(date) =>
-                                date < (field.value?.from || new Date(new Date().setHours(0, 0, 0, 0)))
-                              }
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    </div>
+                                )
+                              ) : (
+                                <span>{t('tripPlanner.pickDateRange')}</span>
+                              )}
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            initialFocus
+                            mode="range"
+                            defaultMonth={field.value?.from}
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            numberOfMonths={2}
+                            disabled={(date) =>
+                                date < new Date(new Date().setHours(0, 0, 0, 0))
+                            }
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
                   )}
                 />
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
