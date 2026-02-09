@@ -32,6 +32,7 @@ export async function answerTravelQuestion(
 
 const prompt = ai.definePrompt({
   name: 'answerTravelQuestionPrompt',
+  model: 'googleai/gemini-2.5-flash',
   input: {schema: AnswerTravelQuestionInputSchema},
   output: {schema: AnswerTravelQuestionOutputSchema},
   prompt: `You are a helpful AI travel assistant chatbot. Answer the following question about travel:

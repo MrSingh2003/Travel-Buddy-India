@@ -66,6 +66,7 @@ export async function generatePersonalizedTrip(
 
 const prompt = ai.definePrompt({
   name: 'personalizedTripPrompt',
+  model: 'googleai/gemini-2.5-flash',
   input: {schema: PersonalizedTripInputSchema},
   output: {schema: PersonalizedTripOutputSchema},
   prompt: `You are an expert travel agent specializing in creating personalized, decision-focused travel plans for destinations within India. Your goal is to provide cost transparency and practical advice, not just information.

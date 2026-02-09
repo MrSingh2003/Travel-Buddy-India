@@ -41,6 +41,7 @@ export async function generatePersonalizedItinerary(
 
 const prompt = ai.definePrompt({
   name: 'personalizedItineraryPrompt',
+  model: 'googleai/gemini-2.5-flash',
   input: {schema: PersonalizedItineraryInputSchema},
   output: {schema: PersonalizedItineraryOutputSchema},
   prompt: `You are a travel agent specializing in itinerary generation.

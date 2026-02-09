@@ -57,6 +57,7 @@ const generateInspirationalImageFlow = ai.defineFlow(
     
     // Step 1: Generate a creative prompt for the image model
     const { text: imagePrompt } = await ai.generate({
+        model: 'googleai/gemini-2.5-flash',
         prompt: `Create a short, artistic, and inspiring phrase for a beautiful travel poster. The poster is for: '${input.query} in ${input.location}'. Do not use quotes in the response.`
     });
 
@@ -75,6 +76,7 @@ const generateInspirationalImageFlow = ai.defineFlow(
     
     // Step 3: Generate a title for the image
      const { text: title } = await ai.generate({
+        model: 'googleai/gemini-2.5-flash',
         prompt: `Based on this description: '${imagePrompt}', create a short, evocative title (4-6 words). Do not use quotes.`
     });
 
