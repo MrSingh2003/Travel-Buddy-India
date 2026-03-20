@@ -1,17 +1,12 @@
 'use client';
 
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import {
-  useState,
-  useRef,
-  type FormEvent,
-} from 'react';
-import {
-  GoogleMap,
-  useJsApiLoader,
-  Autocomplete,
-  DirectionsRenderer,
-  Marker,
-} from '@react-google-maps/api';
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -19,45 +14,41 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from '@/components/ui/alert';
-import {
+  AlertCircle,
+  Bike,
+  Bus,
   Car,
+  Footprints,
+  Loader2,
+  LocateFixed,
+  MapPinned,
+  MousePointerClick,
   Route,
   Search,
   Timer,
-  AlertCircle,
-  Loader2,
-  MapPinned,
-  LocateFixed,
-  Bike,
-  Footprints,
-  Bus,
-  MousePointerClick,
 } from 'lucide-react';
 import { useLanguage } from '@/components/language-provider';
 import { planRoute } from '@/lib/api/travel-buddy';
 import type { RoutePlan } from '@/lib/api/types';
 
-const containerStyle = {
-  width: '100%',
-  height: '600px',
-};
+type TravelMode = 'DRIVING' | 'WALKING' | 'BICYCLING' | 'TRANSIT';
+type PickTarget = 'origin' | 'destination';
+type LatLng = { lat: number; lng: number };
+
+declare global {
+  interface Window {
+    L?: any;
+    __travelBuddyLeafletPromise?: Promise<void>;
+  }
+}
 
 const center = {
   lat: 20.5937,
   lng: 78.9629,
 };
-
-const libraries: ('places' | 'drawing' | 'geometry' | 'visualization')[] = [
-  'places',
-];
 
 const modeOptions = [
   { key: 'DRIVING', label: 'Car', icon: Car },
@@ -66,152 +57,332 @@ const modeOptions = [
   { key: 'TRANSIT', label: 'Bus', icon: Bus },
 ] as const;
 
-export default function RoutePlannerPage() {
-  const { isLoaded, loadError } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey:
-      import.meta.env.VITE_GOOGLE_MAPS_API_KEY ||
-      import.meta.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
-      '',
-    libraries,
+function loadLeafletAssets() {
+  if (typeof window === 'undefined') {
+    return Promise.resolve();
+  }
+
+  if (window.L) {
+    return Promise.resolve();
+  }
+
+  if (window.__travelBuddyLeafletPromise) {
+    return window.__travelBuddyLeafletPromise;
+  }
+
+  window.__travelBuddyLeafletPromise = new Promise<void>((resolve, reject) => {
+    const existingCss = document.querySelector(
+      'link[data-travel-buddy-leaflet="true"]'
+    );
+    if (!existingCss) {
+      const css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      css.setAttribute('data-travel-buddy-leaflet', 'true');
+      document.head.appendChild(css);
+    }
+
+    const existingScript = document.querySelector(
+      'script[data-travel-buddy-leaflet="true"]'
+    ) as HTMLScriptElement | null;
+
+    if (existingScript) {
+      existingScript.addEventListener('load', () => resolve(), { once: true });
+      existingScript.addEventListener(
+        'error',
+        () => reject(new Error('Leaflet failed to load.')),
+        { once: true }
+      );
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    script.async = true;
+    script.defer = true;
+    script.setAttribute('data-travel-buddy-leaflet', 'true');
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Leaflet failed to load.'));
+    document.body.appendChild(script);
   });
 
-  const [directionsResponse, setDirectionsResponse] =
-    useState<google.maps.DirectionsResult | null>(null);
+  return window.__travelBuddyLeafletPromise;
+}
+
+function formatDistance(meters: number) {
+  if (meters >= 1000) {
+    return `${(meters / 1000).toFixed(meters >= 10000 ? 0 : 1)} km`;
+  }
+  return `${Math.round(meters)} m`;
+}
+
+function formatDuration(seconds: number) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.round((seconds % 3600) / 60);
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  }
+  return `${Math.max(1, minutes)} min`;
+}
+
+function formatCoordinateLabel(point: LatLng) {
+  return `${point.lat.toFixed(6)}, ${point.lng.toFixed(6)}`;
+}
+
+async function reverseGeocode(point: LatLng) {
+  const url = new URL('https://nominatim.openstreetmap.org/reverse');
+  url.searchParams.set('format', 'jsonv2');
+  url.searchParams.set('lat', String(point.lat));
+  url.searchParams.set('lon', String(point.lng));
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      Accept: 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Reverse geocoding failed.');
+  }
+
+  const data = await response.json();
+  return data.display_name || formatCoordinateLabel(point);
+}
+
+async function geocodeQuery(query: string) {
+  const url = new URL('https://nominatim.openstreetmap.org/search');
+  url.searchParams.set('format', 'jsonv2');
+  url.searchParams.set('limit', '1');
+  url.searchParams.set('q', query);
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      Accept: 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Location search failed.');
+  }
+
+  const results = (await response.json()) as Array<{
+    lat: string;
+    lon: string;
+    display_name: string;
+  }>;
+
+  if (!results.length) {
+    throw new Error('No location match found.');
+  }
+
+  return {
+    latLng: {
+      lat: Number(results[0].lat),
+      lng: Number(results[0].lon),
+    },
+    label: results[0].display_name,
+  };
+}
+
+function getOsrmProfile(mode: TravelMode) {
+  switch (mode) {
+    case 'WALKING':
+      return 'foot';
+    case 'BICYCLING':
+      return 'bike';
+    case 'TRANSIT':
+      return 'driving';
+    case 'DRIVING':
+    default:
+      return 'driving';
+  }
+}
+
+export default function RoutePlannerPage() {
   const [distance, setDistance] = useState('');
   const [duration, setDuration] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
   const [routeSummary, setRouteSummary] = useState<RoutePlan | null>(null);
-  const [travelMode, setTravelMode] = useState<(typeof modeOptions)[number]['key']>('DRIVING');
-  const [mapNotice, setMapNotice] = useState<string | null>(null);
-  const [pickTarget, setPickTarget] = useState<'origin' | 'destination'>('origin');
-  const [originMarker, setOriginMarker] = useState<{ lat: number; lng: number } | null>(null);
-  const [destinationMarker, setDestinationMarker] = useState<{ lat: number; lng: number } | null>(null);
+  const [travelMode, setTravelMode] = useState<TravelMode>('DRIVING');
+  const [mapNotice, setMapNotice] = useState<string | null>(
+    'OpenStreetMap mode is active for route picking and map clicks.'
+  );
+  const [pickTarget, setPickTarget] = useState<PickTarget>('origin');
+  const [origin, setOrigin] = useState('');
+  const [destination, setDestination] = useState('');
+  const [originMarker, setOriginMarker] = useState<LatLng | null>(null);
+  const [destinationMarker, setDestinationMarker] = useState<LatLng | null>(null);
+  const [routePath, setRoutePath] = useState<LatLng[]>([]);
+  const [leafletReady, setLeafletReady] = useState(false);
+  const [leafletError, setLeafletError] = useState<string | null>(null);
 
-  const originRef = useRef<HTMLInputElement>(null);
-  const destinationRef = useRef<HTMLInputElement>(null);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<any>(null);
+  const originMarkerRef = useRef<any>(null);
+  const destinationMarkerRef = useRef<any>(null);
+  const routeLineRef = useRef<any>(null);
 
   const { t } = useLanguage();
   const selectedModeLabel =
     modeOptions.find((mode) => mode.key === travelMode)?.label ?? 'Route';
 
-  async function fillLocationFromLatLng(
-    latLng: { lat: number; lng: number },
-    target: 'origin' | 'destination'
-  ) {
-    const fallbackValue = `${latLng.lat.toFixed(6)}, ${latLng.lng.toFixed(6)}`;
+  useEffect(() => {
+    let isMounted = true;
 
-    try {
-      if (isLoaded && window.google?.maps) {
-        const geocoder = new google.maps.Geocoder();
-        const result = await geocoder.geocode({ location: latLng });
-        const address = result.results[0]?.formatted_address ?? fallbackValue;
+    loadLeafletAssets()
+      .then(() => {
+        if (!isMounted || !mapContainerRef.current || !window.L || mapRef.current) {
+          return;
+        }
 
-        if (target === 'origin' && originRef.current) {
-          originRef.current.value = address;
+        const map = window.L.map(mapContainerRef.current, {
+          center: [center.lat, center.lng],
+          zoom: 5,
+          zoomControl: true,
+        });
+
+        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors',
+          maxZoom: 19,
+        }).addTo(map);
+
+        map.on('click', async (event: { latlng: { lat: number; lng: number } }) => {
+          const point = {
+            lat: event.latlng.lat,
+            lng: event.latlng.lng,
+          };
+
+          if (pickTarget === 'origin') {
+            setOriginMarker(point);
+          } else {
+            setDestinationMarker(point);
+          }
+
+          try {
+            const label = await reverseGeocode(point);
+            if (pickTarget === 'origin') {
+              setOrigin(label);
+            } else {
+              setDestination(label);
+            }
+          } catch (reverseError) {
+            console.error(reverseError);
+            const fallbackLabel = formatCoordinateLabel(point);
+            if (pickTarget === 'origin') {
+              setOrigin(fallbackLabel);
+            } else {
+              setDestination(fallbackLabel);
+            }
+          }
+        });
+
+        mapRef.current = map;
+        setLeafletReady(true);
+      })
+      .catch((loadLeafletError) => {
+        console.error(loadLeafletError);
+        if (isMounted) {
+          setLeafletError(
+            'The fallback map could not load. You can still type locations and calculate a route summary.'
+          );
         }
-        if (target === 'destination' && destinationRef.current) {
-          destinationRef.current.value = address;
-        }
-      } else {
-        if (target === 'origin' && originRef.current) {
-          originRef.current.value = fallbackValue;
-        }
-        if (target === 'destination' && destinationRef.current) {
-          destinationRef.current.value = fallbackValue;
-        }
+      });
+
+    return () => {
+      isMounted = false;
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
       }
-    } catch (geocodeError) {
-      console.error(geocodeError);
-      if (target === 'origin' && originRef.current) {
-        originRef.current.value = fallbackValue;
-      }
-      if (target === 'destination' && destinationRef.current) {
-        destinationRef.current.value = fallbackValue;
-      }
-    }
-  }
-
-  function formatGoogleRouteSummary(result: google.maps.DirectionsResult) {
-    const legs = result.routes[0]?.legs ?? [];
-    const totalMeters = legs.reduce((sum, leg) => sum + (leg.distance?.value ?? 0), 0);
-    const totalSeconds = legs.reduce((sum, leg) => sum + (leg.duration?.value ?? 0), 0);
-
-    const distanceLabel =
-      totalMeters >= 1000
-        ? `${(totalMeters / 1000).toFixed(totalMeters >= 10000 ? 0 : 1)} km`
-        : `${Math.round(totalMeters)} m`;
-
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.round((totalSeconds % 3600) / 60);
-    const durationLabel =
-      hours > 0 ? `${hours}h ${minutes}m` : `${Math.max(1, minutes)} min`;
-
-    return {
-      distanceLabel,
-      durationLabel,
     };
-  }
+  }, [pickTarget]);
 
-  async function calculateRoute(e: FormEvent) {
-    e.preventDefault();
-    if (
-      !originRef.current ||
-      !destinationRef.current ||
-      originRef.current.value === '' ||
-      destinationRef.current.value === ''
-    ) {
-      setError(t('routePlanner.error.missingFields'));
+  useEffect(() => {
+    if (!mapRef.current || !window.L) {
       return;
     }
 
-    setIsLoading(true);
-    setError(null);
-    setMapNotice(null);
-    setDirectionsResponse(null);
-    setRouteSummary(null);
-
-    try {
-      const summary = await planRoute(
-        originRef.current.value,
-        destinationRef.current.value,
-        travelMode
-      );
-
-      setRouteSummary(summary);
-      setDistance(summary.distance);
-      setDuration(summary.duration);
-
-      if (isLoaded) {
-        try {
-          const results = await new google.maps.DirectionsService().route({
-            origin: originRef.current.value,
-            destination: destinationRef.current.value,
-            travelMode: google.maps.TravelMode[travelMode],
-          });
-
-          if (results.routes.length > 0 && results.routes[0].legs.length > 0) {
-            setDirectionsResponse(results);
-            const { distanceLabel, durationLabel } = formatGoogleRouteSummary(results);
-            setDistance(distanceLabel);
-            setDuration(durationLabel);
-          }
-        } catch (mapError) {
-          console.error(mapError);
-          setMapNotice(
-            'The route summary is available, but Google Maps could not draw this route on the map.'
-          );
-        }
-      }
-    } catch (err) {
-      console.error(err);
-      setError(t('routePlanner.error.noRoute'));
-    } finally {
-      setIsLoading(false);
+    if (originMarkerRef.current) {
+      originMarkerRef.current.remove();
+      originMarkerRef.current = null;
     }
-  }
+
+    if (originMarker) {
+      originMarkerRef.current = window.L.marker([originMarker.lat, originMarker.lng])
+        .bindTooltip('A', {
+          permanent: true,
+          direction: 'top',
+          offset: [0, -12],
+        })
+        .addTo(mapRef.current);
+    }
+  }, [originMarker]);
+
+  useEffect(() => {
+    if (!mapRef.current || !window.L) {
+      return;
+    }
+
+    if (destinationMarkerRef.current) {
+      destinationMarkerRef.current.remove();
+      destinationMarkerRef.current = null;
+    }
+
+    if (destinationMarker) {
+      destinationMarkerRef.current = window.L.marker([
+        destinationMarker.lat,
+        destinationMarker.lng,
+      ])
+        .bindTooltip('B', {
+          permanent: true,
+          direction: 'top',
+          offset: [0, -12],
+        })
+        .addTo(mapRef.current);
+    }
+  }, [destinationMarker]);
+
+  useEffect(() => {
+    if (!mapRef.current || !window.L) {
+      return;
+    }
+
+    if (routeLineRef.current) {
+      routeLineRef.current.remove();
+      routeLineRef.current = null;
+    }
+
+    if (routePath.length) {
+      routeLineRef.current = window.L.polyline(
+        routePath.map((point) => [point.lat, point.lng]),
+        {
+          color: '#16a34a',
+          weight: 5,
+          opacity: 0.8,
+        }
+      ).addTo(mapRef.current);
+
+      const bounds = window.L.latLngBounds(
+        routePath.map((point) => [point.lat, point.lng])
+      );
+      mapRef.current.fitBounds(bounds, { padding: [40, 40] });
+      return;
+    }
+
+    if (originMarker && destinationMarker) {
+      const bounds = window.L.latLngBounds([
+        [originMarker.lat, originMarker.lng],
+        [destinationMarker.lat, destinationMarker.lng],
+      ]);
+      mapRef.current.fitBounds(bounds, { padding: [40, 40] });
+    } else if (originMarker) {
+      mapRef.current.setView([originMarker.lat, originMarker.lng], 14);
+    } else if (destinationMarker) {
+      mapRef.current.setView([destinationMarker.lat, destinationMarker.lng], 14);
+    }
+  }, [destinationMarker, originMarker, routePath]);
 
   const useMyLocation = () => {
     if (!navigator.geolocation) {
@@ -224,55 +395,152 @@ export default function RoutePlannerPage() {
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-        try {
-          const latLng = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
+        const point = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
 
-          if (isLoaded && window.google?.maps) {
-            const geocoder = new google.maps.Geocoder();
-            const result = await geocoder.geocode({ location: latLng });
-            if (originRef.current) {
-              originRef.current.value =
-                result.results[0]?.formatted_address ??
-                `${latLng.lat}, ${latLng.lng}`;
-            }
-            setOriginMarker(latLng);
-          } else if (originRef.current) {
-            originRef.current.value = `${latLng.lat}, ${latLng.lng}`;
-            setOriginMarker(latLng);
-          }
-        } catch (geocodeError) {
-          console.error(geocodeError);
-          if (originRef.current) {
-            originRef.current.value = `${position.coords.latitude}, ${position.coords.longitude}`;
-          }
-          setOriginMarker(latLng);
+        setOriginMarker(point);
+
+        try {
+          const label = await reverseGeocode(point);
+          setOrigin(label);
+        } catch (reverseError) {
+          console.error(reverseError);
+          setOrigin(formatCoordinateLabel(point));
         } finally {
           setIsLocating(false);
         }
       },
       (geoError) => {
         console.error(geoError);
-        setError('Could not fetch your current location. Please allow location access and try again.');
+        setError(
+          'Could not fetch your current location. Please allow location access and try again.'
+        );
         setIsLocating(false);
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
   };
 
+  async function resolvePoint(label: string, marker: LatLng | null) {
+    if (marker) {
+      return { latLng: marker, label };
+    }
+
+    const trimmed = label.trim();
+    if (!trimmed) {
+      throw new Error('Missing route point.');
+    }
+
+    return geocodeQuery(trimmed);
+  }
+
+  async function calculateRoute(event: FormEvent) {
+    event.preventDefault();
+
+    if (!origin.trim() || !destination.trim()) {
+      setError(t('routePlanner.error.missingFields'));
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    setRouteSummary(null);
+
+    try {
+      const [resolvedOrigin, resolvedDestination] = await Promise.all([
+        resolvePoint(origin, originMarker),
+        resolvePoint(destination, destinationMarker),
+      ]);
+
+      setOrigin(resolvedOrigin.label);
+      setDestination(resolvedDestination.label);
+      setOriginMarker(resolvedOrigin.latLng);
+      setDestinationMarker(resolvedDestination.latLng);
+
+      const osrmProfile = getOsrmProfile(travelMode);
+      const osrmUrl = new URL(
+        `https://router.project-osrm.org/route/v1/${osrmProfile}/${resolvedOrigin.latLng.lng},${resolvedOrigin.latLng.lat};${resolvedDestination.latLng.lng},${resolvedDestination.latLng.lat}`
+      );
+      osrmUrl.searchParams.set('overview', 'full');
+      osrmUrl.searchParams.set('geometries', 'geojson');
+      osrmUrl.searchParams.set('steps', 'false');
+
+      const osrmResponse = await fetch(osrmUrl.toString());
+      if (!osrmResponse.ok) {
+        throw new Error('Route engine unavailable.');
+      }
+
+      const osrmData = await osrmResponse.json();
+      const bestRoute = osrmData.routes?.[0];
+
+      if (!bestRoute) {
+        throw new Error('No route found.');
+      }
+
+      const points: LatLng[] = (bestRoute.geometry?.coordinates ?? []).map(
+        ([lng, lat]: [number, number]) => ({ lat, lng })
+      );
+
+      setRoutePath(points);
+      setDistance(formatDistance(bestRoute.distance ?? 0));
+      setDuration(formatDuration(bestRoute.duration ?? 0));
+
+      if (travelMode === 'TRANSIT') {
+        setMapNotice(
+          'Bus mode currently uses a road-travel estimate on the fallback map because live public-transit routing is not available in local mode.'
+        );
+      } else {
+        setMapNotice('OpenStreetMap route preview is active.');
+      }
+
+      try {
+        const summary = await planRoute(
+          resolvedOrigin.label,
+          resolvedDestination.label,
+          travelMode
+        );
+        setRouteSummary(summary);
+      } catch (backendError) {
+        console.error(backendError);
+        setRouteSummary(null);
+      }
+    } catch (routeError) {
+      console.error(routeError);
+
+      try {
+        const summary = await planRoute(origin, destination, travelMode);
+        setRouteSummary(summary);
+        setDistance(summary.distance);
+        setDuration(summary.duration);
+        setRoutePath([]);
+        setMapNotice(
+          'Live route drawing is unavailable right now, so the planner is showing the backend route summary only.'
+        );
+      } catch (backendError) {
+        console.error(backendError);
+        setError(t('routePlanner.error.noRoute'));
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   const clearRoute = () => {
-    setDirectionsResponse(null);
     setDistance('');
     setDuration('');
     setError(null);
-    setMapNotice(null);
     setRouteSummary(null);
+    setOrigin('');
+    setDestination('');
     setOriginMarker(null);
     setDestinationMarker(null);
-    if (originRef.current) originRef.current.value = '';
-    if (destinationRef.current) destinationRef.current.value = '';
+    setRoutePath([]);
+    setMapNotice('OpenStreetMap mode is active for route picking and map clicks.');
+    if (mapRef.current) {
+      mapRef.current.setView([center.lat, center.lng], 5);
+    }
   };
 
   return (
@@ -307,23 +575,13 @@ export default function RoutePlannerPage() {
                 </div>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  {isLoaded ? (
-                    <Autocomplete>
-                      <Input
-                        type="text"
-                        placeholder={t('routePlanner.originPlaceholder')}
-                        ref={originRef}
-                        className="pl-10"
-                      />
-                    </Autocomplete>
-                  ) : (
-                    <Input
-                      type="text"
-                      placeholder={t('routePlanner.originPlaceholder')}
-                      ref={originRef}
-                      className="pl-10"
-                    />
-                  )}
+                  <Input
+                    type="text"
+                    placeholder={t('routePlanner.originPlaceholder')}
+                    value={origin}
+                    onChange={(event) => setOrigin(event.target.value)}
+                    className="pl-10"
+                  />
                 </div>
                 <Button
                   type="button"
@@ -361,23 +619,13 @@ export default function RoutePlannerPage() {
                 </div>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  {isLoaded ? (
-                    <Autocomplete>
-                      <Input
-                        type="text"
-                        placeholder={t('routePlanner.destinationPlaceholder')}
-                        ref={destinationRef}
-                        className="pl-10"
-                      />
-                    </Autocomplete>
-                  ) : (
-                    <Input
-                      type="text"
-                      placeholder={t('routePlanner.destinationPlaceholder')}
-                      ref={destinationRef}
-                      className="pl-10"
-                    />
-                  )}
+                  <Input
+                    type="text"
+                    placeholder={t('routePlanner.destinationPlaceholder')}
+                    value={destination}
+                    onChange={(event) => setDestination(event.target.value)}
+                    className="pl-10"
+                  />
                 </div>
               </div>
               <div className="mt-4 flex flex-col gap-2 sm:flex-row">
@@ -399,13 +647,11 @@ export default function RoutePlannerPage() {
                 </Button>
               </div>
             </form>
-            {loadError && (
+            {leafletError && (
               <Alert className="mt-4">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>{t('routePlanner.error.mapLoadTitle')}</AlertTitle>
-                <AlertDescription>
-                  {t('routePlanner.error.mapLoadDescription')}
-                </AlertDescription>
+                <AlertDescription>{leafletError}</AlertDescription>
               </Alert>
             )}
             {error && (
@@ -456,44 +702,21 @@ export default function RoutePlannerPage() {
       </div>
       <div className="lg:col-span-2">
         <Card className="overflow-hidden">
-          {isLoaded ? (
-            <GoogleMap
-              mapContainerStyle={containerStyle}
-              center={center}
-              zoom={5}
-              onClick={async (event) => {
-                if (!event.latLng) return;
-                const latLng = {
-                  lat: event.latLng.lat(),
-                  lng: event.latLng.lng(),
-                };
-
-                if (pickTarget === 'origin') {
-                  setOriginMarker(latLng);
-                } else {
-                  setDestinationMarker(latLng);
-                }
-
-                await fillLocationFromLatLng(latLng, pickTarget);
-              }}
-              options={{
-                mapTypeControl: false,
-                streetViewControl: false,
-                fullscreenControl: false,
-              }}
-            >
-              {originMarker && <Marker position={originMarker} label="A" />}
-              {destinationMarker && <Marker position={destinationMarker} label="B" />}
-              {directionsResponse && (
-                <DirectionsRenderer directions={directionsResponse} />
-              )}
-            </GoogleMap>
-          ) : loadError ? (
-            <div className="flex h-[600px] items-center justify-center p-6 text-center text-muted-foreground">
-              Map preview is unavailable right now, but route summaries from the Java backend still work.
+          {leafletError ? (
+            <div className="flex h-[600px] flex-col items-center justify-center gap-4 p-6 text-center text-muted-foreground">
+              <MapPinned className="h-12 w-12 text-primary" />
+              <div className="space-y-2">
+                <p className="text-lg font-medium text-foreground">Map preview unavailable</p>
+                <p>
+                  You can still type locations, use "From My Location", and calculate the route summary.
+                </p>
+              </div>
             </div>
           ) : (
-            <Skeleton className="h-[600px] w-full" />
+            <>
+              {!leafletReady && <Skeleton className="absolute inset-0 h-[600px] w-full" />}
+              <div ref={mapContainerRef} className="h-[600px] w-full" />
+            </>
           )}
         </Card>
       </div>
