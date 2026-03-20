@@ -1,8 +1,5 @@
-
 "use client";
-
-import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Card,
   CardContent,
@@ -14,42 +11,61 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { hotels, dharamshalas } from "@/lib/mock-data";
-import { Star, MapPin } from "lucide-react";
+import { Loader2, Star, MapPin } from "lucide-react";
 import { Combobox } from "@/components/ui/combobox";
-import { cities } from "@/lib/locations";
+import { getLocalizedCityOptions } from "@/lib/locations";
+import { fetchAccommodations } from "@/lib/api/travel-buddy";
+import type { Accommodation } from "@/lib/api/types";
+import { useLanguage } from "@/components/language-provider";
 
 export default function AccommodationsPage() {
   const [selectedLocation, setSelectedLocation] = useState("all");
+  const [hotels, setHotels] = useState<Accommodation[]>([]);
+  const [dharamshalas, setDharamshalas] = useState<Accommodation[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { language } = useLanguage();
 
   const locationOptions = useMemo(() => {
-    const options = cities.map((city) => ({
-      value: `${city.name}, ${city.state}`,
-      label: `${city.name}, ${city.state}`,
-    }));
+    const options = getLocalizedCityOptions(language);
     return [{ value: "all", label: "All Locations" }, ...options];
-  }, []);
+  }, [language]);
 
-  const filteredHotels = useMemo(() => {
-    if (selectedLocation === "all") {
-      return hotels;
-    }
-    const city = selectedLocation.split(',')[0];
-    return hotels.filter((hotel) => hotel.location.includes(city));
-  }, [selectedLocation]);
+  useEffect(() => {
+    let active = true;
 
-  const filteredDharamshalas = useMemo(() => {
-    if (selectedLocation === "all") {
-      return dharamshalas;
+    async function load() {
+      setIsLoading(true);
+      try {
+        const [hotelData, dharamshalaData] = await Promise.all([
+          fetchAccommodations("hotel", selectedLocation),
+          fetchAccommodations("dharamshala", selectedLocation),
+        ]);
+
+        if (!active) return;
+        setHotels(hotelData);
+        setDharamshalas(dharamshalaData);
+      } finally {
+        if (active) setIsLoading(false);
+      }
     }
-    const city = selectedLocation.split(',')[0];
-    return dharamshalas.filter((item) => item.location.includes(city));
+
+    load();
+    return () => {
+      active = false;
+    };
   }, [selectedLocation]);
 
   const NoResults = () => (
     <div className="text-center text-muted-foreground py-16">
       <MapPin className="mx-auto h-12 w-12 mb-4"/>
       <p>No accommodations found for this location.</p>
+    </div>
+  );
+
+  const LoadingState = ({ label }: { label: string }) => (
+    <div className="flex items-center justify-center py-16 text-muted-foreground">
+      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+      {label}
     </div>
   );
 
@@ -74,17 +90,17 @@ export default function AccommodationsPage() {
         </TabsList>
 
         <TabsContent value="hotels" className="mt-6">
-          {filteredHotels.length > 0 ? (
+          {isLoading ? (
+            <LoadingState label="Loading hotels..." />
+          ) : hotels.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filteredHotels.map((hotel) => (
-                <Card key={hotel.name} className="flex flex-col overflow-hidden">
+              {hotels.map((hotel) => (
+                <Card key={hotel.id} className="flex flex-col overflow-hidden">
                   <div className="relative h-48 w-full">
-                    <Image
-                      src={hotel.img}
+                    <img
+                      src={hotel.imageUrl}
                       alt={hotel.name}
-                      fill
-                      className="object-cover"
-                      data-ai-hint={hotel.imgHint}
+                      className="h-full w-full object-cover"
                     />
                   </div>
                   <CardHeader>
@@ -92,21 +108,21 @@ export default function AccommodationsPage() {
                     <CardDescription>{hotel.location}</CardDescription>
                   </CardHeader>
                   <CardContent className="flex-grow space-y-3">
-                      <div className="flex items-center gap-4">
-                          <div className="flex items-center">
-                              {[...Array(5)].map((_, i) => (
-                                  <Star key={i} className={`h-4 w-4 ${i < hotel.rating ? 'text-accent fill-accent' : 'text-muted-foreground'}`} />
-                              ))}
-                              <span className="ml-2 text-xs text-muted-foreground">{hotel.rating}</span>
-                          </div>
-                          <p className="font-semibold text-primary">{hotel.price}</p>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className={`h-4 w-4 ${i < Math.round(hotel.rating) ? 'text-accent fill-accent' : 'text-muted-foreground'}`} />
+                        ))}
+                        <span className="ml-2 text-xs text-muted-foreground">{hotel.rating}</span>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                          {hotel.amenities.map(amenity => <Badge variant="secondary" key={amenity}>{amenity}</Badge>)}
-                      </div>
+                      <p className="font-semibold text-primary">{hotel.price}</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {hotel.amenities.map(amenity => <Badge variant="secondary" key={amenity}>{amenity}</Badge>)}
+                    </div>
                   </CardContent>
                   <CardFooter>
-                      <Button className="w-full" disabled>Book Now</Button>
+                    <Button className="w-full" disabled>Book Now</Button>
                   </CardFooter>
                 </Card>
               ))}
@@ -117,17 +133,17 @@ export default function AccommodationsPage() {
         </TabsContent>
 
         <TabsContent value="dharamshalas" className="mt-6">
-          {filteredDharamshalas.length > 0 ? (
+          {isLoading ? (
+            <LoadingState label="Loading dharamshalas..." />
+          ) : dharamshalas.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filteredDharamshalas.map((item) => (
-                <Card key={item.name} className="flex flex-col overflow-hidden">
+              {dharamshalas.map((item) => (
+                <Card key={item.id} className="flex flex-col overflow-hidden">
                   <div className="relative h-48 w-full">
-                    <Image
-                      src={item.img}
+                    <img
+                      src={item.imageUrl}
                       alt={item.name}
-                      fill
-                      className="object-cover"
-                      data-ai-hint={item.imgHint}
+                      className="h-full w-full object-cover"
                     />
                   </div>
                   <CardHeader>
@@ -135,21 +151,21 @@ export default function AccommodationsPage() {
                     <CardDescription>{item.location}</CardDescription>
                   </CardHeader>
                   <CardContent className="flex-grow space-y-3">
-                      <div className="flex items-center gap-4">
-                          <div className="flex items-center">
-                            {[...Array(5)].map((_, i) => (
-                                  <Star key={i} className={`h-4 w-4 ${i < item.rating ? 'text-accent fill-accent' : 'text-muted-foreground'}`} />
-                              ))}
-                              <span className="ml-2 text-xs text-muted-foreground">{item.rating}</span>
-                          </div>
-                          <p className="font-semibold text-primary">{item.price}</p>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className={`h-4 w-4 ${i < Math.round(item.rating) ? 'text-accent fill-accent' : 'text-muted-foreground'}`} />
+                        ))}
+                        <span className="ml-2 text-xs text-muted-foreground">{item.rating}</span>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                          {item.amenities.map(amenity => <Badge variant="secondary" key={amenity}>{amenity}</Badge>)}
-                      </div>
+                      <p className="font-semibold text-primary">{item.price}</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {item.amenities.map(amenity => <Badge variant="secondary" key={amenity}>{amenity}</Badge>)}
+                    </div>
                   </CardContent>
                   <CardFooter>
-                      <Button className="w-full" disabled>Enquire</Button>
+                    <Button className="w-full" disabled>Enquire</Button>
                   </CardFooter>
                 </Card>
               ))}

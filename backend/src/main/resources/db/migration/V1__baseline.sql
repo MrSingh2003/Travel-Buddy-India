@@ -1,0 +1,60 @@
+CREATE TABLE IF NOT EXISTS users (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  external_id VARCHAR(100) NOT NULL UNIQUE,
+  full_name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  phone_number VARCHAR(30),
+  photo_url VARCHAR(500),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS trip_requests (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  user_external_id VARCHAR(100),
+  current_location VARCHAR(255) NOT NULL,
+  destination VARCHAR(255) NOT NULL,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  budget_inr INT NOT NULL,
+  travelers INT NOT NULL,
+  interests TEXT,
+  suitability_score INT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS bookings (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  booking_code VARCHAR(20) NOT NULL UNIQUE,
+  service_type VARCHAR(50) NOT NULL,
+  service_name VARCHAR(255) NOT NULL,
+  booking_status VARCHAR(30) NOT NULL DEFAULT 'CONFIRMED',
+  customer_reference VARCHAR(100),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS accommodations (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  code VARCHAR(50) NOT NULL UNIQUE,
+  category VARCHAR(50) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  city VARCHAR(100) NOT NULL,
+  state_name VARCHAR(100) NOT NULL,
+  rating DECIMAL(2,1) NOT NULL,
+  price_label VARCHAR(100) NOT NULL,
+  image_url VARCHAR(500),
+  amenities_json TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS transport_partners (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  code VARCHAR(50) NOT NULL UNIQUE,
+  service_type VARCHAR(50) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  city VARCHAR(100),
+  state_name VARCHAR(100),
+  phone_number VARCHAR(30),
+  verified BOOLEAN DEFAULT FALSE,
+  metadata_json TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

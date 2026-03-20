@@ -23,10 +23,13 @@ prisma/*.db*
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store
 *.pem
+.modified
+.idx/
 
 # debug
 npm-debug.log*

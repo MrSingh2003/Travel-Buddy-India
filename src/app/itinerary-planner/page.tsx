@@ -6,7 +6,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Loader2, Wand2 } from "lucide-react";
-import { generatePersonalizedItinerary } from "@/ai/flows/generate-personalized-itinerary";
+import { generateTrip } from "@/lib/api/travel-buddy";
+import type { PersonalizedTripOutput } from "@/lib/api/types";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -36,47 +37,51 @@ import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 
 const formSchema = z.object({
-  location: z.string().min(2, "Location is required."),
+  currentLocation: z.string().min(2, "Current location is required."),
+  location: z.string().min(2, "Destination is required."),
   dates: z.object({
     from: z.date(),
     to: z.date(),
   }),
   budget: z.coerce.number().min(1, "Budget must be a positive number."),
   interests: z.string().min(3, "Please list at least one interest."),
+  numberOfPeople: z.coerce.number().int().min(1, "At least one traveler is required."),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 export default function ItineraryPlannerPage() {
-  const [itinerary, setItinerary] = useState<string | null>(null);
+  const [trip, setTrip] = useState<PersonalizedTripOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      location: "",
-      budget: 1000,
+      currentLocation: "New Delhi, Delhi",
+      location: "Goa, Goa",
+      budget: 30000,
       interests: "sightseeing, food, culture",
+      numberOfPeople: 2,
     },
   });
 
   async function onSubmit(values: FormValues) {
     setIsLoading(true);
-    setItinerary(null);
+    setTrip(null);
     try {
-      const response = await generatePersonalizedItinerary({
+      const response = await generateTrip({
+        currentLocation: values.currentLocation,
         location: values.location,
-        dates: `${format(values.dates.from, "yyyy-MM-dd")} to ${format(
-          values.dates.to,
-          "yyyy-MM-dd"
-        )}`,
+        startDate: format(values.dates.from, "yyyy-MM-dd"),
+        endDate: format(values.dates.to, "yyyy-MM-dd"),
         budget: values.budget,
         interests: values.interests,
+        numberOfPeople: values.numberOfPeople,
       });
-      setItinerary(response.itinerary);
+      setTrip(response);
     } catch (error) {
       console.error("Failed to generate itinerary:", error);
-      setItinerary("Sorry, we couldn't generate your itinerary at this time. Please try again later.");
+      setTrip(null);
     } finally {
       setIsLoading(false);
     }
@@ -89,8 +94,7 @@ export default function ItineraryPlannerPage() {
           <CardHeader>
             <CardTitle className="font-headline">Create Your Dream Trip</CardTitle>
             <CardDescription>
-              Fill in your travel details, and our AI will craft a personalized
-              itinerary just for you.
+              Plan a trip through the Java backend and get a structured itinerary with budget guidance.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -98,12 +102,25 @@ export default function ItineraryPlannerPage() {
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <FormField
                   control={form.control}
+                  name="currentLocation"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Current Location</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., New Delhi, Delhi" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
                   name="location"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Destination</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Goa, India" {...field} />
+                        <Input placeholder="e.g., Goa, Goa" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -161,9 +178,22 @@ export default function ItineraryPlannerPage() {
                   name="budget"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Budget (USD)</FormLabel>
+                      <FormLabel>Budget (INR)</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="1000" {...field} />
+                        <Input type="number" placeholder="30000" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="numberOfPeople"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Travelers</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="2" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -182,7 +212,7 @@ export default function ItineraryPlannerPage() {
                         />
                       </FormControl>
                       <FormDescription>
-                        Separate interests with commas (e.g., hiking, beaches, history).
+                        Separate interests with commas, like food, beaches, history, temples.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -204,33 +234,66 @@ export default function ItineraryPlannerPage() {
       <div className="md:col-span-2">
         <Card className="h-full">
           <CardHeader>
-            <CardTitle className="font-headline">Your Personalized Trip</CardTitle>
+            <CardTitle className="font-headline">{trip?.tripTitle || "Your Personalized Trip"}</CardTitle>
             <CardDescription>
-              Here is the travel plan generated by our AI.
+              {trip?.tripSummary || "Here is the travel plan generated by the Java backend."}
             </CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading && (
               <div className="space-y-4">
-                 <div className="space-y-2">
-                    <div className="h-4 bg-muted rounded w-1/4 animate-pulse"></div>
-                    <div className="h-4 bg-muted rounded w-full animate-pulse"></div>
-                    <div className="h-4 bg-muted rounded w-3/4 animate-pulse"></div>
-                 </div>
-                 <div className="space-y-2 pt-4">
-                    <div className="h-4 bg-muted rounded w-1/4 animate-pulse"></div>
-                    <div className="h-4 bg-muted rounded w-full animate-pulse"></div>
-                    <div className="h-4 bg-muted rounded w-1/2 animate-pulse"></div>
-                    <div className="h-4 bg-muted rounded w-3/4 animate-pulse"></div>
-                 </div>
+                <div className="space-y-2">
+                  <div className="h-4 bg-muted rounded w-1/4 animate-pulse"></div>
+                  <div className="h-4 bg-muted rounded w-full animate-pulse"></div>
+                  <div className="h-4 bg-muted rounded w-3/4 animate-pulse"></div>
+                </div>
+                <div className="space-y-2 pt-4">
+                  <div className="h-4 bg-muted rounded w-1/4 animate-pulse"></div>
+                  <div className="h-4 bg-muted rounded w-full animate-pulse"></div>
+                  <div className="h-4 bg-muted rounded w-1/2 animate-pulse"></div>
+                  <div className="h-4 bg-muted rounded w-3/4 animate-pulse"></div>
+                </div>
               </div>
             )}
-            {itinerary && (
-              <div className="prose prose-sm max-w-none whitespace-pre-wrap">
-                {itinerary}
+            {trip && (
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-semibold mb-2">Suitability Score</h3>
+                  <p>{trip.suitabilityScore}/10</p>
+                  <p className="text-sm text-muted-foreground">{trip.suitabilityReasoning}</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Budget Breakdown</h3>
+                  <div className="space-y-1 text-sm">
+                    <p>Accommodation: {trip.budgetBreakdown.accommodation}</p>
+                    <p>Food: {trip.budgetBreakdown.food}</p>
+                    <p>Transport: {trip.budgetBreakdown.transport}</p>
+                    <p>Activities: {trip.budgetBreakdown.activities}</p>
+                    <p className="font-semibold">Total: {trip.budgetBreakdown.total}</p>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Weather Advisory</h3>
+                  <p className="text-sm text-muted-foreground">{trip.weatherAdvisory}</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Daily Itinerary</h3>
+                  <div className="space-y-4">
+                    {trip.dailyItinerary.map((day) => (
+                      <div key={day.day} className="rounded-md border p-4">
+                        <h4 className="font-medium">Day {day.day}: {day.title}</h4>
+                        <ul className="mt-2 list-disc list-inside text-sm text-muted-foreground">
+                          {day.activities.map((activity, index) => (
+                            <li key={index}>{activity}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
-            {!isLoading && !itinerary && (
+            {!isLoading && !trip && (
               <div className="text-center text-muted-foreground py-16">
                 <Wand2 className="mx-auto h-12 w-12 mb-4"/>
                 <p>Your generated itinerary will appear here.</p>

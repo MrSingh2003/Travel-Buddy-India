@@ -1,14 +1,15 @@
 {
-  "name": "nextn",
+  "name": "travel-buddy-india-frontend",
+  "description": "Travel Buddy India frontend rebuilt as a React + Vite SPA for a Spring Boot backend.",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack -p 9002",
+    "dev": "vite --port 9002",
     "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
     "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
+    "build": "vite build",
+    "start": "vite preview --port 9002",
+    "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init",
@@ -18,7 +19,6 @@
     "@googlemaps/js-api-loader": "^1.16.6",
     "@react-google-maps/api": "^2.19.3",
     "@genkit-ai/google-genai": "1.18.0",
-    "@genkit-ai/next": "1.18.0",
     "@hookform/resolvers": "^4.1.3",
     "@radix-ui/react-accordion": "^1.2.3",
     "@radix-ui/react-alert-dialog": "^1.1.6",
@@ -51,13 +51,13 @@
     "genkit": "1.18.0",
     "lodash": "^4.17.21",
     "lucide-react": "^0.475.0",
-    "next": "15.3.8",
     "next-themes": "^0.3.0",
     "patch-package": "^8.0.0",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.54.2",
+    "react-router-dom": "^6.30.1",
     "bcryptjs": "^2.4.3",
     "recharts": "^2.15.1",
     "tailwind-merge": "^3.0.1",
@@ -76,6 +76,8 @@
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5",
-    "firebase-tools": "^13.13.2"
+    "firebase-tools": "^13.13.2",
+    "@vitejs/plugin-react": "^4.7.0",
+    "vite": "^5.4.19"
   }
 }

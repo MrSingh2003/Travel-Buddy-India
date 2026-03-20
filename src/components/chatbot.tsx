@@ -1,12 +1,9 @@
-// src/components/chatbot.tsx
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import {
-  answerTravelQuestion,
-  type AnswerTravelQuestionInput,
-} from "@/ai/flows/answer-travel-questions-with-chatbot";
 import { Bot, Send, Loader2, User, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { answerTravelQuestion } from "@/lib/api/travel-buddy";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +18,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 type Message = {
   role: "user" | "assistant";
   content: string;
+  ctaLabel?: string;
+  ctaAction?: () => void;
 };
 
 export function Chatbot() {
@@ -29,13 +28,29 @@ export function Chatbot() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+
+  const isTripPlanningIntent = (text: string) => {
+    const normalized = text.toLowerCase();
+    return [
+      "plan a trip",
+      "plan my trip",
+      "trip plan",
+      "trip planner",
+      "travel plan",
+      "i want to travel",
+      "i want to plan a trip",
+    ].some((phrase) => normalized.includes(phrase));
+  };
 
   useEffect(() => {
     if (scrollAreaRef.current) {
-        const viewport = scrollAreaRef.current.querySelector('div[data-radix-scroll-area-viewport]');
-        if (viewport) {
-            viewport.scrollTop = viewport.scrollHeight;
-        }
+      const viewport = scrollAreaRef.current.querySelector(
+        "div[data-radix-scroll-area-viewport]"
+      );
+      if (viewport) {
+        viewport.scrollTop = viewport.scrollHeight;
+      }
     }
   }, [messages]);
 
@@ -54,10 +69,19 @@ export function Chatbot() {
     setInput("");
 
     try {
-      const response = await answerTravelQuestion({ question });
+      const response = await answerTravelQuestion(question);
       const assistantMessage: Message = {
         role: "assistant",
         content: response.answer,
+        ...(isTripPlanningIntent(question)
+          ? {
+              ctaLabel: "Open AI Trip Planner",
+              ctaAction: () => {
+                setIsOpen(false);
+                navigate("/trip-planner");
+              },
+            }
+          : {}),
       };
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
@@ -95,7 +119,7 @@ export function Chatbot() {
                   <div className="text-center text-sm text-muted-foreground pt-8">
                     <Bot className="mx-auto h-8 w-8 mb-2" />
                     <p className="text-primary">
-                      Welcome to Travel Buddy! 🇮🇳 Your personal guide to
+                      Welcome to Travel Buddy India, your personal guide to
                       exploring India. How can I help you plan your adventure
                       today?
                     </p>
@@ -122,11 +146,21 @@ export function Chatbot() {
                             : "bg-muted"
                         }`}
                       >
-                        {message.content}
+                        <div>{message.content}</div>
+                        {message.ctaLabel && message.ctaAction && (
+                          <Button
+                            type="button"
+                            size="sm"
+                            className="mt-3"
+                            onClick={message.ctaAction}
+                          >
+                            {message.ctaLabel}
+                          </Button>
+                        )}
                       </div>
                       {message.role === "user" && (
                         <Avatar className="h-8 w-8 border">
-                          <AvatarFallback><User className="h-5 w-5"/></AvatarFallback>
+                          <AvatarFallback><User className="h-5 w-5" /></AvatarFallback>
                         </Avatar>
                       )}
                     </div>

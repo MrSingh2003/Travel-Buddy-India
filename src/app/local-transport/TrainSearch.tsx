@@ -1,4 +1,3 @@
-// src/app/local-transport/TrainSearch.tsx
 'use client';
 
 import { useState } from 'react';
@@ -11,7 +10,6 @@ import {
   Loader2,
   Search,
   Train,
-  Clock,
   IndianRupee,
   ArrowRight,
 } from 'lucide-react';
@@ -39,10 +37,12 @@ import {
 import { Calendar } from '@/components/ui/calendar';
 import { Combobox } from '@/components/ui/combobox';
 import { cn } from '@/lib/utils';
-import { cities } from '@/lib/locations';
+import { getLocalizedCityOptions } from '@/lib/locations';
 import { useToast } from '@/hooks/use-toast';
-import { bookTransport } from '@/ai/flows/book-transport';
-import { trains } from '@/lib/mock-data';
+import { bookTransport, searchTrains } from '@/lib/api/travel-buddy';
+import type { TransportOption } from '@/lib/api/types';
+import { useLanguage } from '@/components/language-provider';
+import { getDateFnsLocale } from '@/lib/date-locales';
 
 const searchSchema = z.object({
   from: z.string({ required_error: 'Please select a departure city.' }),
@@ -58,13 +58,15 @@ type BookingState = {
 };
 
 export function TrainSearch() {
-  const [searchResults, setSearchResults] = useState<typeof trains>([]);
+  const [searchResults, setSearchResults] = useState<TransportOption[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [bookingState, setBookingState] = useState<BookingState>({
     isLoading: false,
     serviceId: null,
   });
   const { toast } = useToast();
+  const { language } = useLanguage();
+  const dateLocale = getDateFnsLocale(language);
 
   const form = useForm<SearchFormValues>({
     resolver: zodResolver(searchSchema),
@@ -73,15 +75,19 @@ export function TrainSearch() {
   async function onSearch(values: SearchFormValues) {
     setIsSearching(true);
     setSearchResults([]);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    const results = trains.filter(
-      train =>
-        train.from.split(' ')[0].includes(values.from.split(',')[0]) &&
-        train.to.split(' ')[0].includes(values.to.split(',')[0])
-    );
-    setSearchResults(results);
-    setIsSearching(false);
+    try {
+      const results = await searchTrains(values.from, values.to);
+      setSearchResults(results);
+    } catch (error) {
+      console.error('Failed to load trains:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Search Failed',
+        description: 'Could not load train routes from the Java backend.',
+      });
+    } finally {
+      setIsSearching(false);
+    }
   }
 
   const handleBooking = async (
@@ -91,11 +97,10 @@ export function TrainSearch() {
   ) => {
     setBookingState({ isLoading: true, serviceId: id });
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      const response = await bookTransport({ service, details });
+      const response = await bookTransport(service, details);
       toast({
         title: 'Booking Confirmed!',
-        description: response.message,
+        description: `${response.message} Booking ID: ${response.bookingId}`,
       });
     } catch (error) {
       console.error('Failed to book:', error);
@@ -110,10 +115,7 @@ export function TrainSearch() {
     }
   };
 
-  const locationOptions = cities.map(c => ({
-    value: `${c.name}, ${c.state}`,
-    label: `${c.name}, ${c.state}`,
-  }));
+  const locationOptions = getLocalizedCityOptions(language);
 
   return (
     <div className="space-y-6">
@@ -181,7 +183,7 @@ export function TrainSearch() {
                             >
                               <CalendarIcon className="mr-2 h-4 w-4" />
                               {field.value ? (
-                                format(field.value, 'PPP')
+                                format(field.value, 'PPP', { locale: dateLocale })
                               ) : (
                                 <span>Pick a date</span>
                               )}
@@ -239,36 +241,34 @@ export function TrainSearch() {
           <h3 className="text-xl font-semibold">
             Found {searchResults.length} trains
           </h3>
-          {searchResults.map((train, index) => {
-            const trainId = `train-${index}`;
+          {searchResults.map((train) => {
             const isBooking =
-              bookingState.isLoading && bookingState.serviceId === trainId;
+              bookingState.isLoading && bookingState.serviceId === train.id;
             return (
-              <Card key={trainId}>
+              <Card key={train.id}>
                 <CardContent className="p-4 grid md:grid-cols-4 gap-4 items-center">
                   <div className="md:col-span-2">
                     <p className="font-bold text-lg">{train.name}</p>
                     <p className="text-sm text-muted-foreground">
-                      {train.from} <ArrowRight className="inline h-4 w-4" />{' '}
-                      {train.to}
+                      {train.from} <ArrowRight className="inline h-4 w-4" /> {train.to}
                     </p>
                   </div>
 
                   <div className="text-sm">
-                    <p className="font-semibold">{train.class}</p>
+                    <p className="font-semibold">{train.vehicleClass}</p>
                   </div>
 
                   <div className="flex md:flex-col items-center justify-between md:items-end gap-2">
                     <p className="text-lg font-bold flex items-center">
                       <IndianRupee className="h-5 w-5" />
-                      {train.price.replace('₹', '')}
+                      {train.price.replace('INR ', '')}
                     </p>
                     <Button
                       onClick={() =>
                         handleBooking(
                           'train',
                           `${train.name}: ${train.from} to ${train.to}`,
-                          trainId
+                          train.id
                         )
                       }
                       disabled={bookingState.isLoading}

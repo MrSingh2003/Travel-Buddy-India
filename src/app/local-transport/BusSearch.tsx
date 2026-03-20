@@ -1,4 +1,3 @@
-// src/app/local-transport/BusSearch.tsx
 'use client';
 
 import { useState } from 'react';
@@ -11,7 +10,6 @@ import {
   Loader2,
   Search,
   Bus,
-  Clock,
   IndianRupee,
   ArrowRight,
 } from 'lucide-react';
@@ -30,7 +28,6 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from '@/components/ui/card';
 import {
   Popover,
@@ -40,10 +37,13 @@ import {
 import { Calendar } from '@/components/ui/calendar';
 import { Combobox } from '@/components/ui/combobox';
 import { cn } from '@/lib/utils';
-import { cities } from '@/lib/locations';
+import { getLocalizedCityOptions } from '@/lib/locations';
 import { useToast } from '@/hooks/use-toast';
-import { bookTransport } from '@/ai/flows/book-transport';
 import { Badge } from '@/components/ui/badge';
+import { bookTransport, searchBuses } from '@/lib/api/travel-buddy';
+import type { TransportOption } from '@/lib/api/types';
+import { useLanguage } from '@/components/language-provider';
+import { getDateFnsLocale } from '@/lib/date-locales';
 
 const searchSchema = z.object({
   from: z.string({ required_error: 'Please select a departure city.' }),
@@ -53,61 +53,21 @@ const searchSchema = z.object({
 
 type SearchFormValues = z.infer<typeof searchSchema>;
 
-const mockBuses = [
-  {
-    id: 'bus-1',
-    operator: 'VRL Travels',
-    type: 'Volvo A/C Sleeper (2+1)',
-    from: 'Bengaluru',
-    to: 'Mumbai',
-    departureTime: '18:00',
-    arrivalTime: '10:00',
-    duration: '16h 0m',
-    price: '₹2100',
-    rating: 4.5,
-    seatsAvailable: 15,
-  },
-  {
-    id: 'bus-2',
-    operator: 'Sharma Transports',
-    type: 'Scania A/C Seater (2+2)',
-    from: 'Bengaluru',
-    to: 'Mumbai',
-    departureTime: '19:30',
-    arrivalTime: '12:30',
-    duration: '17h 0m',
-    price: '₹1850',
-    rating: 4.2,
-    seatsAvailable: 25,
-  },
-  {
-    id: 'bus-3',
-    operator: 'KSRTC (Airavat Club Class)',
-    type: 'Mercedes-Benz Multi-Axle',
-    from: 'Bengaluru',
-    to: 'Mumbai',
-    departureTime: '20:00',
-    arrivalTime: '12:00',
-    duration: '16h 0m',
-    price: '₹2500',
-    rating: 4.8,
-    seatsAvailable: 8,
-  },
-];
-
 type BookingState = {
   isLoading: boolean;
   serviceId: string | null;
 };
 
 export function BusSearch() {
-  const [searchResults, setSearchResults] = useState<typeof mockBuses>([]);
+  const [searchResults, setSearchResults] = useState<TransportOption[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [bookingState, setBookingState] = useState<BookingState>({
     isLoading: false,
     serviceId: null,
   });
   const { toast } = useToast();
+  const { language } = useLanguage();
+  const dateLocale = getDateFnsLocale(language);
 
   const form = useForm<SearchFormValues>({
     resolver: zodResolver(searchSchema),
@@ -116,15 +76,19 @@ export function BusSearch() {
   async function onSearch(values: SearchFormValues) {
     setIsSearching(true);
     setSearchResults([]);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    const results = mockBuses.filter(
-      bus =>
-        bus.from.split(',')[0] === values.from.split(',')[0] &&
-        bus.to.split(',')[0] === values.to.split(',')[0]
-    );
-    setSearchResults(results);
-    setIsSearching(false);
+    try {
+      const results = await searchBuses(values.from, values.to);
+      setSearchResults(results);
+    } catch (error) {
+      console.error('Failed to load buses:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Search Failed',
+        description: 'Could not load bus routes from the Java backend.',
+      });
+    } finally {
+      setIsSearching(false);
+    }
   }
 
   const handleBooking = async (
@@ -134,12 +98,10 @@ export function BusSearch() {
   ) => {
     setBookingState({ isLoading: true, serviceId: id });
     try {
-      // Simulate network delay for a more realistic experience
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      const response = await bookTransport({ service, details });
+      const response = await bookTransport(service, details);
       toast({
         title: 'Booking Confirmed!',
-        description: response.message,
+        description: `${response.message} Booking ID: ${response.bookingId}`,
       });
     } catch (error) {
       console.error('Failed to book:', error);
@@ -154,10 +116,7 @@ export function BusSearch() {
     }
   };
 
-  const locationOptions = cities.map(c => ({
-    value: `${c.name}, ${c.state}`,
-    label: `${c.name}, ${c.state}`,
-  }));
+  const locationOptions = getLocalizedCityOptions(language);
 
   return (
     <div className="space-y-6">
@@ -225,7 +184,7 @@ export function BusSearch() {
                             >
                               <CalendarIcon className="mr-2 h-4 w-4" />
                               {field.value ? (
-                                format(field.value, 'PPP')
+                                format(field.value, 'PPP', { locale: dateLocale })
                               ) : (
                                 <span>Pick a date</span>
                               )}
@@ -290,8 +249,8 @@ export function BusSearch() {
               <Card key={bus.id}>
                 <CardContent className="p-4 grid md:grid-cols-5 gap-4 items-center">
                   <div className="md:col-span-2">
-                    <p className="font-bold text-lg">{bus.operator}</p>
-                    <p className="text-sm text-muted-foreground">{bus.type}</p>
+                    <p className="font-bold text-lg">{bus.name}</p>
+                    <p className="text-sm text-muted-foreground">{bus.vehicleClass}</p>
                     <Badge variant="outline" className="mt-1">
                       {bus.rating} ★
                     </Badge>
@@ -316,13 +275,13 @@ export function BusSearch() {
                   <div className="flex md:flex-col items-center justify-between md:items-end gap-2">
                     <p className="text-lg font-bold flex items-center">
                       <IndianRupee className="h-5 w-5" />
-                      {bus.price.replace('₹', '')}
+                      {bus.price.replace('INR ', '')}
                     </p>
                     <Button
                       onClick={() =>
                         handleBooking(
                           'bus',
-                          `${bus.operator}: ${bus.from} to ${bus.to}`,
+                          `${bus.name}: ${bus.from} to ${bus.to}`,
                           bus.id
                         )
                       }

@@ -6,15 +6,17 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2, MapPin, Search, Star, Building, Utensils, Sparkles } from "lucide-react";
-import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Combobox } from "@/components/ui/combobox";
-import { cities } from "@/lib/locations";
+import { getLocalizedCityOptions } from "@/lib/locations";
 import { Badge } from "@/components/ui/badge";
+import { generatePoster, searchPlaces } from "@/lib/api/travel-buddy";
+import type { InspirationalImage, Place } from "@/lib/api/types";
+import { useLanguage } from "@/components/language-provider";
 
 const formSchema = z.object({
   query: z.string().min(2, "Please enter a search query."),
@@ -23,27 +25,13 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-type Place = {
-  position?: number;
-  title?: string;
-  address?: string;
-  rating?: number;
-  reviews?: number;
-  type?: string;
-  thumbnail?: string;
-  place_id?: string;
-};
-
-type InspirationalImage = {
-    title: string;
-    dataUri: string;
-};
-
 export default function ExplorePage() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [inspirationalImage, setInspirationalImage] = useState<InspirationalImage | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { language } = useLanguage();
+  const cityOptions = getLocalizedCityOptions(language);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -60,32 +48,12 @@ export default function ExplorePage() {
     setError(null);
 
     try {
-      // Fire off both requests in parallel
-      const placesPromise = fetch('/api/explore', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
-      }).then(res => {
-        if (!res.ok) throw new Error('Search failed');
-        return res.json();
-      });
-
-      const inspirePromise = fetch('/api/inspire', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
-      }).then(res => {
-        if (!res.ok) return null; // Don't throw, image is optional
-        return res.json();
-      });
-
-      const [placesResult, inspireResult] = await Promise.all([placesPromise, inspirePromise]);
-      
-      setPlaces(placesResult.places);
-      if(inspireResult) {
-        setInspirationalImage(inspireResult);
-      }
-
+      const [placesResult, inspireResult] = await Promise.all([
+        searchPlaces(values.query, values.location),
+        generatePoster(values.query, values.location),
+      ]);
+      setPlaces(placesResult);
+      setInspirationalImage(inspireResult);
     } catch (e) {
       console.error(e);
       setError("Sorry, we couldn't find any places at this time. Please try again later.");
@@ -125,11 +93,10 @@ export default function ExplorePage() {
         return (
             <Card className="overflow-hidden border-0 shadow-xl w-full">
                 <div className="relative h-64 w-full">
-                <Image
-                    src={image.dataUri}
+                <img
+                    src={image.imageUrl}
                     alt={image.title}
-                    fill
-                    className="object-cover"
+                    className="h-full w-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <div className="absolute bottom-0 left-0 p-6">
@@ -180,10 +147,7 @@ export default function ExplorePage() {
                   <FormItem className="w-full md:w-auto md:min-w-[250px]">
                     <FormLabel>Where?</FormLabel>
                     <Combobox
-                      options={cities.map((c) => ({
-                        value: `${c.name}, ${c.state}`,
-                        label: `${c.name}, ${c.state}`,
-                      }))}
+                      options={cityOptions}
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="Select location"
@@ -227,11 +191,11 @@ export default function ExplorePage() {
       {!isLoading && places.length > 0 && (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {places.map((place, index) => (
-            <Card key={`${place.place_id}-${index}`} className="overflow-hidden flex flex-col">
+            <Card key={`${place.title}-${index}`} className="overflow-hidden flex flex-col">
               <CardHeader>
               {place.thumbnail && (
                  <div className="relative h-40 w-full rounded-md overflow-hidden">
-                    <Image src={place.thumbnail} alt={place.title || 'Place image'} fill className="object-cover" />
+                    <img src={place.thumbnail} alt={place.title || 'Place image'} className="h-full w-full object-cover" />
                  </div>
               )}
                 <CardTitle className="font-headline pt-2">{place.title}</CardTitle>

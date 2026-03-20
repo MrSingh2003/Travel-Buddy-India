@@ -3,10 +3,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { Link, useNavigate } from "react-router-dom";
 import { LogOut, Settings, User as UserIcon, UserCircle } from "lucide-react";
 import { onAuthStateChanged, signOut, type User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { fetchProfile } from "@/lib/api/travel-buddy";
+import type { UserProfile } from "@/lib/api/types";
+import {
+  clearProfileSession,
+  getProfileSessionEventName,
+  loadProfileSession,
+  saveProfileSession,
+} from "@/lib/profile-session";
 
 import {
   DropdownMenu,
@@ -20,28 +28,72 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
 
 export function UserNav() {
   const [user, setUser] = useState<User | null>(null);
+  const [profileView, setProfileView] = useState<Partial<UserProfile> | null>(null);
   const { toast } = useToast();
-  const router = useRouter();
+  const navigate = useNavigate();
+  const triggerClass =
+    "relative h-11 w-11 rounded-2xl border border-emerald-200/80 bg-emerald-50 text-emerald-700 shadow-sm transition-all duration-300 hover:bg-emerald-100 hover:text-emerald-800 dark:border-violet-300/20 dark:bg-violet-200/10 dark:text-violet-100 dark:shadow-[0_8px_30px_rgba(167,139,250,0.18)] dark:hover:bg-violet-200/20 dark:hover:text-violet-50";
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const applySessionProfile = (currentUser: User | null, stored?: Partial<UserProfile> | null) => {
+      const sessionProfile = stored ?? loadProfileSession();
+      const firebaseName = currentUser?.displayName?.trim() || "User";
+      const firebaseEmail = currentUser?.email?.trim() || "";
+      const firebasePhoto = currentUser?.photoURL?.trim() || "";
+      const sessionName = sessionProfile?.fullName?.trim();
+      const sessionEmail = sessionProfile?.email?.trim();
+      const sessionPhoto = sessionProfile?.photoUrl?.trim();
+
+      setProfileView({
+        fullName: sessionName || firebaseName,
+        email: sessionEmail || firebaseEmail,
+        photoUrl: sessionPhoto || firebasePhoto,
+      });
+    };
+
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      applySessionProfile(currentUser);
+
+      if (!currentUser) {
+        setProfileView(null);
+        return;
+      }
+
+      try {
+        const profile = await fetchProfile();
+        saveProfileSession(profile);
+        applySessionProfile(currentUser, profile);
+      } catch {
+        applySessionProfile(currentUser);
+      }
     });
-    return () => unsubscribe();
+
+    const syncFromProfilePage = (event: Event) => {
+      const customEvent = event as CustomEvent<Partial<UserProfile> | null>;
+      applySessionProfile(auth.currentUser, customEvent.detail);
+    };
+
+    window.addEventListener(getProfileSessionEventName(), syncFromProfilePage as EventListener);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener(getProfileSessionEventName(), syncFromProfilePage as EventListener);
+    };
   }, []);
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      clearProfileSession();
       toast({
         title: "Logged Out",
         description: "You have been successfully logged out.",
       });
-      router.push('/login');
+      navigate('/login');
     } catch (error) {
       console.error("Error signing out: ", error);
       toast({
@@ -59,14 +111,18 @@ export function UserNav() {
   }
 
   if (user) {
+    const displayName = profileView?.fullName || user.displayName || "User";
+    const displayEmail = profileView?.email || user.email || "";
+    const displayPhoto = profileView?.photoUrl || user.photoURL || "";
+
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+          <Button variant="ghost" className={triggerClass}>
             <Avatar className="h-9 w-9">
-               <AvatarImage src={user.photoURL ?? ""} alt={user.displayName ?? ""} />
+               <AvatarImage src={displayPhoto} alt={displayName} />
               <AvatarFallback>
-                {user.displayName ? getInitials(user.displayName) : <UserCircle className="h-7 w-7" />}
+                {displayName ? getInitials(displayName) : <UserCircle className="h-7 w-7" />}
               </AvatarFallback>
             </Avatar>
           </Button>
@@ -74,22 +130,22 @@ export function UserNav() {
         <DropdownMenuContent className="w-56" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{user.displayName || "User"}</p>
+                <p className="text-sm font-medium leading-none">{displayName}</p>
                 <p className="text-xs leading-none text-muted-foreground">
-                {user.email}
+                {displayEmail}
                 </p>
             </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
                 <DropdownMenuItem asChild>
-                    <Link href="/profile">
+                    <Link to="/profile">
                         <UserIcon className="mr-2 h-4 w-4" />
                         <span>Profile</span>
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                    <Link href="/settings">
+                    <Link to="/settings">
                         <Settings className="mr-2 h-4 w-4" />
                         <span>Settings</span>
                     </Link>
@@ -108,7 +164,7 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+        <Button variant="ghost" className={triggerClass}>
           <Avatar className="h-9 w-9">
             <AvatarFallback>
               <UserCircle className="h-7 w-7" />
@@ -118,10 +174,10 @@ export function UserNav() {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-48" align="end" forceMount>
         <DropdownMenuItem asChild>
-          <Link href="/login">Log in</Link>
+          <Link to="/login">Log in</Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/signup">Sign up</Link>
+          <Link to="/signup">Sign up</Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

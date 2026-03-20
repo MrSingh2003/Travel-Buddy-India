@@ -2,6 +2,7 @@
 "use client"
 
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,13 +13,11 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Link from "next/link";
 import { auth } from "@/lib/firebase";
 import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 
 export default function SignupPage() {
@@ -31,7 +30,7 @@ export default function SignupPage() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const { toast } = useToast();
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const handleSignup = async () => {
     if (!fullName || !email || !password || !confirmPassword) {
@@ -59,7 +58,7 @@ export default function SignupPage() {
         title: "Account Created!",
         description: "You have been successfully signed up.",
       });
-      router.push('/');
+      navigate('/');
     } catch (error: any) {
       handleAuthError(error);
     } finally {
@@ -77,7 +76,7 @@ export default function SignupPage() {
         title: "Account Created!",
         description: "Welcome! You have been successfully signed up.",
       });
-      router.push("/");
+      navigate("/");
     } catch (error: any) {
       handleAuthError(error);
     } finally {
@@ -204,7 +203,7 @@ export default function SignupPage() {
           </div>
           <div className="mt-4 text-center text-sm">
             Already have an account?{" "}
-            <Link href="/login" className="underline">
+            <Link to="/login" className="underline">
               Login
             </Link>
           </div>
