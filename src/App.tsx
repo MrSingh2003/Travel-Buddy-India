@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Header } from '@/components/header';
 import { Chatbot } from '@/components/chatbot';
+import { Footer } from '@/components/footer';
 import { ThemeProvider } from '@/components/theme-provider';
 import { LanguageProvider } from '@/components/language-provider';
 import { Toaster } from '@/components/ui/toaster';
@@ -56,6 +57,7 @@ export default function App() {
               <Route path="/dashboard" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
+          <Footer />
         </div>
         <Chatbot />
         <Toaster />

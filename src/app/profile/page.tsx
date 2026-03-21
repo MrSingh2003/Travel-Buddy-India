@@ -21,11 +21,15 @@ import { fetchProfile, generateAvatar, updateProfile } from '@/lib/api/travel-bu
 import type { UserProfile } from '@/lib/api/types';
 import { auth } from '@/lib/firebase';
 import { saveProfileSession } from '@/lib/profile-session';
+import { getSavedTrips, removeSavedTrip, type SavedTripRecord } from '@/lib/saved-trips';
 import {
+  CalendarDays,
   Loader2,
   MapPin,
   PencilLine,
   Phone,
+  Plane,
+  Trash2,
   Save,
   Shield,
   User as UserIcon,
@@ -87,6 +91,7 @@ export default function ProfilePage() {
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [baseProfile, setBaseProfile] = useState<UserProfile>(emptyProfile);
+  const [savedTrips, setSavedTrips] = useState<SavedTripRecord[]>([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -136,6 +141,10 @@ export default function ProfilePage() {
       active = false;
     };
   }, [baseProfile]);
+
+  useEffect(() => {
+    setSavedTrips(getSavedTrips());
+  }, []);
 
   const initials = useMemo(() => {
     const value = profile.fullName?.trim();
@@ -238,6 +247,11 @@ export default function ProfilePage() {
     setGeneratedAvatar(null);
     setSelectedFile(null);
     setFilePreview(null);
+  };
+
+  const handleRemoveTrip = (id: string) => {
+    removeSavedTrip(id);
+    setSavedTrips(getSavedTrips());
   };
 
   if (loading) {
@@ -468,6 +482,56 @@ export default function ProfilePage() {
                 <p className="text-xs text-muted-foreground">Emergency Contact Phone</p>
                 <p className="mt-2 text-lg font-medium">{profile.emergencyContactPhone || 'Not provided yet'}</p>
               </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-xl font-semibold font-headline">Trip History</h3>
+                <p className="text-sm text-muted-foreground">
+                  Every trip you saved from the planner appears here so you can revisit older plans anytime.
+                </p>
+              </div>
+              {savedTrips.length === 0 ? (
+                <div className="rounded-lg border bg-muted/30 p-4 text-sm text-muted-foreground">
+                  No saved trips yet. Generate a trip in the planner and choose “Save this trip” to keep it here.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {savedTrips.map((savedTrip) => (
+                    <div key={savedTrip.id} className="rounded-xl border bg-muted/30 p-4">
+                      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Plane className="h-4 w-4 text-primary" />
+                            <p className="font-medium">{savedTrip.trip.tripTitle}</p>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {savedTrip.currentLocation} to {savedTrip.destination}
+                          </p>
+                          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                            <span className="inline-flex items-center gap-1">
+                              <CalendarDays className="h-4 w-4" />
+                              {savedTrip.startDate} to {savedTrip.endDate}
+                            </span>
+                            <span>Budget: INR {savedTrip.budget}</span>
+                            <span>People: {savedTrip.numberOfPeople}</span>
+                          </div>
+                          <p className="text-sm">{savedTrip.trip.tripSummary}</p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleRemoveTrip(savedTrip.id)}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Remove
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">

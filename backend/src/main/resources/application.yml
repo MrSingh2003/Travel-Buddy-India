@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: travel-buddy-india-backend
+  config:
+    import: "optional:file:../.env[.properties],optional:file:.env[.properties]"
+  datasource:
+    url: ${DB_URL:${MYSQL_URL:jdbc:mysql://localhost:3306/travel_buddy_india}}
+    username: ${DB_USER:${MYSQL_USERNAME:travelbuddy}}
+    password: ${DB_PASS:${MYSQL_PASSWORD:travelbuddy}}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+google:
+  ai:
+    api-key: ${GEMINI_API_KEY:}
+  maps:
+    api-key: ${GOOGLE_MAPS_API_KEY:}
+
+searchapi:
+  api-key: ${SEARCHAPI_API_KEY:}

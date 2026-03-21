@@ -43,26 +43,101 @@ export function Chatbot() {
     ].some((phrase) => normalized.includes(phrase));
   };
 
+  const isPlaceSearchIntent = (text: string) => {
+    const normalized = text.toLowerCase();
+    return [
+      "search places",
+      "find places",
+      "explore places",
+      "search cafe",
+      "search cafes",
+      "find cafe",
+      "find restaurant",
+      "search restaurants",
+      "tourist places",
+      "places to visit",
+      "want search places",
+      "i want search places",
+      "i want to search places",
+    ].some((phrase) => normalized.includes(phrase));
+  };
+
+  const isRouteIntent = (text: string) => {
+    const normalized = text.toLowerCase();
+    return normalized.includes("route") || normalized.includes("directions");
+  };
+
+  const isStayIntent = (text: string) => {
+    const normalized = text.toLowerCase();
+    return (
+      normalized.includes("hotel") ||
+      normalized.includes("stay") ||
+      normalized.includes("accommodation")
+    );
+  };
+
+  const isTransportIntent = (text: string) => {
+    const normalized = text.toLowerCase();
+    return (
+      normalized.includes("cab") ||
+      normalized.includes("bus") ||
+      normalized.includes("train") ||
+      normalized.includes("transport")
+    );
+  };
+
+  const isGreetingIntent = (text: string) => {
+    const normalized = text.trim().toLowerCase();
+    return [
+      "hi",
+      "hii",
+      "hello",
+      "hey",
+      "hlw",
+      "namaste",
+      "ram ram",
+      "ram ram ji",
+      "good morning",
+      "good evening",
+    ].includes(normalized);
+  };
+
+  const withGreeting = (content: string) => {
+    if (messages.some((message) => message.role === "assistant")) {
+      return content;
+    }
+
+    return `Namaste! Ram Ram ji. I am your Travel Buddy assistant. What can I help you with today?\n\n${content}`;
+  };
+
   const buildFallbackAnswer = (question: string) => {
     const normalized = question.toLowerCase();
 
-    if (isTripPlanningIntent(question)) {
-      return "I can help with that. Open the AI Trip Planner to generate a day-by-day plan with budget, weather advice, and suitability scoring.";
+    if (isGreetingIntent(question)) {
+      return "Namaste! Ram Ram ji. I can help with trip planning, routes, hotels, local transport, and places to explore in India.";
     }
 
-    if (normalized.includes("route") || normalized.includes("directions")) {
+    if (isTripPlanningIntent(question)) {
+      return "I can help with that. Open the AI Trip Planner to generate a day-by-day plan with hotel, meal, sightseeing, and budget details.";
+    }
+
+    if (isPlaceSearchIntent(question)) {
+      return "You can open Smart Place Finder to look for cafes, temples, food spots, attractions, and useful nearby places in Indian cities.";
+    }
+
+    if (isRouteIntent(question)) {
       return "Use the Route Planner to compare car, walking, bike, and bus routes. You can search locations, use your current location, or pick points directly on the map.";
     }
 
-    if (normalized.includes("hotel") || normalized.includes("stay") || normalized.includes("accommodation")) {
+    if (isStayIntent(question)) {
       return "You can explore Hotels and Dharamshalas in the Accommodations section. Filter by city to compare practical stay options.";
     }
 
-    if (normalized.includes("cab") || normalized.includes("bus") || normalized.includes("train") || normalized.includes("transport")) {
+    if (isTransportIntent(question)) {
       return "Open Local Travel Navigator to browse cabs, buses, and trains. It is useful for verified local travel choices inside India.";
     }
 
-    return "I’m in local assistant mode right now. You can ask about trip planning, routes, places to explore, stays, or local transport in India.";
+    return "I'm in local assistant mode right now. You can ask about trip planning, routes, places to explore, stays, or local transport in India.";
   };
 
   useEffect(() => {
@@ -91,10 +166,111 @@ export function Chatbot() {
     setInput("");
 
     try {
+      if (isGreetingIntent(question)) {
+        const assistantMessage: Message = {
+          role: "assistant",
+          content: withGreeting(
+            "I can help you plan a trip, find a route, check stays, compare local transport, or suggest places to visit."
+          ),
+        };
+        setMessages((prev) => [...prev, assistantMessage]);
+        return;
+      }
+
+      if (isTripPlanningIntent(question)) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: withGreeting(
+              "I can help with that. Open the AI Trip Planner to generate a day-by-day plan with hotel, meal, sightseeing, and budget details."
+            ),
+            ctaLabel: "Open AI Trip Planner",
+            ctaAction: () => {
+              setIsOpen(false);
+              navigate("/trip-planner");
+            },
+          },
+        ]);
+        return;
+      }
+
+      if (isPlaceSearchIntent(question)) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: withGreeting(
+              "Sure. Open Smart Place Finder to search cafes, temples, attractions, breakfast spots, and practical nearby places in your selected city."
+            ),
+            ctaLabel: "Open Smart Place Finder",
+            ctaAction: () => {
+              setIsOpen(false);
+              navigate("/explore");
+            },
+          },
+        ]);
+        return;
+      }
+
+      if (isRouteIntent(question)) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: withGreeting(
+              "Open Route Planner to compare car, walking, bike, and bus routes. You can search places, use your current location, or pick points directly on the map."
+            ),
+            ctaLabel: "Open Route Planner",
+            ctaAction: () => {
+              setIsOpen(false);
+              navigate("/route-planner");
+            },
+          },
+        ]);
+        return;
+      }
+
+      if (isStayIntent(question)) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: withGreeting(
+              "Open Accommodations to compare hotels and Dharamshalas by city, budget, and trip style."
+            ),
+            ctaLabel: "Open Accommodations",
+            ctaAction: () => {
+              setIsOpen(false);
+              navigate("/accommodations");
+            },
+          },
+        ]);
+        return;
+      }
+
+      if (isTransportIntent(question)) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: withGreeting(
+              "Open Local Travel Navigator to compare cabs, buses, and trains for practical movement during the trip."
+            ),
+            ctaLabel: "Open Local Travel Navigator",
+            ctaAction: () => {
+              setIsOpen(false);
+              navigate("/local-transport");
+            },
+          },
+        ]);
+        return;
+      }
+
       const response = await answerTravelQuestion(question);
       const assistantMessage: Message = {
         role: "assistant",
-        content: response.answer,
+        content: withGreeting(response.answer),
         ...(isTripPlanningIntent(question)
           ? {
               ctaLabel: "Open AI Trip Planner",
@@ -110,7 +286,7 @@ export function Chatbot() {
       console.error("Error answering question:", error);
       const errorMessage: Message = {
         role: "assistant",
-        content: buildFallbackAnswer(question),
+        content: withGreeting(buildFallbackAnswer(question)),
         ...(isTripPlanningIntent(question)
           ? {
               ctaLabel: "Open AI Trip Planner",
@@ -156,9 +332,7 @@ export function Chatbot() {
                   <div className="text-center text-sm text-muted-foreground pt-8">
                     <Bot className="mx-auto h-8 w-8 mb-2" />
                     <p className="text-primary">
-                      Welcome to Travel Buddy India, your personal guide to
-                      exploring India. How can I help you plan your adventure
-                      today?
+                      Namaste! Ram Ram ji. Welcome to Travel Buddy India. How can I help you with your travel plan today?
                     </p>
                   </div>
                 ) : (
@@ -197,7 +371,9 @@ export function Chatbot() {
                       </div>
                       {message.role === "user" && (
                         <Avatar className="h-8 w-8 border">
-                          <AvatarFallback><User className="h-5 w-5" /></AvatarFallback>
+                          <AvatarFallback>
+                            <User className="h-5 w-5" />
+                          </AvatarFallback>
                         </Avatar>
                       )}
                     </div>

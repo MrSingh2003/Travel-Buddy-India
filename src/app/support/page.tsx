@@ -84,9 +84,9 @@ export default function SupportPage() {
       <Card className="shadow-lg border-2 border-primary/10">
         <CardHeader className="text-center">
           <LifeBuoy className="mx-auto h-16 w-16 text-primary mb-4" />
-          <CardTitle className="text-3xl font-headline">Contact Support</CardTitle>
+          <CardTitle className="text-3xl font-headline">Need help? Tell me what is stuck.</CardTitle>
           <CardDescription>
-            Have a question or need help? Fill out the form below.
+            If something is not working, a route looks wrong, or you want a better travel suggestion, send the details here and I will check it properly.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -140,10 +140,10 @@ export default function SupportPage() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="general-inquiry">General Inquiry</SelectItem>
-                        <SelectItem value="booking-issue">Booking Issue</SelectItem>
-                        <SelectItem value="technical-problem">Technical Problem</SelectItem>
-                        <SelectItem value="feedback">Feedback</SelectItem>
+                        <SelectItem value="general-inquiry">General question</SelectItem>
+                        <SelectItem value="booking-issue">Trip or booking issue</SelectItem>
+                        <SelectItem value="technical-problem">Something is not working</SelectItem>
+                        <SelectItem value="feedback">Suggestion or feedback</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -158,8 +158,8 @@ export default function SupportPage() {
                   <FormItem>
                     <FormLabel>Your Message</FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder="Please describe your issue or question in detail..."
+                        <Textarea
+                        placeholder="Write the issue in your own words. For example: what page you opened, what you expected, and what actually happened."
                         rows={6}
                         {...field}
                       />
@@ -175,7 +175,7 @@ export default function SupportPage() {
                 ) : (
                   <>
                     <Send className="mr-2 h-5 w-5" />
-                    Send Message
+                    Send Details
                   </>
                 )}
               </Button>

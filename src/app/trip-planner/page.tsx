@@ -1,12 +1,12 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Loader2, Users, Wand2, Star, IndianRupee, CloudSun, Briefcase } from "lucide-react";
+import { Calendar as CalendarIcon, Loader2, Users, Wand2, Star, IndianRupee, CloudSun, Briefcase, Save, XCircle, CheckCircle2 } from "lucide-react";
 import { getLocalizedCityOptions } from "@/lib/locations";
 import { generateTrip } from "@/lib/api/travel-buddy";
 import type { PersonalizedTripOutput } from "@/lib/api/types";
@@ -42,6 +42,15 @@ import { useLanguage } from "@/components/language-provider";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { getDateFnsLocale } from "@/lib/date-locales";
+import { saveTrip } from "@/lib/saved-trips";
+
+type LiveWeather = {
+  label: string;
+  city: string;
+  temperature: number;
+  windSpeed: number;
+  weatherText: string;
+};
 
 const formSchema = z.object({
   currentLocation: z.string({ required_error: "Please select your current location." }),
@@ -64,6 +73,254 @@ function interpolate(template: string, values: Record<string, string | number>) 
   );
 }
 
+type CityGuide = {
+  arrivalArea: string;
+  lunchSpot: string;
+  dinnerSpot: string;
+  hotelArea: string;
+  dayOnePlaces: string[];
+  dayTwoPlaces: string[];
+  dayThreePlaces: string[];
+};
+
+const cityGuides: Record<string, CityGuide> = {
+  haridwar: {
+    arrivalArea: "Har Ki Pauri",
+    lunchSpot: "Mohan Ji Puri Wale / a clean bhojanalaya near Har Ki Pauri",
+    dinnerSpot: "Bara Bazaar food lane",
+    hotelArea: "Upper Road or Har Ki Pauri side",
+    dayOnePlaces: ["Har Ki Pauri", "Bara Bazaar", "Ganga Aarti"],
+    dayTwoPlaces: ["Mansa Devi Temple", "Chandi Devi Temple", "Bharat Mata Mandir"],
+    dayThreePlaces: ["Daksh Mahadev Temple", "local ashram area", "ganga-side cafe stop"],
+  },
+  rishikesh: {
+    arrivalArea: "Lakshman Jhula area",
+    lunchSpot: "Chotiwala or a riverside cafe in Tapovan",
+    dinnerSpot: "Tapovan market cafes",
+    hotelArea: "Tapovan or Ram Jhula side",
+    dayOnePlaces: ["Lakshman Jhula", "Ram Jhula", "Triveni Ghat"],
+    dayTwoPlaces: ["Neer Garh Waterfall", "Parmarth Niketan", "Beatles Ashram"],
+    dayThreePlaces: ["rafting point area", "yoga cafe belt", "Ganga beach"],
+  },
+  varanasi: {
+    arrivalArea: "Dashashwamedh Ghat",
+    lunchSpot: "Kachori Gali / a clean thali place near Godowlia",
+    dinnerSpot: "Godowlia market",
+    hotelArea: "Godowlia or Assi Ghat side",
+    dayOnePlaces: ["Dashashwamedh Ghat", "Godowlia", "evening Ganga Aarti"],
+    dayTwoPlaces: ["Kashi Vishwanath Temple", "Assi Ghat", "Banaras Hindu University"],
+    dayThreePlaces: ["Sarnath", "local silk market", "morning boat ride"],
+  },
+  jaipur: {
+    arrivalArea: "MI Road / old city edge",
+    lunchSpot: "LMB or a local Rajasthani thali restaurant",
+    dinnerSpot: "Bapu Bazaar food stretch",
+    hotelArea: "MI Road, Bani Park, or old city side",
+    dayOnePlaces: ["City Palace area", "Bapu Bazaar", "Hawa Mahal outside view"],
+    dayTwoPlaces: ["Amber Fort", "Jal Mahal", "Nahargarh Fort"],
+    dayThreePlaces: ["Jantar Mantar", "Albert Hall Museum", "Johari Bazaar"],
+  },
+};
+
+function parseInr(value: string) {
+  const digits = value.replace(/[^\d]/g, "");
+  return Number.parseInt(digits || "0", 10);
+}
+
+function formatInr(value: number) {
+  return `INR ${Math.round(value)}`;
+}
+
+function getWeatherText(code: number) {
+  if (code === 0) return "Clear sky";
+  if ([1, 2, 3].includes(code)) return "Partly cloudy";
+  if ([45, 48].includes(code)) return "Misty";
+  if ([51, 53, 55, 56, 57].includes(code)) return "Light drizzle";
+  if ([61, 63, 65, 66, 67].includes(code)) return "Rain showers";
+  if ([71, 73, 75, 77].includes(code)) return "Cold / snowfall";
+  if ([80, 81, 82].includes(code)) return "Scattered rain";
+  if ([95, 96, 99].includes(code)) return "Thunderstorm";
+  return "Weather update available";
+}
+
+function optimizeBudgetBreakdown(
+  breakdown: PersonalizedTripOutput["budgetBreakdown"],
+  budget: number,
+  destinationCity: string,
+  people: number
+) {
+  const original = {
+    accommodation: parseInr(breakdown.accommodation),
+    food: parseInr(breakdown.food),
+    transport: parseInr(breakdown.transport),
+    activities: parseInr(breakdown.activities),
+  };
+  const currentTotal = Object.values(original).reduce((sum, value) => sum + value, 0);
+
+  if (currentTotal <= budget) {
+    return {
+      breakdown: {
+        accommodation: formatInr(original.accommodation),
+        food: formatInr(original.food),
+        transport: formatInr(original.transport),
+        activities: formatInr(original.activities),
+        total: formatInr(currentTotal),
+      },
+      underBudget: true,
+      savings: budget - currentTotal,
+      note: `This ${destinationCity} plan already fits within your budget. You still have about INR ${budget - currentTotal} as a comfort buffer.`,
+    };
+  }
+
+  const minimum = {
+    accommodation: Math.max(1200, Math.round(budget * 0.32)),
+    food: Math.max(900, Math.round(budget * 0.18)),
+    transport: Math.max(700, Math.round(budget * 0.16)),
+    activities: Math.max(600, Math.round(budget * 0.1)),
+  };
+
+  let adjusted = { ...original };
+
+  adjusted.accommodation = Math.min(adjusted.accommodation, Math.max(minimum.accommodation, Math.round(budget * 0.36)));
+  adjusted.food = Math.min(adjusted.food, Math.max(minimum.food, Math.round(people * 350 * 3)));
+  adjusted.transport = Math.min(adjusted.transport, Math.max(minimum.transport, Math.round(budget * 0.14)));
+  adjusted.activities = Math.min(adjusted.activities, Math.max(minimum.activities, Math.round(budget * 0.08)));
+
+  let adjustedTotal = Object.values(adjusted).reduce((sum, value) => sum + value, 0);
+
+  if (adjustedTotal > budget) {
+    const overflow = adjustedTotal - budget;
+    const reducibleKeys: Array<keyof typeof adjusted> = ["activities", "transport", "food", "accommodation"];
+    for (const key of reducibleKeys) {
+      const floor = minimum[key];
+      const reducible = Math.max(0, adjusted[key] - floor);
+      const reduction = Math.min(reducible, adjustedTotal - budget);
+      adjusted[key] -= reduction;
+      adjustedTotal -= reduction;
+      if (adjustedTotal <= budget) break;
+    }
+  }
+
+  if (adjustedTotal > budget) {
+    adjusted.activities = Math.max(0, adjusted.activities - (adjustedTotal - budget));
+    adjustedTotal = Object.values(adjusted).reduce((sum, value) => sum + value, 0);
+  }
+
+  return {
+    breakdown: {
+      accommodation: formatInr(adjusted.accommodation),
+      food: formatInr(adjusted.food),
+      transport: formatInr(adjusted.transport),
+      activities: formatInr(adjusted.activities),
+      total: formatInr(adjustedTotal),
+    },
+    underBudget: adjustedTotal <= budget,
+    savings: Math.max(0, budget - adjustedTotal),
+    note:
+      adjustedTotal <= budget
+        ? `The plan was trimmed to stay practical. A simpler hotel in the ${destinationCity} central area, local meals, and lighter paid activities keep it inside your budget.`
+        : `This route is hard to fit fully into the budget, but the plan has already been reduced to the cheapest workable version I could make.`,
+  };
+}
+
+function pickCityGuide(city: string): CityGuide {
+  return (
+    cityGuides[city.trim().toLowerCase()] ?? {
+      arrivalArea: `central ${city}`,
+      lunchSpot: `a clean local restaurant in ${city}`,
+      dinnerSpot: `the main market area in ${city}`,
+      hotelArea: `the central stay area of ${city}`,
+      dayOnePlaces: [`central ${city}`, "main market", "popular evening spot"],
+      dayTwoPlaces: ["top-rated attraction 1", "top-rated attraction 2", "best local food lane"],
+      dayThreePlaces: ["nearby spiritual/cultural stop", "shopping street", "relaxed cafe stop"],
+    }
+  );
+}
+
+function buildHumanizedItinerary(
+  city: string,
+  budgetBreakdown: PersonalizedTripOutput["budgetBreakdown"],
+  people: number
+): PersonalizedTripOutput["dailyItinerary"] {
+  const guide = pickCityGuide(city);
+  const hotelTotal = parseInr(budgetBreakdown.accommodation);
+  const foodTotal = parseInr(budgetBreakdown.food);
+  const transportTotal = parseInr(budgetBreakdown.transport);
+  const activitiesTotal = parseInr(budgetBreakdown.activities);
+  const nights = 2;
+  const hotelPerNight = Math.max(1200, Math.round(hotelTotal / Math.max(1, nights)));
+  const lunchPerMeal = Math.max(180, Math.round(foodTotal / Math.max(4, people * 6)));
+  const localTransportPerDay = Math.max(200, Math.round(transportTotal / 3));
+  const activityPerDay = Math.max(400, Math.round(activitiesTotal / 3));
+
+  return [
+    {
+      day: 1,
+      title: `Arrival, hotel check-in, and easy local sightseeing in ${city}`,
+      activities: [
+        `After reaching ${city}, first check in to a hotel around ${guide.hotelArea}. A clean mid-range room should cost about INR ${hotelPerNight} per night.`,
+        `Freshen up and have lunch at ${guide.lunchSpot}. Keep around INR ${lunchPerMeal} to INR ${lunchPerMeal + 150} per person for a simple local meal.`,
+        `Start with nearby places like ${guide.dayOnePlaces[0]} and ${guide.dayOnePlaces[1]} so the first day stays relaxed after travel.`,
+        `In the evening, visit ${guide.dayOnePlaces[2]} and keep about INR ${activityPerDay} for entry tickets, local shopping, or small temple offerings if needed.`,
+        `Use local auto or e-rickshaw for short hops. A practical local transport buffer for today is around INR ${localTransportPerDay}.`,
+      ],
+    },
+    {
+      day: 2,
+      title: `Main sightseeing day with meals, transport, and photo stops in ${city}`,
+      activities: [
+        `Start early with breakfast near your hotel, then head to ${guide.dayTwoPlaces[0]}. Keep INR ${lunchPerMeal} to INR ${lunchPerMeal + 120} per person for breakfast and tea.`,
+        `Continue to ${guide.dayTwoPlaces[1]} and one more major stop like ${guide.dayTwoPlaces[2]}. This is the best day to cover the main highlights.`,
+        `Plan lunch near the sightseeing zone and keep about INR ${lunchPerMeal + 100} to INR ${lunchPerMeal + 220} per person for a comfortable meal break.`,
+        `Reserve about INR ${activityPerDay} to INR ${activityPerDay + 300} for tickets, ropeway, guide, or priority local experiences based on your interest.`,
+        `Keep the evening free for photos, snacks, and a market walk so the day does not feel rushed.`,
+      ],
+    },
+    {
+      day: 3,
+      title: `Nearby exploration, shopping, and return preparation from ${city}`,
+      activities: [
+        `After breakfast, visit lighter nearby places such as ${guide.dayThreePlaces[0]} and ${guide.dayThreePlaces[1]} before checkout.`,
+        `Use the late morning or afternoon for souvenir shopping, cafe time, or a final peaceful stop at ${guide.dayThreePlaces[2]}.`,
+        `Keep roughly INR ${localTransportPerDay} for local travel and INR ${lunchPerMeal + 100} per person for one final meal before departure.`,
+        `Before leaving, confirm return transport timing, pack essentials, and keep one small budget buffer for water, snacks, and last-minute purchases.`,
+      ],
+    },
+  ];
+}
+
+function humanizeTripPlan(
+  trip: PersonalizedTripOutput,
+  values: FormValues,
+  t: (key: string) => string
+): PersonalizedTripOutput {
+  const destinationCity = values.location.split(",")[0] || "your destination";
+  const optimized = optimizeBudgetBreakdown(
+    trip.budgetBreakdown,
+    values.budget,
+    destinationCity,
+    values.numberOfPeople
+  );
+  const total = parseInr(optimized.breakdown.total);
+  const hotelPerNight = Math.max(1200, Math.round(parseInr(optimized.breakdown.accommodation) / 2));
+  const mealEstimate = Math.max(180, Math.round(parseInr(optimized.breakdown.food) / Math.max(4, values.numberOfPeople * 6)));
+
+  return {
+    ...trip,
+    tripSummary: `This ${destinationCity} plan is arranged like a real trip: where to stay after arrival, where to eat, what to cover each day, and how to keep the budget practical.`,
+    budgetBreakdown: optimized.breakdown,
+    suitabilityReasoning:
+      total > values.budget
+        ? `${t("tripPlanner.result.moderateFit")} ${optimized.note}`
+        : `${trip.suitabilityReasoning} ${optimized.note} A workable hotel target is about INR ${hotelPerNight} per night and simple meals can stay around INR ${mealEstimate} to INR ${mealEstimate + 150} per person.`,
+    dailyItinerary: buildHumanizedItinerary(
+      destinationCity,
+      optimized.breakdown,
+      values.numberOfPeople
+    ),
+  };
+}
+
 function buildFallbackTrip(values: FormValues, t: (key: string) => string): PersonalizedTripOutput {
   const destinationCity = values.location.split(",")[0] || "your destination";
   const totalBudget = values.budget;
@@ -72,7 +329,7 @@ function buildFallbackTrip(values: FormValues, t: (key: string) => string): Pers
   const transport = Math.round(totalBudget * 0.2);
   const activities = Math.max(1500, totalBudget - accommodation - food - transport);
 
-  return {
+  const fallbackTrip: PersonalizedTripOutput = {
     tripTitle: `${destinationCity} ${t('tripPlanner.result.fallbackTitleSuffix')}`,
     suitabilityScore: totalBudget >= 30000 ? 8 : 7,
     suitabilityReasoning: t('tripPlanner.result.fallbackReasoning'),
@@ -86,36 +343,10 @@ function buildFallbackTrip(values: FormValues, t: (key: string) => string): Pers
     },
     weatherAdvisory:
       "Pack comfortable walking shoes, light layers, sunscreen, and keep one backup travel document copy with you.",
-    dailyItinerary: [
-      {
-        day: 1,
-        title: interpolate(t('tripPlanner.result.fallbackDay1'), { city: destinationCity }),
-        activities: [
-          t("tripPlanner.result.fallbackActivityCheckIn"),
-          t("tripPlanner.result.fallbackActivityExplore"),
-          t("tripPlanner.result.fallbackActivityBudget"),
-        ],
-      },
-      {
-        day: 2,
-        title: "Core sightseeing and local food",
-        activities: [
-          t("tripPlanner.result.fallbackActivitySightseeing"),
-          t("tripPlanner.result.fallbackActivityMeal"),
-          t("tripPlanner.result.fallbackActivityEvening"),
-        ],
-      },
-      {
-        day: 3,
-        title: "Flexible exploration and return prep",
-        activities: [
-          t("tripPlanner.result.fallbackActivityBuffer"),
-          t("tripPlanner.result.fallbackActivityOptional"),
-          t("tripPlanner.result.fallbackActivityConfirm"),
-        ],
-      },
-    ],
+    dailyItinerary: [],
   };
+
+  return humanizeTripPlan(fallbackTrip, values, t);
 }
 
 function localizeTripContent(
@@ -260,6 +491,10 @@ export default function TripPlannerPage() {
   const [trip, setTrip] = useState<PersonalizedTripOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [lastSubmittedValues, setLastSubmittedValues] = useState<FormValues | null>(null);
+  const [tripSavePromptVisible, setTripSavePromptVisible] = useState(false);
+  const [tripSaved, setTripSaved] = useState(false);
+  const [liveWeather, setLiveWeather] = useState<LiveWeather[]>([]);
   const { t, language } = useLanguage();
   const cityOptions = getLocalizedCityOptions(language);
   const dateLocale = getDateFnsLocale(language);
@@ -283,6 +518,9 @@ export default function TripPlannerPage() {
     setIsLoading(true);
     setTrip(null);
     setError(null);
+    setLastSubmittedValues(values);
+    setTripSavePromptVisible(false);
+    setTripSaved(false);
     try {
       const response = await generateTrip({
         currentLocation: values.currentLocation,
@@ -293,17 +531,102 @@ export default function TripPlannerPage() {
         interests: values.interests,
         numberOfPeople: values.numberOfPeople,
       });
-      setTrip(response);
+      setTrip(humanizeTripPlan(response, values, t));
+      setTripSavePromptVisible(true);
     } catch (error) {
       console.error("Failed to generate trip:", error);
       setTrip(buildFallbackTrip(values, t));
       setError(t("tripPlanner.result.backendUnavailable"));
+      setTripSavePromptVisible(true);
     } finally {
       setIsLoading(false);
     }
   }
 
   const localizedTrip = trip ? localizeTripContent(trip, t, language) : null;
+
+  const tripDateLabel = useMemo(() => {
+    if (!lastSubmittedValues) return "";
+    return `${format(lastSubmittedValues.dates.from, "dd MMM yyyy")} - ${format(lastSubmittedValues.dates.to, "dd MMM yyyy")}`;
+  }, [lastSubmittedValues]);
+
+  useEffect(() => {
+    if (!lastSubmittedValues) {
+      setLiveWeather([]);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function fetchWeatherFor(label: string, cityValue: string): Promise<LiveWeather | null> {
+      const city = cityValue.split(",")[0]?.trim();
+      if (!city) return null;
+
+      try {
+        const geoRes = await fetch(
+          `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`
+        );
+        const geoJson = await geoRes.json();
+        const result = geoJson?.results?.[0];
+        if (!result) return null;
+
+        const weatherRes = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${result.latitude}&longitude=${result.longitude}&current=temperature_2m,weather_code,wind_speed_10m`
+        );
+        const weatherJson = await weatherRes.json();
+        const current = weatherJson?.current;
+        if (!current) return null;
+
+        return {
+          label,
+          city,
+          temperature: Math.round(current.temperature_2m),
+          windSpeed: Math.round(current.wind_speed_10m),
+          weatherText: getWeatherText(current.weather_code),
+        };
+      } catch {
+        return null;
+      }
+    }
+
+    Promise.all([
+      fetchWeatherFor("Starting city", lastSubmittedValues.currentLocation),
+      fetchWeatherFor("Destination", lastSubmittedValues.location),
+    ]).then((results) => {
+      if (cancelled) return;
+      setLiveWeather(results.filter(Boolean) as LiveWeather[]);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [lastSubmittedValues]);
+
+  const handleSaveTrip = () => {
+    if (!trip || !lastSubmittedValues) {
+      return;
+    }
+
+    saveTrip({
+      id: `${Date.now()}-${lastSubmittedValues.location}`,
+      createdAt: new Date().toISOString(),
+      currentLocation: lastSubmittedValues.currentLocation,
+      destination: lastSubmittedValues.location,
+      startDate: format(lastSubmittedValues.dates.from, "yyyy-MM-dd"),
+      endDate: format(lastSubmittedValues.dates.to, "yyyy-MM-dd"),
+      budget: lastSubmittedValues.budget,
+      numberOfPeople: lastSubmittedValues.numberOfPeople,
+      interests: lastSubmittedValues.interests,
+      trip,
+    });
+    setTripSaved(true);
+    setTripSavePromptVisible(false);
+  };
+
+  const handleSkipSave = () => {
+    setTripSaved(false);
+    setTripSavePromptVisible(false);
+  };
 
   const SuitabilityScore = ({ score, reasoning }: { score: number; reasoning: string }) => (
     <div className="rounded-lg border bg-card p-4">
@@ -340,6 +663,21 @@ export default function TripPlannerPage() {
   const WeatherAdvisory = ({ advisory }: { advisory: string }) => (
       <div className="rounded-lg border bg-card p-4">
           <h3 className="font-semibold text-lg mb-2 flex items-center gap-2"><CloudSun className="text-primary" /> {t("tripPlanner.result.weatherAdvisory")}</h3>
+          {liveWeather.length > 0 && (
+            <div className="mb-4 grid gap-3 md:grid-cols-2">
+              {liveWeather.map((item) => (
+                <div key={item.label} className="rounded-xl border border-primary/20 bg-primary/5 p-3">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{item.label}</p>
+                  <p className="mt-1 font-semibold">{item.city}</p>
+                  <div className="mt-2 flex items-end gap-3">
+                    <span className="text-2xl font-bold text-primary">{item.temperature}°C</span>
+                    <span className="text-sm text-muted-foreground">{item.weatherText}</span>
+                  </div>
+                  <p className="mt-1 text-sm text-muted-foreground">Wind around {item.windSpeed} km/h</p>
+                </div>
+              ))}
+            </div>
+          )}
           <p className="text-sm text-muted-foreground">{advisory}</p>
       </div>
   );
@@ -536,6 +874,40 @@ export default function TripPlannerPage() {
             )}
             {localizedTrip && !isLoading && (
               <div className="space-y-6">
+                {lastSubmittedValues && (
+                  <div className="rounded-xl border border-dashed border-primary/40 bg-primary/5 p-4">
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                      <div>
+                        <p className="text-sm font-medium">
+                          {tripSaved
+                            ? "This trip is saved in your history."
+                            : "Do you want to save this planned trip in your history?"}
+                        </p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {lastSubmittedValues.currentLocation} to {lastSubmittedValues.location}
+                          {tripDateLabel ? ` | ${tripDateLabel}` : ""}
+                        </p>
+                      </div>
+                      {tripSavePromptVisible ? (
+                        <div className="flex flex-wrap gap-2">
+                          <Button type="button" onClick={handleSaveTrip}>
+                            <Save className="mr-2 h-4 w-4" />
+                            Save this trip
+                          </Button>
+                          <Button type="button" variant="outline" onClick={handleSkipSave}>
+                            <XCircle className="mr-2 h-4 w-4" />
+                            Skip for now
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 text-sm text-primary">
+                          {tripSaved ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
+                          <span>{tripSaved ? "Saved" : "Skipped"}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
                 <SuitabilityScore score={localizedTrip.suitabilityScore} reasoning={localizedTrip.suitabilityReasoning} />
                 <div className="grid md:grid-cols-2 gap-6">
                     <BudgetBreakdown breakdown={localizedTrip.budgetBreakdown} />

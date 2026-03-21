@@ -10,15 +10,15 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "border border-emerald-300/80 bg-emerald-500 text-white shadow-[0_12px_35px_rgba(34,197,94,0.22)] hover:bg-emerald-600 hover:shadow-[0_16px_40px_rgba(34,197,94,0.28)] dark:border-violet-300/25 dark:bg-violet-300/85 dark:text-slate-950 dark:shadow-[0_14px_40px_rgba(196,181,253,0.24)] dark:hover:bg-violet-200",
+          "border border-emerald-600 bg-emerald-600 text-white shadow-[0_12px_35px_rgba(22,163,74,0.18)] hover:bg-emerald-700 hover:border-emerald-700 dark:border-orange-400 dark:bg-orange-400 dark:text-slate-950 dark:shadow-[0_14px_40px_rgba(251,146,60,0.22)] dark:hover:bg-orange-300 dark:hover:border-orange-300",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
-          "border border-emerald-200/80 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 dark:border-violet-300/20 dark:bg-violet-200/10 dark:text-violet-100 dark:hover:bg-violet-200/20 dark:hover:text-violet-50",
+          "border border-emerald-300 bg-white text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 dark:border-orange-400/60 dark:bg-slate-950 dark:text-orange-200 dark:hover:bg-slate-900 dark:hover:text-orange-100",
         secondary:
-          "border border-emerald-200/80 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 dark:border-violet-300/20 dark:bg-violet-200/10 dark:text-violet-100 dark:hover:bg-violet-200/20 dark:hover:text-violet-50",
+          "border border-sky-300 bg-sky-50 text-sky-800 hover:bg-sky-100 hover:text-sky-900 dark:border-sky-400/60 dark:bg-slate-950 dark:text-sky-200 dark:hover:bg-slate-900 dark:hover:text-sky-100",
         ghost:
-          "text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 dark:text-violet-100 dark:hover:bg-violet-200/20 dark:hover:text-violet-50",
+          "text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 dark:text-orange-100 dark:hover:bg-orange-400/10 dark:hover:text-orange-50",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

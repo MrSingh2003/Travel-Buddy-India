@@ -82,7 +82,7 @@ export default function ExplorePage() {
             <div className="h-64 w-full bg-muted flex items-center justify-center">
                 <div className="text-center text-muted-foreground space-y-2">
                     <Sparkles className="mx-auto h-8 w-8"/>
-                    <p>Generating an inspirational image for you...</p>
+                    <p>Creating a quick travel-poster style visual for this search...</p>
                 </div>
             </div>
          </Card>
@@ -116,9 +116,9 @@ export default function ExplorePage() {
     <div className="flex flex-col gap-8">
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline">Explore Places</CardTitle>
+          <CardTitle className="font-headline">Find useful places around your trip</CardTitle>
           <CardDescription>
-            Find top-rated restaurants, attractions, and hidden gems.
+            Search with intent, not just popularity. Use this to find cafes, food stops, temples, landmarks, and practical nearby options before you go.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -132,9 +132,9 @@ export default function ExplorePage() {
                 name="query"
                 render={({ field }) => (
                   <FormItem className="flex-grow">
-                    <FormLabel>What are you looking for?</FormLabel>
+                    <FormLabel>What do you want to find?</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., temples, restaurants..." {...field} />
+                      <Input placeholder="Try cafes, temples, breakfast, market, viewpoint..." {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -145,13 +145,13 @@ export default function ExplorePage() {
                 name="location"
                 render={({ field }) => (
                   <FormItem className="w-full md:w-auto md:min-w-[250px]">
-                    <FormLabel>Where?</FormLabel>
+                    <FormLabel>Which city?</FormLabel>
                     <Combobox
                       options={cityOptions}
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder="Select location"
-                      searchPlaceholder="Search location..."
+                      placeholder="Choose city"
+                      searchPlaceholder="Search city..."
                     />
                     <FormMessage />
                   </FormItem>
@@ -163,7 +163,7 @@ export default function ExplorePage() {
                 ) : (
                   <Search className="mr-2 h-4 w-4" />
                 )}
-                Search
+                Find Places
               </Button>
             </form>
           </Form>
@@ -205,6 +205,9 @@ export default function ExplorePage() {
                 </div>
               </CardHeader>
               <CardContent className="flex-grow flex flex-col justify-end">
+                <p className="mb-3 text-sm text-muted-foreground">
+                  Useful if you want one practical stop to add into your plan instead of another random detour.
+                </p>
                 {place.rating && (
                     <div className="flex items-center gap-2">
                         <Badge variant="secondary" className="flex gap-1 items-center">
