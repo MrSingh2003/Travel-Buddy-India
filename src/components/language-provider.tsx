@@ -20,7 +20,7 @@ export const languages = {
 
 type LanguageContextType = {
   language: LanguageCode;
-  setLanguage: (language: string) => void;
+  setLanguage: (language: LanguageCode) => void;
   t: (key: string) => string;
 };
 
@@ -44,7 +44,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const value = {
     language,
-    setLanguage: (lang) => setLanguage(lang as LanguageCode),
+    setLanguage: (lang: LanguageCode) => setLanguage(lang),
     t,
   };
 

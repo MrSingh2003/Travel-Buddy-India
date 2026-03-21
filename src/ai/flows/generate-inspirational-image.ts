@@ -69,8 +69,7 @@ const generateInspirationalImageFlow = ai.defineFlow(
       prompt: finalImagePrompt,
     });
 
-    const url = media.url;
-    if (!url) {
+    if (!media?.url) {
       throw new Error('Image generation failed to return a data URI.');
     }
     
@@ -80,6 +79,6 @@ const generateInspirationalImageFlow = ai.defineFlow(
         prompt: `Based on this description: '${imagePrompt}', create a short, evocative title (4-6 words). Do not use quotes.`
     });
 
-    return { title, dataUri: url };
+    return { title, dataUri: media.url };
   }
 );

@@ -18,6 +18,7 @@ import { Separator } from './ui/separator';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { languages, useLanguage } from './language-provider';
+import type { LanguageCode } from '@/lib/translations';
 import {
     Popover,
     PopoverContent,
@@ -144,7 +145,7 @@ export function Header() {
                         variant="ghost"
                         className={cn("w-full justify-start", language === code && "font-bold")}
                         onClick={() => {
-                            setLanguage(code);
+                            setLanguage(code as LanguageCode);
                             setLangPopoverOpen(false);
                         }}
                     >

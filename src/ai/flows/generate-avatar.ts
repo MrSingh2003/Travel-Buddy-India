@@ -46,11 +46,10 @@ const generateAvatarFlow = ai.defineFlow(
       prompt: finalPrompt,
     });
 
-    const url = media.url;
-    if (!url) {
+    if (!media?.url) {
       throw new Error('Image generation failed to return a data URI.');
     }
-    
-    return { dataUri: url };
+
+    return { dataUri: media.url };
   }
 );

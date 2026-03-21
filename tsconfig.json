@@ -19,5 +19,5 @@
     }
   },
   "include": ["src", "vite.config.ts"],
-  "exclude": ["node_modules", "src/app/api", "src/lib/auth.ts", "src/app/layout.tsx"]
+  "exclude": ["node_modules", "src/app/api", "src/lib/auth.ts", "src/app/layout.tsx", "src/lib/db.ts"]
 }
