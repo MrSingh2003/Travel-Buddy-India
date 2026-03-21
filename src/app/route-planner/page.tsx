@@ -125,6 +125,26 @@ function formatDuration(seconds: number) {
   return `${Math.max(1, minutes)} min`;
 }
 
+function estimateFallbackDuration(mode: TravelMode, meters: number, seconds: number) {
+  if (!meters) {
+    return seconds;
+  }
+
+  if (mode === 'WALKING') {
+    return Math.round(meters / 1.25);
+  }
+
+  if (mode === 'BICYCLING') {
+    return Math.round(meters / 4.2);
+  }
+
+  if (mode === 'TRANSIT') {
+    return Math.round(meters / 6.5);
+  }
+
+  return seconds > 0 ? seconds : Math.round(meters / 8.5);
+}
+
 function formatCoordinateLabel(point: LatLng) {
   return `${point.lat.toFixed(6)}, ${point.lng.toFixed(6)}`;
 }
@@ -201,6 +221,7 @@ function getOsrmProfile(mode: TravelMode) {
 export default function RoutePlannerPage() {
   const [distance, setDistance] = useState('');
   const [duration, setDuration] = useState('');
+  const [distanceMeters, setDistanceMeters] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
@@ -225,8 +246,19 @@ export default function RoutePlannerPage() {
   const routeLineRef = useRef<any>(null);
 
   const { t } = useLanguage();
-  const selectedModeLabel =
-    modeOptions.find((mode) => mode.key === travelMode)?.label ?? 'Route';
+  const selectedMode =
+    modeOptions.find((mode) => mode.key === travelMode) ?? modeOptions[0];
+  const selectedModeLabel = selectedMode.label;
+  const SelectedModeIcon = selectedMode.icon;
+
+  useEffect(() => {
+    if (!distanceMeters) {
+      return;
+    }
+
+    const adjustedDuration = estimateFallbackDuration(travelMode, distanceMeters, 0);
+    setDuration(formatDuration(adjustedDuration));
+  }, [travelMode, distanceMeters]);
 
   useEffect(() => {
     let isMounted = true;
@@ -483,9 +515,18 @@ export default function RoutePlannerPage() {
         ([lng, lat]: [number, number]) => ({ lat, lng })
       );
 
+      const routeDistance = bestRoute.distance ?? 0;
+      const rawDuration = bestRoute.duration ?? 0;
+      const adjustedDuration = estimateFallbackDuration(
+        travelMode,
+        routeDistance,
+        rawDuration
+      );
+
       setRoutePath(points);
-      setDistance(formatDistance(bestRoute.distance ?? 0));
-      setDuration(formatDuration(bestRoute.duration ?? 0));
+      setDistanceMeters(routeDistance);
+      setDistance(formatDistance(routeDistance));
+      setDuration(formatDuration(adjustedDuration));
 
       if (travelMode === 'TRANSIT') {
         setMapNotice(
@@ -512,6 +553,7 @@ export default function RoutePlannerPage() {
       try {
         const summary = await planRoute(origin, destination, travelMode);
         setRouteSummary(summary);
+        setDistanceMeters(null);
         setDistance(summary.distance);
         setDuration(summary.duration);
         setRoutePath([]);
@@ -530,6 +572,7 @@ export default function RoutePlannerPage() {
   const clearRoute = () => {
     setDistance('');
     setDuration('');
+    setDistanceMeters(null);
     setError(null);
     setRouteSummary(null);
     setOrigin('');
@@ -673,7 +716,7 @@ export default function RoutePlannerPage() {
                 <CardContent className="space-y-4 p-4 text-sm">
                   <div className="flex items-center justify-around">
                     <div className="flex items-center gap-2">
-                      <Car className="h-5 w-5 text-primary" />
+                      <SelectedModeIcon className="h-5 w-5 text-primary" />
                       <span>{distance}</span>
                     </div>
                     <div className="flex items-center gap-2">

@@ -43,6 +43,28 @@ export function Chatbot() {
     ].some((phrase) => normalized.includes(phrase));
   };
 
+  const buildFallbackAnswer = (question: string) => {
+    const normalized = question.toLowerCase();
+
+    if (isTripPlanningIntent(question)) {
+      return "I can help with that. Open the AI Trip Planner to generate a day-by-day plan with budget, weather advice, and suitability scoring.";
+    }
+
+    if (normalized.includes("route") || normalized.includes("directions")) {
+      return "Use the Route Planner to compare car, walking, bike, and bus routes. You can search locations, use your current location, or pick points directly on the map.";
+    }
+
+    if (normalized.includes("hotel") || normalized.includes("stay") || normalized.includes("accommodation")) {
+      return "You can explore Hotels and Dharamshalas in the Accommodations section. Filter by city to compare practical stay options.";
+    }
+
+    if (normalized.includes("cab") || normalized.includes("bus") || normalized.includes("train") || normalized.includes("transport")) {
+      return "Open Local Travel Navigator to browse cabs, buses, and trains. It is useful for verified local travel choices inside India.";
+    }
+
+    return "I’m in local assistant mode right now. You can ask about trip planning, routes, places to explore, stays, or local transport in India.";
+  };
+
   useEffect(() => {
     if (scrollAreaRef.current) {
       const viewport = scrollAreaRef.current.querySelector(
@@ -88,7 +110,16 @@ export function Chatbot() {
       console.error("Error answering question:", error);
       const errorMessage: Message = {
         role: "assistant",
-        content: "Sorry, I'm having trouble connecting. Please try again later.",
+        content: buildFallbackAnswer(question),
+        ...(isTripPlanningIntent(question)
+          ? {
+              ctaLabel: "Open AI Trip Planner",
+              ctaAction: () => {
+                setIsOpen(false);
+                navigate("/trip-planner");
+              },
+            }
+          : {}),
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
@@ -97,7 +128,7 @@ export function Chatbot() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 right-6 z-[120]">
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -108,7 +139,13 @@ export function Chatbot() {
             <span className="sr-only">Open Travel Assistant</span>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-80 md:w-96 p-0 bg-background/80 backdrop-blur-sm" align="end">
+        <PopoverContent
+          side="top"
+          sideOffset={16}
+          align="end"
+          collisionPadding={24}
+          className="z-[130] w-[min(24rem,calc(100vw-2rem))] p-0 bg-background/95 backdrop-blur-sm shadow-2xl"
+        >
           <div className="flex flex-col h-[60vh]">
             <div className="bg-muted/50 p-3 border-b text-center">
               <h3 className="font-semibold font-headline">Travel Assistant</h3>
