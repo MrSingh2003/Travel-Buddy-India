@@ -304,7 +304,7 @@ export function Chatbot() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[120]">
+    <div className="fixed bottom-6 right-6 z-[1000]">
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -320,7 +320,7 @@ export function Chatbot() {
           sideOffset={16}
           align="end"
           collisionPadding={24}
-          className="z-[130] w-[min(24rem,calc(100vw-2rem))] p-0 bg-background/95 backdrop-blur-sm shadow-2xl"
+          className="z-[1010] w-[min(24rem,calc(100vw-2rem))] p-0 bg-background/95 backdrop-blur-sm shadow-2xl"
         >
           <div className="flex flex-col h-[60vh]">
             <div className="bg-muted/50 p-3 border-b text-center">

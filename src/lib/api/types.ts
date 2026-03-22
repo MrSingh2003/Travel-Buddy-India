@@ -52,6 +52,8 @@ export type TransportOption = {
   arrivalTime?: string | null;
   duration?: string | null;
   rating?: number | null;
+  bookingUrl?: string | null;
+  notes?: string | null;
 };
 
 export type BookingResponse = {
@@ -68,6 +70,12 @@ export type Accommodation = {
   price: string;
   imageUrl: string;
   category: string;
+  bookingUrl?: string | null;
+};
+
+export type FlightWebhookResponse = {
+  status: string;
+  message: string;
 };
 
 export type RoutePlan = {

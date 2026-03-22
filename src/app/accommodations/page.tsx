@@ -122,7 +122,13 @@ export default function AccommodationsPage() {
                     </div>
                   </CardContent>
                   <CardFooter>
-                    <Button className="w-full" disabled>Book Now</Button>
+                    {hotel.bookingUrl ? (
+                      <Button asChild className="w-full">
+                        <a href={hotel.bookingUrl} target="_blank" rel="noreferrer">Book Now</a>
+                      </Button>
+                    ) : (
+                      <Button className="w-full" disabled>Book Now</Button>
+                    )}
                   </CardFooter>
                 </Card>
               ))}
@@ -165,7 +171,13 @@ export default function AccommodationsPage() {
                     </div>
                   </CardContent>
                   <CardFooter>
-                    <Button className="w-full" disabled>Enquire</Button>
+                    {item.bookingUrl ? (
+                      <Button asChild className="w-full">
+                        <a href={item.bookingUrl} target="_blank" rel="noreferrer">Enquire</a>
+                      </Button>
+                    ) : (
+                      <Button className="w-full" disabled>Enquire</Button>
+                    )}
                   </CardFooter>
                 </Card>
               ))}

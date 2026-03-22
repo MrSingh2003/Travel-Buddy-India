@@ -35,3 +35,7 @@ google:
 
 searchapi:
   api-key: ${SEARCHAPI_API_KEY:}
+
+rapidapi:
+  key: ${RAPIDAPI_KEY:}
+  webhook-url: ${RAPIDAPI_WEBHOOK_URL:}

@@ -1,7 +1,7 @@
 // src/components/language-provider.tsx
 "use client";
 
-import React, { createContext, useContext, useState, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { get } from 'lodash';
 import { translations, type LanguageCode } from '@/lib/translations';
 
@@ -21,15 +21,26 @@ export const languages = {
 type LanguageContextType = {
   language: LanguageCode;
   setLanguage: (language: LanguageCode) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string | number>) => string;
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguage] = useState<LanguageCode>('en');
+  const [language, setLanguage] = useState<LanguageCode>(() => {
+    if (typeof window === 'undefined') {
+      return 'en';
+    }
 
-  const t = useMemo(() => (key: string): string => {
+    const savedLanguage = window.localStorage.getItem('travel-buddy-language');
+    if (savedLanguage && savedLanguage in languages) {
+      return savedLanguage as LanguageCode;
+    }
+
+    return 'en';
+  });
+
+  const t = useMemo(() => (key: string, params?: Record<string, string | number>): string => {
     // Attempt to get the translation for the current language
     let translation = get(translations[language], key);
 
@@ -37,9 +48,16 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     if (!translation) {
       translation = get(translations.en, key);
     }
-    
-    // If still not found, return the key itself as a fallback
-    return translation || key;
+
+    const baseText = translation || key;
+
+    if (!params) {
+      return baseText;
+    }
+
+    return Object.entries(params).reduce((output, [token, value]) => {
+      return output.replace(new RegExp(`\\{${token}\\}`, 'g'), String(value));
+    }, baseText);
   }, [language]);
 
   const value = {
@@ -47,6 +65,15 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     setLanguage: (lang: LanguageCode) => setLanguage(lang),
     t,
   };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    window.localStorage.setItem('travel-buddy-language', language);
+    document.documentElement.lang = language;
+  }, [language]);
 
   return (
     <LanguageContext.Provider value={value}>

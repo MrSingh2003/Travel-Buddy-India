@@ -28,6 +28,8 @@ public class MockCatalogService {
   private final ObjectMapper objectMapper;
   private final String geminiApiKey;
   private final String searchApiKey;
+  private final String rapidApiKey;
+  private final String rapidApiWebhookUrl;
   private final TripRequestRepository tripRequestRepository;
   private final BookingRepository bookingRepository;
   private final UserProfileRepository userProfileRepository;
@@ -39,7 +41,9 @@ public class MockCatalogService {
       BookingRepository bookingRepository,
       UserProfileRepository userProfileRepository,
       @Value("${google.ai.api-key:}") String geminiApiKey,
-      @Value("${searchapi.api-key:}") String searchApiKey) {
+      @Value("${searchapi.api-key:}") String searchApiKey,
+      @Value("${rapidapi.key:}") String rapidApiKey,
+      @Value("${rapidapi.webhook-url:}") String rapidApiWebhookUrl) {
     this.restClient = restClientBuilder.build();
     this.objectMapper = objectMapper;
     this.tripRequestRepository = tripRequestRepository;
@@ -47,6 +51,8 @@ public class MockCatalogService {
     this.userProfileRepository = userProfileRepository;
     this.geminiApiKey = geminiApiKey == null ? "" : geminiApiKey.trim();
     this.searchApiKey = searchApiKey == null ? "" : searchApiKey.trim();
+    this.rapidApiKey = rapidApiKey == null ? "" : rapidApiKey.trim();
+    this.rapidApiWebhookUrl = rapidApiWebhookUrl == null ? "" : rapidApiWebhookUrl.trim();
   }
 
   public List<PlaceResult> searchPlaces(String query, String location) {
@@ -87,42 +93,77 @@ public class MockCatalogService {
   }
 
   public List<Accommodation> hotels() {
+    return hotels("all", LocalDate.now().plusDays(7), LocalDate.now().plusDays(9), 1, "INR", "India");
+  }
+
+  public List<Accommodation> hotels(
+      String location,
+      LocalDate checkIn,
+      LocalDate checkOut,
+      int adults,
+      String currency,
+      String locale) {
+    if (hasRapidApiKey() && location != null && !"all".equalsIgnoreCase(location)) {
+      String propertyId = rapidHotelPropertyIdFor(location);
+      if (!propertyId.isBlank()) {
+        try {
+          Accommodation liveAccommodation =
+              rapidHotelDetails(propertyId, location, checkIn, checkOut, adults, currency, locale);
+          if (liveAccommodation != null) {
+            return List.of(liveAccommodation);
+          }
+        } catch (Exception ignored) {
+          // fall back to local mock list
+        }
+      }
+    }
+
     return List.of(
         new Accommodation("hotel-1", "The Mountain View", "Shimla, Himachal Pradesh", 4.5,
             List.of("WiFi", "Heater", "Restaurant"), "INR 4500/night",
-            "https://picsum.photos/seed/mountain-hotel/600/400", "hotel"),
+            "https://picsum.photos/seed/mountain-hotel/600/400", "hotel", null),
         new Accommodation("hotel-2", "Desert Mirage Resort", "Jaisalmer, Rajasthan", 4.8,
             List.of("Pool", "Camel Safari", "WiFi"), "INR 7000/night",
-            "https://picsum.photos/seed/desert-hotel/600/400", "hotel"),
+            "https://picsum.photos/seed/desert-hotel/600/400", "hotel", null),
         new Accommodation("hotel-3", "Backwater Bungalows", "Alleppey, Kerala", 4.7,
             List.of("Houseboat", "Free Breakfast", "AC"), "INR 6000/night",
-            "https://picsum.photos/seed/backwater-hotel/600/400", "hotel"),
+            "https://picsum.photos/seed/backwater-hotel/600/400", "hotel", null),
         new Accommodation("hotel-4", "City Comfort Inn", "New Delhi, Delhi", 4.1,
             List.of("WiFi", "Room Service", "Airport Shuttle"), "INR 3500/night",
-            "https://picsum.photos/seed/city-hotel/600/400", "hotel"));
+            "https://picsum.photos/seed/city-hotel/600/400", "hotel", null));
   }
 
   public List<Accommodation> dharamshalas() {
     return List.of(
         new Accommodation("dharamshala-1", "Gita Bhavan", "Rishikesh, Uttarakhand", 4.2,
             List.of("Ganga View", "Satsang Hall", "Basic Rooms"), "Donation based",
-            "https://picsum.photos/seed/gita-bhavan/600/400", "dharamshala"),
+            "https://picsum.photos/seed/gita-bhavan/600/400", "dharamshala", null),
         new Accommodation("dharamshala-2", "Bangur Dharamshala", "Nathdwara, Rajasthan", 4.0,
             List.of("AC/Non-AC", "Close to Temple", "Canteen"), "INR 500/night",
-            "https://picsum.photos/seed/nathdwara-dharamshala/600/400", "dharamshala"));
+            "https://picsum.photos/seed/nathdwara-dharamshala/600/400", "dharamshala", null));
   }
 
   public List<TransportOption> cabs(String location) {
     String city = cityOnly(location);
+    if (hasRapidApiKey() && !city.isBlank()) {
+      try {
+        List<TransportOption> rapidResults = rapidCabLocations(city);
+        if (!rapidResults.isEmpty()) {
+          return rapidResults;
+        }
+      } catch (Exception ignored) {
+        // fall back to local mock list
+      }
+    }
     return List.of(
             new TransportOption("cab-1", "Himalayan Nomad Cabs", "Manali, Himachal Pradesh", "cab",
-                "Approx. INR 2500/day", "+91-9876543210", true, null, null, null, null, null, null, null),
+                "Approx. INR 2500/day", "+91-9876543210", true, null, null, null, null, null, null, null, null, "Local operator"),
             new TransportOption("cab-2", "Rann Riders", "Bhuj, Gujarat", "cab",
-                "Approx. INR 3000/day for SUV", "+91-9876543211", true, null, null, null, null, null, null, null),
+                "Approx. INR 3000/day for SUV", "+91-9876543211", true, null, null, null, null, null, null, null, null, "Local operator"),
             new TransportOption("cab-3", "Coorg Cabs", "Madikeri, Karnataka", "cab",
-                "Approx. INR 2200/day", "+91-9876543212", false, null, null, null, null, null, null, null),
+                "Approx. INR 2200/day", "+91-9876543212", false, null, null, null, null, null, null, null, null, "Community-listed operator"),
             new TransportOption("cab-4", "Sikkim Taxi Service", "Gangtok, Sikkim", "cab",
-                "Point to point basis", "+91-9876543213", true, null, null, null, null, null, null, null))
+                "Point to point basis", "+91-9876543213", true, null, null, null, null, null, null, null, null, "Local operator"))
         .stream()
         .filter(option -> option.location().toLowerCase(Locale.ENGLISH).contains(city.toLowerCase(Locale.ENGLISH)))
         .toList();
@@ -133,11 +174,11 @@ public class MockCatalogService {
     String end = cityOnly(to);
     return List.of(
             new TransportOption("bus-1", "VRL Travels", start + " to " + end, "bus", "INR 2100", null, true,
-                "Volvo A/C Sleeper (2+1)", start, end, "18:00", "10:00", "16h 0m", 4.5),
+                "Volvo A/C Sleeper (2+1)", start, end, "18:00", "10:00", "16h 0m", 4.5, null, null),
             new TransportOption("bus-2", "Sharma Transports", start + " to " + end, "bus", "INR 1850", null, true,
-                "Scania A/C Seater (2+2)", start, end, "19:30", "12:30", "17h 0m", 4.2),
+                "Scania A/C Seater (2+2)", start, end, "19:30", "12:30", "17h 0m", 4.2, null, null),
             new TransportOption("bus-3", "KSRTC Airavat", start + " to " + end, "bus", "INR 2500", null, true,
-                "Mercedes-Benz Multi-Axle", start, end, "20:00", "12:00", "16h 0m", 4.8))
+                "Mercedes-Benz Multi-Axle", start, end, "20:00", "12:00", "16h 0m", 4.8, null, null))
         .stream()
         .filter(option -> !start.equalsIgnoreCase(end))
         .toList();
@@ -148,12 +189,45 @@ public class MockCatalogService {
     String end = cityOnly(to);
     return List.of(
             new TransportOption("train-1", "Shatabdi Express", start + " to " + end, "train", "INR 1500", null, true,
-                "AC Chair Car", start, end, "06:00", "13:45", "7h 45m", 4.4),
+                "AC Chair Car", start, end, "06:00", "13:45", "7h 45m", 4.4, null, null),
             new TransportOption("train-2", "Rajdhani Express", start + " to " + end, "train", "INR 3200", null, true,
-                "AC 2 Tier", start, end, "20:40", "09:15", "12h 35m", 4.7))
+                "AC 2 Tier", start, end, "20:40", "09:15", "12h 35m", 4.7, null, null))
         .stream()
         .filter(option -> !start.equalsIgnoreCase(end))
         .toList();
+  }
+
+  public FlightWebhookResponse subscribeFlightWebhook(FlightWebhookRequest request) {
+    if (!hasRapidApiKey()) {
+      return new FlightWebhookResponse("fallback",
+          "RapidAPI key is not configured, so flight webhook subscription is running in mock mode.");
+    }
+
+    String callbackUrl =
+        request.url() == null || request.url().isBlank() ? rapidApiWebhookUrl : request.url();
+    if (callbackUrl == null || callbackUrl.isBlank()) {
+      return new FlightWebhookResponse("error",
+          "Provide a callback URL or set RAPIDAPI_WEBHOOK_URL in the backend environment.");
+    }
+
+    try {
+      String flightNumber = request.flightNumber().replace(" ", "").trim();
+      String body = restClient.post()
+          .uri("https://aerodatabox.p.rapidapi.com/subscriptions/webhook/FlightByNumber/" + flightNumber
+              + "?useCredits=" + request.useCredits())
+          .header("Content-Type", "application/json")
+          .header("x-rapidapi-host", "aerodatabox.p.rapidapi.com")
+          .header("x-rapidapi-key", rapidApiKey)
+          .body(objectMapper.writeValueAsString(Map.of(
+              "url", callbackUrl,
+              "maxDeliveryRetries", 0)))
+          .retrieve()
+          .body(String.class);
+      return new FlightWebhookResponse("success", body);
+    } catch (Exception exception) {
+      return new FlightWebhookResponse("error",
+          "Could not create the flight webhook right now. " + exception.getMessage());
+    }
   }
 
   public RoutePlan planRoute(String origin, String destination, String mode) {
@@ -530,6 +604,140 @@ public class MockCatalogService {
     return objectMapper.readTree(body);
   }
 
+  private Accommodation rapidHotelDetails(
+      String propertyId,
+      String location,
+      LocalDate checkIn,
+      LocalDate checkOut,
+      int adults,
+      String currency,
+      String locale) throws Exception {
+    String body = restClient.get()
+        .uri("https://hotels4.p.rapidapi.com/properties/get-details?id=" + propertyId
+            + "&checkIn=" + checkIn
+            + "&checkOut=" + checkOut
+            + "&adults1=" + adults
+            + "&currency=" + URLEncoder.encode(currency, StandardCharsets.UTF_8)
+            + "&locale=" + URLEncoder.encode(locale, StandardCharsets.UTF_8))
+        .header("Content-Type", "application/json")
+        .header("x-rapidapi-host", "hotels4.p.rapidapi.com")
+        .header("x-rapidapi-key", rapidApiKey)
+        .retrieve()
+        .body(String.class);
+    JsonNode root = objectMapper.readTree(body);
+    JsonNode data = root.path("data").path("body");
+
+    String name = textValue(data.path("summary"), "name");
+    if (name.isBlank()) {
+      name = textValue(root, "name", "hotelName");
+    }
+    String address =
+        textValue(data.path("propertyDescription").path("address"), "fullAddress", "addressLine");
+    if (address.isBlank()) {
+      address = location;
+    }
+    double rating = data.path("guestReviews").path("brands").path("overall").asDouble(
+        data.path("reviewInfo").path("summary").path("overallScore").asDouble(4.2));
+    String imageUrl = data.path("propertyGallery").path("images").path(0).path("baseUrl").asText("");
+    if (imageUrl.contains("{size}")) {
+      imageUrl = imageUrl.replace("{size}", "z");
+    }
+    if (imageUrl.isBlank()) {
+      imageUrl = "https://picsum.photos/seed/" + seed(name + location + propertyId) + "/600/400";
+    }
+    List<String> amenities = new ArrayList<>();
+    JsonNode amenitySections = data.path("overview").path("overviewSections");
+    if (amenitySections.isArray()) {
+      for (JsonNode section : amenitySections) {
+        JsonNode content = section.path("content");
+        if (content.isArray()) {
+          for (JsonNode item : content) {
+            String label = item.asText("");
+            if (!label.isBlank()) {
+              amenities.add(label);
+            }
+            if (amenities.size() >= 4) {
+              break;
+            }
+          }
+        }
+        if (amenities.size() >= 4) {
+          break;
+        }
+      }
+    }
+    if (amenities.isEmpty()) {
+      amenities = List.of("Hotel details", "RapidAPI listing");
+    }
+    String bookingUrl = "https://www.hotels.com/Hotel-Search?destination=" + URLEncoder.encode(cityOnly(location), StandardCharsets.UTF_8);
+
+    return new Accommodation(
+        "rapid-hotel-" + propertyId,
+        name.isBlank() ? cityOnly(location) + " Hotel" : name,
+        address,
+        rating <= 0 ? 4.2 : rating,
+        amenities,
+        "Check live rate",
+        imageUrl,
+        "hotel",
+        bookingUrl);
+  }
+
+  private List<TransportOption> rapidCabLocations(String city) throws Exception {
+    String body = restClient.get()
+        .uri("https://priceline-com.p.rapidapi.com/cars/location/search?q="
+            + URLEncoder.encode(city, StandardCharsets.UTF_8))
+        .header("Content-Type", "application/json")
+        .header("x-rapidapi-host", "priceline-com.p.rapidapi.com")
+        .header("x-rapidapi-key", rapidApiKey)
+        .retrieve()
+        .body(String.class);
+    JsonNode root = objectMapper.readTree(body);
+    JsonNode candidates = root.path("results");
+    if (!candidates.isArray() || candidates.isEmpty()) {
+      candidates = root.path("data");
+    }
+    List<TransportOption> options = new ArrayList<>();
+    if (candidates.isArray()) {
+      for (JsonNode node : candidates) {
+        String locationName = textValue(node, "name", "displayName", "cityName", "address");
+        String code = textValue(node, "id", "cityCode", "code");
+        if (locationName.isBlank()) {
+          continue;
+        }
+        options.add(new TransportOption(
+            "rapid-cab-" + (code.isBlank() ? seed(locationName) : code),
+            "Live cabs near " + locationName,
+            locationName,
+            "cab",
+            "Check live cab rates",
+            null,
+            true,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            4.3,
+            null,
+            "RapidAPI location match for cab booking"));
+        if (options.size() >= 5) {
+          break;
+        }
+      }
+    }
+    return options;
+  }
+
+  private String rapidHotelPropertyIdFor(String location) {
+    String normalized = location.toLowerCase(Locale.ENGLISH);
+    if (normalized.contains("delhi")) {
+      return "424023";
+    }
+    return "";
+  }
+
   private String geminiText(String model, String prompt) throws Exception {
     JsonNode response = geminiRequest(model, Map.of(
         "contents", List.of(Map.of(
@@ -672,6 +880,10 @@ public class MockCatalogService {
     return !searchApiKey.isBlank();
   }
 
+  private boolean hasRapidApiKey() {
+    return !rapidApiKey.isBlank();
+  }
+
   public record PersonalizedTripRequest(
       String currentLocation,
       String location,
@@ -729,7 +941,9 @@ public class MockCatalogService {
       String departureTime,
       String arrivalTime,
       String duration,
-      Double rating) {}
+      Double rating,
+      String bookingUrl,
+      String notes) {}
 
   public record BookingRequest(
       String serviceType,
@@ -747,7 +961,8 @@ public class MockCatalogService {
       List<String> amenities,
       String price,
       String imageUrl,
-      String category) {}
+      String category,
+      String bookingUrl) {}
 
   public record RoutePlan(
       String origin,
@@ -760,6 +975,15 @@ public class MockCatalogService {
   public record ChatRequest(String question) {}
 
   public record ChatResponse(String answer) {}
+
+  public record FlightWebhookRequest(
+      String flightNumber,
+      String url,
+      boolean useCredits) {}
+
+  public record FlightWebhookResponse(
+      String status,
+      String message) {}
 
   public record AvatarRequest(String prompt) {}
 

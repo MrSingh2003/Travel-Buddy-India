@@ -20,12 +20,12 @@ import {
   AlertCircle,
   Bike,
   Bus,
+  Check,
   Car,
   Footprints,
   Loader2,
   LocateFixed,
   MapPinned,
-  MousePointerClick,
   Route,
   Search,
   Timer,
@@ -37,6 +37,7 @@ import type { RoutePlan } from '@/lib/api/types';
 type TravelMode = 'DRIVING' | 'WALKING' | 'BICYCLING' | 'TRANSIT';
 type PickTarget = 'origin' | 'destination';
 type LatLng = { lat: number; lng: number };
+type SearchSuggestion = { label: string; latLng: LatLng };
 
 declare global {
   interface Window {
@@ -51,10 +52,10 @@ const center = {
 };
 
 const modeOptions = [
-  { key: 'DRIVING', label: 'Car', icon: Car },
-  { key: 'WALKING', label: 'Walking', icon: Footprints },
-  { key: 'BICYCLING', label: 'Bike', icon: Bike },
-  { key: 'TRANSIT', label: 'Bus', icon: Bus },
+  { key: 'DRIVING', labelKey: 'routePlanner.modeCar', icon: Car },
+  { key: 'WALKING', labelKey: 'routePlanner.modeWalking', icon: Footprints },
+  { key: 'BICYCLING', labelKey: 'routePlanner.modeBike', icon: Bike },
+  { key: 'TRANSIT', labelKey: 'routePlanner.modeBus', icon: Bus },
 ] as const;
 
 function loadLeafletAssets() {
@@ -204,6 +205,43 @@ async function geocodeQuery(query: string) {
   };
 }
 
+async function searchIndianLocations(query: string) {
+  const trimmed = query.trim();
+  if (!trimmed || trimmed.length < 2) {
+    return [] as SearchSuggestion[];
+  }
+
+  const url = new URL('https://nominatim.openstreetmap.org/search');
+  url.searchParams.set('format', 'jsonv2');
+  url.searchParams.set('limit', '5');
+  url.searchParams.set('countrycodes', 'in');
+  url.searchParams.set('q', trimmed);
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      Accept: 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Location suggestions failed.');
+  }
+
+  const results = (await response.json()) as Array<{
+    lat: string;
+    lon: string;
+    display_name: string;
+  }>;
+
+  return results.map((result) => ({
+    label: result.display_name,
+    latLng: {
+      lat: Number(result.lat),
+      lng: Number(result.lon),
+    },
+  }));
+}
+
 function getOsrmProfile(mode: TravelMode) {
   switch (mode) {
     case 'WALKING':
@@ -230,9 +268,13 @@ export default function RoutePlannerPage() {
   const [mapNotice, setMapNotice] = useState<string | null>(
     'OpenStreetMap mode is active for route picking and map clicks.'
   );
-  const [pickTarget, setPickTarget] = useState<PickTarget>('origin');
+  const [pickTarget, setPickTarget] = useState<PickTarget>('destination');
   const [origin, setOrigin] = useState('');
   const [destination, setDestination] = useState('');
+  const [originSuggestions, setOriginSuggestions] = useState<SearchSuggestion[]>([]);
+  const [destinationSuggestions, setDestinationSuggestions] = useState<SearchSuggestion[]>([]);
+  const [showOriginSuggestions, setShowOriginSuggestions] = useState(false);
+  const [showDestinationSuggestions, setShowDestinationSuggestions] = useState(false);
   const [originMarker, setOriginMarker] = useState<LatLng | null>(null);
   const [destinationMarker, setDestinationMarker] = useState<LatLng | null>(null);
   const [routePath, setRoutePath] = useState<LatLng[]>([]);
@@ -245,10 +287,43 @@ export default function RoutePlannerPage() {
   const destinationMarkerRef = useRef<any>(null);
   const routeLineRef = useRef<any>(null);
 
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
+  const routeCopy = {
+    en: {
+      modeCar: 'Car',
+      modeWalking: 'Walking',
+      modeBike: 'Bike',
+      modeBus: 'Bus',
+      fromMyLocation: 'From My Location',
+      pickDestination: 'Pick Destination',
+      mapNoticeTitle: 'Map notice',
+      suggestedWaypoints: 'Suggested {mode} route waypoints',
+      mapPreviewUnavailable: 'Map preview unavailable',
+      mapPreviewHelp:
+        'You can still type locations, use "From My Location", and calculate the route summary.',
+      titlePrefix: 'Plan Your',
+      titleSuffix: 'Route',
+    },
+    hi: {
+      modeCar: 'कार',
+      modeWalking: 'पैदल',
+      modeBike: 'बाइक',
+      modeBus: 'बस',
+      fromMyLocation: 'मेरी लोकेशन से',
+      pickDestination: 'गंतव्य चुनें',
+      mapNoticeTitle: 'मैप सूचना',
+      suggestedWaypoints: 'सुझाए गए {mode} मार्ग ठहराव',
+      mapPreviewUnavailable: 'मैप पूर्वावलोकन अभी उपलब्ध नहीं है',
+      mapPreviewHelp:
+        'आप फिर भी जगह टाइप कर सकते हैं, "मेरी लोकेशन से" उपयोग कर सकते हैं, और रूट सार देख सकते हैं।',
+      titlePrefix: 'अपना',
+      titleSuffix: 'मार्ग नियोजित करें',
+    },
+  } as const;
+  const ui = routeCopy[language as keyof typeof routeCopy] ?? routeCopy.en;
   const selectedMode =
     modeOptions.find((mode) => mode.key === travelMode) ?? modeOptions[0];
-  const selectedModeLabel = selectedMode.label;
+  const selectedModeLabel = ui[selectedMode.labelKey as keyof typeof ui] as string;
   const SelectedModeIcon = selectedMode.icon;
 
   useEffect(() => {
@@ -259,6 +334,42 @@ export default function RoutePlannerPage() {
     const adjustedDuration = estimateFallbackDuration(travelMode, distanceMeters, 0);
     setDuration(formatDuration(adjustedDuration));
   }, [travelMode, distanceMeters]);
+
+  useEffect(() => {
+    const timeout = setTimeout(async () => {
+      if (origin.trim().length < 2) {
+        setOriginSuggestions([]);
+        return;
+      }
+
+      try {
+        const results = await searchIndianLocations(origin);
+        setOriginSuggestions(results);
+      } catch {
+        setOriginSuggestions([]);
+      }
+    }, 250);
+
+    return () => clearTimeout(timeout);
+  }, [origin]);
+
+  useEffect(() => {
+    const timeout = setTimeout(async () => {
+      if (destination.trim().length < 2) {
+        setDestinationSuggestions([]);
+        return;
+      }
+
+      try {
+        const results = await searchIndianLocations(destination);
+        setDestinationSuggestions(results);
+      } catch {
+        setDestinationSuggestions([]);
+      }
+    }, 250);
+
+    return () => clearTimeout(timeout);
+  }, [destination]);
 
   useEffect(() => {
     let isMounted = true;
@@ -437,6 +548,7 @@ export default function RoutePlannerPage() {
         try {
           const label = await reverseGeocode(point);
           setOrigin(label);
+          setShowOriginSuggestions(false);
         } catch (reverseError) {
           console.error(reverseError);
           setOrigin(formatCoordinateLabel(point));
@@ -577,6 +689,10 @@ export default function RoutePlannerPage() {
     setRouteSummary(null);
     setOrigin('');
     setDestination('');
+    setOriginSuggestions([]);
+    setDestinationSuggestions([]);
+    setShowOriginSuggestions(false);
+    setShowDestinationSuggestions(false);
     setOriginMarker(null);
     setDestinationMarker(null);
     setRoutePath([]);
@@ -586,13 +702,27 @@ export default function RoutePlannerPage() {
     }
   };
 
+  const selectOriginSuggestion = (suggestion: SearchSuggestion) => {
+    setOrigin(suggestion.label);
+    setOriginMarker(suggestion.latLng);
+    setOriginSuggestions([]);
+    setShowOriginSuggestions(false);
+  };
+
+  const selectDestinationSuggestion = (suggestion: SearchSuggestion) => {
+    setDestination(suggestion.label);
+    setDestinationMarker(suggestion.latLng);
+    setDestinationSuggestions([]);
+    setShowDestinationSuggestions(false);
+  };
+
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
       <div className="lg:col-span-1">
         <Card>
           <CardHeader>
             <CardTitle className="font-headline">
-              Plan Your {selectedModeLabel} Route
+              {ui.titlePrefix} {selectedModeLabel} {ui.titleSuffix}
             </CardTitle>
             <CardDescription>{t('routePlanner.description')}</CardDescription>
           </CardHeader>
@@ -611,7 +741,7 @@ export default function RoutePlannerPage() {
                         onClick={() => setTravelMode(mode.key)}
                       >
                         <Icon className="mr-2 h-4 w-4" />
-                        {mode.label}
+                        {ui[mode.labelKey as keyof typeof ui]}
                       </Button>
                     );
                   })}
@@ -622,9 +752,29 @@ export default function RoutePlannerPage() {
                     type="text"
                     placeholder={t('routePlanner.originPlaceholder')}
                     value={origin}
-                    onChange={(event) => setOrigin(event.target.value)}
+                    onFocus={() => setShowOriginSuggestions(true)}
+                    onChange={(event) => {
+                      setOrigin(event.target.value);
+                      setOriginMarker(null);
+                      setShowOriginSuggestions(true);
+                    }}
                     className="pl-10"
                   />
+                  {showOriginSuggestions && originSuggestions.length > 0 && (
+                    <div className="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border bg-background shadow-xl">
+                      {originSuggestions.map((suggestion) => (
+                        <button
+                          key={`${suggestion.label}-${suggestion.latLng.lat}`}
+                          type="button"
+                          className="flex w-full items-start gap-2 px-4 py-3 text-left text-sm hover:bg-muted"
+                          onClick={() => selectOriginSuggestion(suggestion)}
+                        >
+                          <Check className="mt-0.5 h-4 w-4 text-primary" />
+                          <span>{suggestion.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <Button
                   type="button"
@@ -638,38 +788,47 @@ export default function RoutePlannerPage() {
                   ) : (
                     <LocateFixed className="mr-2 h-4 w-4" />
                   )}
-                  From My Location
+                  {ui.fromMyLocation}
                 </Button>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    type="button"
-                    variant={pickTarget === 'origin' ? 'default' : 'outline'}
-                    className="w-full"
-                    onClick={() => setPickTarget('origin')}
-                  >
-                    <MousePointerClick className="mr-2 h-4 w-4" />
-                    Pick Origin
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={pickTarget === 'destination' ? 'default' : 'outline'}
-                    className="w-full"
-                    onClick={() => setPickTarget('destination')}
-                  >
-                    <MapPinned className="mr-2 h-4 w-4" />
-                    Pick Destination
-                  </Button>
-                </div>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     type="text"
                     placeholder={t('routePlanner.destinationPlaceholder')}
                     value={destination}
-                    onChange={(event) => setDestination(event.target.value)}
+                    onFocus={() => setShowDestinationSuggestions(true)}
+                    onChange={(event) => {
+                      setDestination(event.target.value);
+                      setDestinationMarker(null);
+                      setShowDestinationSuggestions(true);
+                    }}
                     className="pl-10"
                   />
+                  {showDestinationSuggestions && destinationSuggestions.length > 0 && (
+                    <div className="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border bg-background shadow-xl">
+                      {destinationSuggestions.map((suggestion) => (
+                        <button
+                          key={`${suggestion.label}-${suggestion.latLng.lat}`}
+                          type="button"
+                          className="flex w-full items-start gap-2 px-4 py-3 text-left text-sm hover:bg-muted"
+                          onClick={() => selectDestinationSuggestion(suggestion)}
+                        >
+                          <Check className="mt-0.5 h-4 w-4 text-primary" />
+                          <span>{suggestion.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
+                <Button
+                  type="button"
+                  variant={pickTarget === 'destination' ? 'default' : 'outline'}
+                  className="w-full"
+                  onClick={() => setPickTarget('destination')}
+                >
+                  <MapPinned className="mr-2 h-4 w-4" />
+                  {ui.pickDestination}
+                </Button>
               </div>
               <div className="mt-4 flex flex-col gap-2 sm:flex-row">
                 <Button type="submit" className="w-full" disabled={isLoading}>
@@ -707,7 +866,7 @@ export default function RoutePlannerPage() {
             {mapNotice && (
               <Alert className="mt-4">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Map notice</AlertTitle>
+                <AlertTitle>{ui.mapNoticeTitle}</AlertTitle>
                 <AlertDescription>{mapNotice}</AlertDescription>
               </Alert>
             )}
@@ -728,7 +887,15 @@ export default function RoutePlannerPage() {
                     <div>
                       <div className="mb-2 flex items-center gap-2 font-medium">
                         <MapPinned className="h-4 w-4 text-primary" />
-                        Suggested {(routeSummary.mode ?? travelMode).toLowerCase()} route waypoints
+                        {ui.suggestedWaypoints.replace(
+                          '{mode}',
+                          String(
+                            ui[
+                              (modeOptions.find((mode) => mode.key === (routeSummary.mode ?? travelMode))
+                                ?.labelKey ?? 'routePlanner.modeCar') as keyof typeof ui
+                            ]
+                          ).toLowerCase()
+                        )}
                       </div>
                       <ul className="space-y-1 text-muted-foreground">
                         {routeSummary.waypoints.map((waypoint) => (
@@ -749,9 +916,11 @@ export default function RoutePlannerPage() {
             <div className="flex h-[600px] flex-col items-center justify-center gap-4 p-6 text-center text-muted-foreground">
               <MapPinned className="h-12 w-12 text-primary" />
               <div className="space-y-2">
-                <p className="text-lg font-medium text-foreground">Map preview unavailable</p>
+                <p className="text-lg font-medium text-foreground">
+                  {ui.mapPreviewUnavailable}
+                </p>
                 <p>
-                  You can still type locations, use "From My Location", and calculate the route summary.
+                  {ui.mapPreviewHelp}
                 </p>
               </div>
             </div>

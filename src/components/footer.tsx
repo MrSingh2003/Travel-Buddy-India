@@ -1,23 +1,26 @@
 "use client";
 
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Mail, MapPinned, ShieldCheck } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 
 export function Footer() {
   const year = new Date().getFullYear();
   const { language, t } = useLanguage();
+  const { pathname } = useLocation();
+  const showFullFooter = pathname === "/" || pathname === "/dashboard";
 
   const footerCopy = {
     en: {
       tagline:
-        "A practical India travel planning platform focused on trip budgeting, route support, local language comfort, and day-by-day planning that feels useful on real trips.",
+        "A practical India travel planning platform focused on budgeting, route support, local language comfort, and day-by-day planning that feels useful on real trips.",
       quickLinks: "Quick links",
       contact: "Contact me",
       projectLine: "India travel and tourism planning project",
       rights: "All rights reserved. Personal project use only.",
       crafted: "Travel Buddy India. Crafted by Pranav Singh.",
       license: "License: All rights reserved.",
+      shortLicense: "All rights reserved.",
     },
     hi: {
       tagline:
@@ -28,10 +31,22 @@ export function Footer() {
       rights: "सर्वाधिकार सुरक्षित। केवल व्यक्तिगत परियोजना उपयोग के लिए।",
       crafted: "Travel Buddy India. प्रणव सिंह द्वारा निर्मित।",
       license: "लाइसेंस: सर्वाधिकार सुरक्षित।",
+      shortLicense: "सर्वाधिकार सुरक्षित।",
     },
   } as const;
 
   const copy = footerCopy[language as keyof typeof footerCopy] ?? footerCopy.en;
+
+  if (!showFullFooter) {
+    return (
+      <footer className="border-t border-border/70 bg-background/95">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-4 py-4 text-sm text-muted-foreground lg:px-6">
+          <p>(c) {year} Travel Buddy India</p>
+          <p>{copy.shortLicense}</p>
+        </div>
+      </footer>
+    );
+  }
 
   return (
     <footer className="border-t border-border/70 bg-background/95">

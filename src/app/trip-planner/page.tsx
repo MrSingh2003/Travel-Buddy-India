@@ -50,6 +50,8 @@ type LiveWeather = {
   temperature: number;
   windSpeed: number;
   weatherText: string;
+  latitude: number;
+  longitude: number;
 };
 
 const formSchema = z.object({
@@ -131,6 +133,11 @@ function formatInr(value: number) {
   return `INR ${Math.round(value)}`;
 }
 
+function extractRequiredBudget(reasoning: string) {
+  const match = reasoning.match(/at least INR\s+(\d+)/i);
+  return match ? Number.parseInt(match[1], 10) : null;
+}
+
 function getWeatherText(code: number) {
   if (code === 0) return "Clear sky";
   if ([1, 2, 3].includes(code)) return "Partly cloudy";
@@ -141,6 +148,70 @@ function getWeatherText(code: number) {
   if ([80, 81, 82].includes(code)) return "Scattered rain";
   if ([95, 96, 99].includes(code)) return "Thunderstorm";
   return "Weather update available";
+}
+
+function getTripDays(from?: Date, to?: Date) {
+  if (!from || !to) return 3;
+  const diff = Math.round((to.getTime() - from.getTime()) / 86400000) + 1;
+  return Math.max(1, diff);
+}
+
+function haversineKm(
+  aLat: number,
+  aLon: number,
+  bLat: number,
+  bLon: number
+) {
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const earthRadiusKm = 6371;
+  const dLat = toRad(bLat - aLat);
+  const dLon = toRad(bLon - aLon);
+  const lat1 = toRad(aLat);
+  const lat2 = toRad(bLat);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return earthRadiusKm * c;
+}
+
+function estimateRequiredBudgetDetails(
+  people: number,
+  interests: string,
+  tripDays: number,
+  intercityDistanceKm?: number
+) {
+  const normalizedInterests = interests.toLowerCase();
+  const wantsBike = /(rental bike|rent a bike|bike|bicycle|scooty|scooter)/.test(normalizedInterests);
+  const wantsAdventure = /(adventure|rafting|trek|hike|ropeway|camp)/.test(normalizedInterests);
+  const wantsCulture = /(culture|heritage|history|temple|spiritual|market)/.test(normalizedInterests);
+  const wantsFood = /(food|street food|cafe|restaurant|local meal)/.test(normalizedInterests);
+
+  const roomsNeeded = Math.max(1, people >= 4 ? Math.ceil(people / 4) : Math.ceil(people / 2));
+  const nights = Math.max(1, tripDays - 1);
+  const accommodation = roomsNeeded * 900 * nights;
+  const foodPerPersonPerDay = wantsFood ? 380 : 300;
+  const food = people * foodPerPersonPerDay * tripDays;
+  const intercityTravel = intercityDistanceKm
+    ? Math.max(people * 220, Math.round(intercityDistanceKm * 1.6 * people))
+    : people * 300;
+  const localTransport = wantsBike
+    ? Math.max(800, Math.ceil(people / 2) * 700)
+    : Math.max(400, people * 120 * tripDays);
+  const transport = intercityTravel + localTransport;
+  const activitiesPerPerson = wantsAdventure ? 450 : wantsCulture ? 250 : wantsFood ? 220 : 180;
+  const activities = Math.max(people * activitiesPerPerson, people * activitiesPerPerson * Math.max(1, tripDays - 1));
+
+  return {
+    accommodation,
+    food,
+    transport,
+    activities,
+    total: accommodation + food + transport + activities,
+    intercityTravel,
+    localTransport,
+    bikeRentalEstimate: wantsBike ? Math.max(800, Math.ceil(people / 2) * 700) : 0,
+  };
 }
 
 function optimizeBudgetBreakdown(
@@ -168,15 +239,35 @@ function optimizeBudgetBreakdown(
       },
       underBudget: true,
       savings: budget - currentTotal,
+      requiredBudget: currentTotal,
       note: `This ${destinationCity} plan already fits within your budget. You still have about INR ${budget - currentTotal} as a comfort buffer.`,
     };
   }
 
+  const practicalMinimum = estimateRequiredBudgetDetails(people, "", 3);
+  const minimumRequiredTotal = practicalMinimum.total;
+
+  if (budget < minimumRequiredTotal) {
+    return {
+      breakdown: {
+        accommodation: formatInr(Math.max(0, Math.round(budget * 0.38))),
+        food: formatInr(Math.max(0, Math.round(budget * 0.18))),
+        transport: formatInr(Math.max(0, Math.round(budget * 0.22))),
+        activities: formatInr(Math.max(0, budget - Math.round(budget * 0.38) - Math.round(budget * 0.18) - Math.round(budget * 0.22))),
+        total: formatInr(budget),
+      },
+      underBudget: false,
+      savings: 0,
+      requiredBudget: practicalMinimum.total,
+      note: `Your selected budget is too low for a workable ${destinationCity} trip for ${people} traveler${people > 1 ? "s" : ""}. To complete this trip with basic stay, meals, local travel, and simple activities, keep at least INR ${minimumRequiredTotal}.`,
+    };
+  }
+
   const minimum = {
-    accommodation: Math.max(1200, Math.round(budget * 0.32)),
-    food: Math.max(900, Math.round(budget * 0.18)),
-    transport: Math.max(700, Math.round(budget * 0.16)),
-    activities: Math.max(600, Math.round(budget * 0.1)),
+    accommodation: Math.max(practicalMinimum.accommodation, Math.round(budget * 0.32)),
+    food: Math.max(practicalMinimum.food, Math.round(budget * 0.18)),
+    transport: Math.max(practicalMinimum.transport, Math.round(budget * 0.16)),
+    activities: Math.max(practicalMinimum.activities, Math.round(budget * 0.1)),
   };
 
   let adjusted = { ...original };
@@ -216,10 +307,11 @@ function optimizeBudgetBreakdown(
     },
     underBudget: adjustedTotal <= budget,
     savings: Math.max(0, budget - adjustedTotal),
+    requiredBudget: adjustedTotal,
     note:
       adjustedTotal <= budget
         ? `The plan was trimmed to stay practical. A simpler hotel in the ${destinationCity} central area, local meals, and lighter paid activities keep it inside your budget.`
-        : `This route is hard to fit fully into the budget, but the plan has already been reduced to the cheapest workable version I could make.`,
+        : `This route is hard to fit fully into the budget, but the plan has already been reduced to the cheapest workable version I could make. To complete this trip comfortably, keep at least INR ${adjustedTotal} as the working budget.`,
   };
 }
 
@@ -240,9 +332,17 @@ function pickCityGuide(city: string): CityGuide {
 function buildHumanizedItinerary(
   city: string,
   budgetBreakdown: PersonalizedTripOutput["budgetBreakdown"],
-  people: number
+  people: number,
+  interests: string
 ): PersonalizedTripOutput["dailyItinerary"] {
   const guide = pickCityGuide(city);
+  const normalizedInterests = interests.toLowerCase();
+  const wantsBike = /(rental bike|rent a bike|bike|bicycle|scooty|scooter)/.test(normalizedInterests);
+  const wantsFood = /(food|street food|cafe|restaurant|local meal)/.test(normalizedInterests);
+  const wantsCulture = /(culture|heritage|history|temple|spiritual|market)/.test(normalizedInterests);
+  const wantsAdventure = /(adventure|rafting|trek|hike|ropeway|camp)/.test(normalizedInterests);
+  const wantsSightseeing = /(sightseeing|spot seeing|attraction|main spot|photo)/.test(normalizedInterests);
+  const needsGroupStay = people >= 4;
   const hotelTotal = parseInr(budgetBreakdown.accommodation);
   const foodTotal = parseInr(budgetBreakdown.food);
   const transportTotal = parseInr(budgetBreakdown.transport);
@@ -252,38 +352,68 @@ function buildHumanizedItinerary(
   const lunchPerMeal = Math.max(180, Math.round(foodTotal / Math.max(4, people * 6)));
   const localTransportPerDay = Math.max(200, Math.round(transportTotal / 3));
   const activityPerDay = Math.max(400, Math.round(activitiesTotal / 3));
+  const roomNote = needsGroupStay
+    ? `For ${people} people, look for two budget rooms or one family room near ${guide.hotelArea}. A practical stay target is around INR ${hotelPerNight} per night in total.`
+    : `Book a clean budget room around ${guide.hotelArea}. A practical stay target is around INR ${hotelPerNight} per night.`;
+  const bikeNote = wantsBike
+    ? `Because you mentioned rental bike travel, keep time after check-in to arrange a bike or scooty near ${guide.hotelArea}. A simple local rental can sit around INR ${Math.max(400, Math.round(localTransportPerDay + 250))} to INR ${Math.max(700, Math.round(localTransportPerDay + 500))} for the day, depending on model and fuel.`
+    : `Use local auto, e-rickshaw, or short cab hops for today. A practical local transport buffer is around INR ${localTransportPerDay}.`;
+  const lunchNote = wantsFood
+    ? `Plan lunch at ${guide.lunchSpot} and keep around INR ${lunchPerMeal} to INR ${lunchPerMeal + 180} per person so everyone can try local dishes without overspending.`
+    : `Plan a simple lunch at ${guide.lunchSpot} and keep around INR ${lunchPerMeal} to INR ${lunchPerMeal + 120} per person.`;
+  const dayTwoFocus = wantsAdventure
+    ? `Keep the second day for the more active side of ${city}, such as ${guide.dayTwoPlaces[0]} and ${guide.dayTwoPlaces[1]}, with enough time for entry, queues, and a proper break.`
+    : wantsCulture
+      ? `Keep the second day for deeper cultural coverage through ${guide.dayTwoPlaces[0]}, ${guide.dayTwoPlaces[1]}, and ${guide.dayTwoPlaces[2]}.`
+      : `Keep the second day for the main highlights like ${guide.dayTwoPlaces[0]}, ${guide.dayTwoPlaces[1]}, and ${guide.dayTwoPlaces[2]}.`;
+  const dayTwoTravel = wantsBike
+    ? `Use the rental bike for the main sightseeing loop, but keep the route compact so ${people} traveler${people > 1 ? "s" : ""} can stay together and parking stays easy.`
+    : `Use local transport between sightseeing stops and keep the route compact so ${people} traveler${people > 1 ? "s" : ""} can move comfortably.`;
+  const dayThreeFocus = wantsSightseeing
+    ? `Use the final day for any missed spots, local shopping, and one last easy stop around ${guide.dayThreePlaces[0]} or ${guide.dayThreePlaces[1]} before return.`
+    : `Use the final day for a lighter finish with ${guide.dayThreePlaces[0]}, ${guide.dayThreePlaces[1]}, and a calm break at ${guide.dayThreePlaces[2]}.`;
 
   return [
     {
       day: 1,
       title: `Arrival, hotel check-in, and easy local sightseeing in ${city}`,
       activities: [
-        `After reaching ${city}, first check in to a hotel around ${guide.hotelArea}. A clean mid-range room should cost about INR ${hotelPerNight} per night.`,
-        `Freshen up and have lunch at ${guide.lunchSpot}. Keep around INR ${lunchPerMeal} to INR ${lunchPerMeal + 150} per person for a simple local meal.`,
-        `Start with nearby places like ${guide.dayOnePlaces[0]} and ${guide.dayOnePlaces[1]} so the first day stays relaxed after travel.`,
+        `After reaching ${city}, first head to your stay area and finish hotel check-in before starting sightseeing. ${roomNote}`,
+        lunchNote,
+        `Start with nearby places like ${guide.dayOnePlaces[0]} and ${guide.dayOnePlaces[1]} so the first day stays relaxed after travel and does not feel rushed for ${people} people.`,
         `In the evening, visit ${guide.dayOnePlaces[2]} and keep about INR ${activityPerDay} for entry tickets, local shopping, or small temple offerings if needed.`,
-        `Use local auto or e-rickshaw for short hops. A practical local transport buffer for today is around INR ${localTransportPerDay}.`,
+        bikeNote,
       ],
     },
     {
       day: 2,
-      title: `Main sightseeing day with meals, transport, and photo stops in ${city}`,
+      title: wantsBike
+        ? `Bike-friendly sightseeing day with main stops across ${city}`
+        : `Main sightseeing day with meals, transport, and photo stops in ${city}`,
       activities: [
-        `Start early with breakfast near your hotel, then head to ${guide.dayTwoPlaces[0]}. Keep INR ${lunchPerMeal} to INR ${lunchPerMeal + 120} per person for breakfast and tea.`,
-        `Continue to ${guide.dayTwoPlaces[1]} and one more major stop like ${guide.dayTwoPlaces[2]}. This is the best day to cover the main highlights.`,
-        `Plan lunch near the sightseeing zone and keep about INR ${lunchPerMeal + 100} to INR ${lunchPerMeal + 220} per person for a comfortable meal break.`,
-        `Reserve about INR ${activityPerDay} to INR ${activityPerDay + 300} for tickets, ropeway, guide, or priority local experiences based on your interest.`,
-        `Keep the evening free for photos, snacks, and a market walk so the day does not feel rushed.`,
+        `Start early with breakfast near your hotel. Keep INR ${lunchPerMeal} to INR ${lunchPerMeal + 120} per person for breakfast and tea before leaving.`,
+        dayTwoFocus,
+        dayTwoTravel,
+        `Plan lunch near the sightseeing zone and keep about INR ${lunchPerMeal + 100} to INR ${lunchPerMeal + 220} per person for a comfortable meal break for the full group.`,
+        `Reserve about INR ${activityPerDay} to INR ${activityPerDay + 300} for tickets, guide charges, ropeway, rentals, or other paid experiences tied to your travel style.`,
+        wantsFood
+          ? `Keep the evening for a proper food stop at ${guide.dinnerSpot}, so your plan includes the food angle you asked for and not just sightseeing.`
+          : `Keep the evening free for photos, snacks, and a market walk so the day does not feel rushed.`,
       ],
     },
     {
       day: 3,
-      title: `Nearby exploration, shopping, and return preparation from ${city}`,
+      title: wantsCulture
+        ? `Culture, shopping, and return preparation from ${city}`
+        : `Nearby exploration, shopping, and return preparation from ${city}`,
       activities: [
-        `After breakfast, visit lighter nearby places such as ${guide.dayThreePlaces[0]} and ${guide.dayThreePlaces[1]} before checkout.`,
-        `Use the late morning or afternoon for souvenir shopping, cafe time, or a final peaceful stop at ${guide.dayThreePlaces[2]}.`,
+        `After breakfast, check out and keep luggage with the hotel if needed before covering lighter nearby places.`,
+        dayThreeFocus,
+        wantsBike
+          ? `If you rented a bike, keep some time to return it properly before the onward journey and avoid last-minute delays.`
+          : `Use the late morning or afternoon for souvenir shopping, cafe time, or a final peaceful stop at ${guide.dayThreePlaces[2]}.`,
         `Keep roughly INR ${localTransportPerDay} for local travel and INR ${lunchPerMeal + 100} per person for one final meal before departure.`,
-        `Before leaving, confirm return transport timing, pack essentials, and keep one small budget buffer for water, snacks, and last-minute purchases.`,
+        `Before leaving, confirm return transport timing for all ${people} traveler${people > 1 ? "s" : ""}, pack essentials, and keep one small buffer for water, snacks, and last-minute purchases.`,
       ],
     },
   ];
@@ -302,21 +432,33 @@ function humanizeTripPlan(
     values.numberOfPeople
   );
   const total = parseInr(optimized.breakdown.total);
-  const hotelPerNight = Math.max(1200, Math.round(parseInr(optimized.breakdown.accommodation) / 2));
-  const mealEstimate = Math.max(180, Math.round(parseInr(optimized.breakdown.food) / Math.max(4, values.numberOfPeople * 6)));
+  const realisticBudget = optimized.requiredBudget ?? total;
+  const hotelPerNight = Math.max(1200, Math.round((optimized.requiredBudget && optimized.requiredBudget > values.budget
+    ? realisticBudget * 0.36
+    : parseInr(optimized.breakdown.accommodation)) / 2));
+  const mealEstimate = Math.max(180, Math.round((optimized.requiredBudget && optimized.requiredBudget > values.budget
+    ? realisticBudget * 0.18
+    : parseInr(optimized.breakdown.food)) / Math.max(4, values.numberOfPeople * 6)));
+  const interestSummary = values.interests
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(0, 3)
+    .join(", ");
 
   return {
     ...trip,
-    tripSummary: `This ${destinationCity} plan is arranged like a real trip: where to stay after arrival, where to eat, what to cover each day, and how to keep the budget practical.`,
+    tripSummary: `This ${destinationCity} plan is arranged for ${values.numberOfPeople} traveler${values.numberOfPeople > 1 ? "s" : ""} and shaped around your style${interestSummary ? `: ${interestSummary}` : ""}. It covers where to stay after arrival, what to do each day, how to plan meals, and how to keep the trip practical under budget.`,
     budgetBreakdown: optimized.breakdown,
     suitabilityReasoning:
       total > values.budget
-        ? `${t("tripPlanner.result.moderateFit")} ${optimized.note}`
-        : `${trip.suitabilityReasoning} ${optimized.note} A workable hotel target is about INR ${hotelPerNight} per night and simple meals can stay around INR ${mealEstimate} to INR ${mealEstimate + 150} per person.`,
+        ? `This budget is too low for the selected trip. ${optimized.note} The plan still stays focused on ${values.numberOfPeople} traveler${values.numberOfPeople > 1 ? "s" : ""} and your chosen style${interestSummary ? ` (${interestSummary})` : ""}. A more realistic stay target is about INR ${hotelPerNight} per night, with simple meals around INR ${mealEstimate} to INR ${mealEstimate + 150} per person.`
+        : `${trip.suitabilityReasoning} ${optimized.note} A workable hotel target is about INR ${hotelPerNight} per night and simple meals can stay around INR ${mealEstimate} to INR ${mealEstimate + 150} per person. The plan is arranged for ${values.numberOfPeople} traveler${values.numberOfPeople > 1 ? "s" : ""}${interestSummary ? ` with focus on ${interestSummary}` : ""}.`,
     dailyItinerary: buildHumanizedItinerary(
       destinationCity,
       optimized.breakdown,
-      values.numberOfPeople
+      values.numberOfPeople,
+      values.interests
     ),
   };
 }
@@ -550,6 +692,26 @@ export default function TripPlannerPage() {
     return `${format(lastSubmittedValues.dates.from, "dd MMM yyyy")} - ${format(lastSubmittedValues.dates.to, "dd MMM yyyy")}`;
   }, [lastSubmittedValues]);
 
+  const requiredBudgetDetails = useMemo(() => {
+    if (!lastSubmittedValues || !localizedTrip) return null;
+    const requiredBudget = extractRequiredBudget(localizedTrip.suitabilityReasoning);
+    if (!requiredBudget || requiredBudget <= lastSubmittedValues.budget) return null;
+
+    const startPoint = liveWeather.find((item) => item.label === "Starting city");
+    const endPoint = liveWeather.find((item) => item.label === "Destination");
+    const intercityDistanceKm =
+      startPoint && endPoint
+        ? haversineKm(startPoint.latitude, startPoint.longitude, endPoint.latitude, endPoint.longitude)
+        : undefined;
+
+    return estimateRequiredBudgetDetails(
+      lastSubmittedValues.numberOfPeople,
+      lastSubmittedValues.interests,
+      getTripDays(lastSubmittedValues.dates.from, lastSubmittedValues.dates.to),
+      intercityDistanceKm
+    );
+  }, [lastSubmittedValues, localizedTrip, liveWeather]);
+
   useEffect(() => {
     if (!lastSubmittedValues) {
       setLiveWeather([]);
@@ -583,6 +745,8 @@ export default function TripPlannerPage() {
           temperature: Math.round(current.temperature_2m),
           windSpeed: Math.round(current.wind_speed_10m),
           weatherText: getWeatherText(current.weather_code),
+          latitude: result.latitude,
+          longitude: result.longitude,
         };
       } catch {
         return null;
@@ -639,7 +803,15 @@ export default function TripPlannerPage() {
     </div>
   );
 
-  const BudgetBreakdown = ({ breakdown }: { breakdown: PersonalizedTripOutput['budgetBreakdown'] }) => (
+  const BudgetBreakdown = ({
+    breakdown,
+    requiredBudget,
+    requiredDetails,
+  }: {
+    breakdown: PersonalizedTripOutput['budgetBreakdown'];
+    requiredBudget?: number | null;
+    requiredDetails?: ReturnType<typeof estimateRequiredBudgetDetails> | null;
+  }) => (
     <div className="rounded-lg border bg-card p-4">
       <h3 className="font-semibold text-lg mb-3 flex items-center gap-2"><IndianRupee className="text-primary"/> {t("tripPlanner.result.budgetBreakdown")}</h3>
        <div className="space-y-2 text-sm">
@@ -656,6 +828,41 @@ export default function TripPlannerPage() {
             <span>{value}</span>
           </div>
         ))}
+        {requiredDetails && requiredBudget && requiredBudget > parseInr(breakdown.total) && (
+          <div className="mt-3 space-y-2 border-t pt-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">Required budget details</p>
+            <div className="flex justify-between text-amber-100">
+              <span>Accommodation Needed</span>
+              <span>{formatInr(requiredDetails.accommodation)}</span>
+            </div>
+            <div className="flex justify-between text-amber-100">
+              <span>Food Needed</span>
+              <span>{formatInr(requiredDetails.food)}</span>
+            </div>
+            <div className="flex justify-between text-amber-100">
+              <span>Transport Needed</span>
+              <span>{formatInr(requiredDetails.transport)}</span>
+            </div>
+            <div className="flex justify-between text-amber-100">
+              <span>Activities Needed</span>
+              <span>{formatInr(requiredDetails.activities)}</span>
+            </div>
+            <div className="flex justify-between text-amber-100">
+              <span>Origin to Destination Travel</span>
+              <span>{formatInr(requiredDetails.intercityTravel)}</span>
+            </div>
+            {requiredDetails.bikeRentalEstimate > 0 && (
+              <div className="flex justify-between text-amber-100">
+                <span>Bike Rental / Local Ride Style</span>
+                <span>{formatInr(requiredDetails.bikeRentalEstimate)}</span>
+              </div>
+            )}
+            <div className="flex justify-between border-t pt-2 font-semibold text-amber-300">
+              <span>Required Budget</span>
+              <span>{formatInr(requiredDetails.total)}</span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -874,6 +1081,18 @@ export default function TripPlannerPage() {
             )}
             {localizedTrip && !isLoading && (
               <div className="space-y-6">
+                {lastSubmittedValues && parseInr(localizedTrip.budgetBreakdown.total) > lastSubmittedValues.budget && (
+                  <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4">
+                    <p className="text-sm font-semibold text-amber-300">
+                      Minimum practical budget needed
+                    </p>
+                    <p className="mt-1 text-sm text-amber-100/90">
+                      Your selected budget is {formatInr(lastSubmittedValues.budget)}, but this trip needs about{" "}
+                      <span className="font-semibold">{localizedTrip.budgetBreakdown.total}</span> to be completed comfortably for{" "}
+                      {lastSubmittedValues.numberOfPeople} traveler{lastSubmittedValues.numberOfPeople > 1 ? "s" : ""}.
+                    </p>
+                  </div>
+                )}
                 {lastSubmittedValues && (
                   <div className="rounded-xl border border-dashed border-primary/40 bg-primary/5 p-4">
                     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -910,7 +1129,11 @@ export default function TripPlannerPage() {
                 )}
                 <SuitabilityScore score={localizedTrip.suitabilityScore} reasoning={localizedTrip.suitabilityReasoning} />
                 <div className="grid md:grid-cols-2 gap-6">
-                    <BudgetBreakdown breakdown={localizedTrip.budgetBreakdown} />
+                    <BudgetBreakdown
+                      breakdown={localizedTrip.budgetBreakdown}
+                      requiredBudget={extractRequiredBudget(localizedTrip.suitabilityReasoning)}
+                      requiredDetails={requiredBudgetDetails}
+                    />
                     <WeatherAdvisory advisory={localizedTrip.weatherAdvisory} />
                 </div>
                 <Separator />

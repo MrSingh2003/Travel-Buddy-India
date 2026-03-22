@@ -4,6 +4,7 @@ import type {
   AvatarResponse,
   BookingResponse,
   ChatResponse,
+  FlightWebhookResponse,
   InspirationalImage,
   PersonalizedTripOutput,
   Place,
@@ -73,6 +74,17 @@ export function fetchAccommodations(category: string, location: string) {
   return apiRequest<Accommodation[]>(
     `/accommodations?${buildQuery({ category, location })}`
   );
+}
+
+export function subscribeFlightWebhook(payload: {
+  flightNumber: string;
+  url: string;
+  useCredits?: boolean;
+}) {
+  return apiRequest<FlightWebhookResponse>("/flights/webhook", {
+    method: "POST",
+    json: payload,
+  });
 }
 
 export function planRoute(origin: string, destination: string, mode: string) {
