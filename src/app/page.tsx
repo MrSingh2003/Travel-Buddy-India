@@ -35,6 +35,10 @@ export default function DashboardPage() {
     "h-8 w-8 shrink-0 text-emerald-700 dark:text-orange-200";
   const featureButtonClass =
     "w-full rounded-2xl border border-sky-300 bg-sky-50 text-sky-800 shadow-sm transition-all duration-300 hover:bg-sky-100 hover:text-sky-900 dark:border-sky-400/40 dark:bg-slate-950 dark:text-sky-200 dark:shadow-[0_10px_30px_rgba(56,189,248,0.12)] dark:hover:bg-slate-900 dark:hover:text-sky-100";
+  const quickReasonCardClass =
+    "border border-sky-200 bg-sky-50 shadow-sm dark:border-sky-400/20 dark:bg-sky-950/30";
+  const featureCardClass =
+    "flex flex-col overflow-hidden border border-sky-200 bg-sky-50/90 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl dark:border-sky-400/20 dark:bg-sky-950/25";
 
   const homepageCopy = {
     en: {
@@ -465,11 +469,11 @@ export default function DashboardPage() {
         {quickReasons.map((item) => (
           <Card
             key={item.title}
-            className="border border-emerald-200 bg-[#fffaf1] shadow-sm dark:border-orange-400/20 dark:bg-[#18120c]"
+            className={quickReasonCardClass}
           >
             <CardHeader>
-              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-50 dark:border-orange-400/30 dark:bg-[#23180f]">
-                <item.icon className="h-6 w-6 text-emerald-700 dark:text-orange-200" />
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-sky-200 bg-sky-100 dark:border-sky-400/30 dark:bg-sky-950/50">
+                <item.icon className="h-6 w-6 text-sky-700 dark:text-sky-200" />
               </div>
               <CardTitle className="font-headline text-xl">{item.title}</CardTitle>
             </CardHeader>
@@ -496,7 +500,7 @@ export default function DashboardPage() {
           {features.map((feature) => (
             <Card
               key={feature.key}
-              className="flex flex-col overflow-hidden border border-sky-200 bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl dark:border-orange-400/15 dark:bg-[#120d08]"
+              className={featureCardClass}
             >
               <CardHeader>
                 <div className="flex items-center gap-4">
