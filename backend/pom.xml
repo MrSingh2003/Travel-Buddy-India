@@ -17,7 +17,8 @@
   <description>Java backend for Travel Buddy India</description>
 
   <properties>
-    <java.version>17</java.version>
+    <java.version>25</java.version>
+    <maven.compiler.release>25</maven.compiler.release>
   </properties>
 
   <dependencies>
