@@ -1,0 +1,81 @@
+{
+  "groups": [
+    {
+      "name": "google",
+      "type": "com.travelbuddyindia.backend.config.ApiKeysConfig$Google",
+      "description": "Google API configuration"
+    },
+    {
+      "name": "google.ai",
+      "type": "com.travelbuddyindia.backend.config.ApiKeysConfig$Google$Ai",
+      "description": "Google AI (Gemini) API configuration"
+    },
+    {
+      "name": "google.maps",
+      "type": "com.travelbuddyindia.backend.config.ApiKeysConfig$Google$Maps",
+      "description": "Google Maps API configuration"
+    },
+    {
+      "name": "searchapi",
+      "type": "com.travelbuddyindia.backend.config.ApiKeysConfig$Searchapi",
+      "description": "SearchAPI.io configuration"
+    },
+    {
+      "name": "rapidapi",
+      "type": "com.travelbuddyindia.backend.config.ApiKeysConfig$Rapidapi",
+      "description": "RapidAPI configuration"
+    },
+    {
+      "name": "support",
+      "type": "com.travelbuddyindia.backend.config.ApiKeysConfig$Support",
+      "description": "Support notification configuration"
+    },
+    {
+      "name": "support.notification",
+      "type": "com.travelbuddyindia.backend.config.ApiKeysConfig$Support$Notification",
+      "description": "Support notification email configuration"
+    },
+    {
+      "name": "support.mail",
+      "type": "com.travelbuddyindia.backend.config.ApiKeysConfig$Support$Mail",
+      "description": "Support mail configuration"
+    }
+  ],
+  "properties": [
+    {
+      "name": "google.ai.api-key",
+      "type": "java.lang.String",
+      "description": "Google AI (Gemini) API key"
+    },
+    {
+      "name": "google.maps.api-key",
+      "type": "java.lang.String",
+      "description": "Google Maps API key"
+    },
+    {
+      "name": "searchapi.api-key",
+      "type": "java.lang.String",
+      "description": "SearchAPI.io API key"
+    },
+    {
+      "name": "rapidapi.key",
+      "type": "java.lang.String",
+      "description": "RapidAPI key"
+    },
+    {
+      "name": "rapidapi.webhook-url",
+      "type": "java.lang.String",
+      "description": "RapidAPI webhook URL"
+    },
+    {
+      "name": "support.notification.emails",
+      "type": "java.lang.String",
+      "description": "Comma-separated list of support notification email addresses"
+    },
+    {
+      "name": "support.mail.from",
+      "type": "java.lang.String",
+      "description": "Support email FROM address"
+    }
+  ]
+}
