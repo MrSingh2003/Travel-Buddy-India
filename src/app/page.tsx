@@ -2,6 +2,7 @@
 // src/app/page.tsx
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   Card,
   CardHeader,
@@ -11,7 +12,9 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { onAuthStateChanged, type User } from "firebase/auth";
 import { useLanguage } from "@/components/language-provider";
+import { auth } from "@/lib/firebase";
 import {
   ArrowRight,
   Car,
@@ -27,6 +30,7 @@ import {
 
 export default function DashboardPage() {
   const { language, t } = useLanguage();
+  const [user, setUser] = useState<User | null>(null);
   const heroButtonClass =
     "mt-8 rounded-2xl border border-emerald-600 bg-emerald-600 px-8 py-6 text-lg text-white shadow-[0_18px_45px_rgba(22,163,74,0.22)] transition-all duration-300 hover:bg-emerald-700 hover:border-emerald-700 dark:border-orange-400 dark:bg-orange-400 dark:text-slate-950 dark:shadow-[0_20px_50px_rgba(251,146,60,0.24)] dark:hover:bg-orange-300 dark:hover:border-orange-300";
   const featureIconClass =
@@ -374,6 +378,27 @@ export default function DashboardPage() {
   } as const;
 
   const copy = homepageCopy[language] ?? homepageCopy.en;
+  const featureActionLabels: Record<string, string> = {
+    aiTripPlanner: language === "hi" ? "ट्रिप प्लान करें" : "Plan Trip",
+    explore: language === "hi" ? "अपनी जगह खोजें" : "Find your place",
+    localTransport: language === "hi" ? "नेविगेट करें" : "Navigate",
+    accommodations: language === "hi" ? "स्टे खोजें" : "Find stays",
+    routePlanner: language === "hi" ? "रूट प्लान करें" : "Plan Route",
+  };
+  const loginToUseLabel = language === "hi" ? "लॉगिन करके यह टूल चलाएँ" : "Login to use this tool";
+  const signupFirstLabel = language === "hi" ? "नए यूज़र हैं? पहले साइन अप करें" : "New here? Sign up first";
+  const authGateNote =
+    language === "hi"
+      ? "इन टूल्स का एक्सेस लॉगिन के बाद मिलता है। उससे पहले आप सिर्फ इनका ओवरव्यू देख सकते हैं।"
+      : "Tool access starts after login. Before that, you can review what each tool does.";
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const features = [
     {
@@ -519,8 +544,9 @@ export default function DashboardPage() {
               </CardContent>
               <CardFooter>
                 <Button asChild variant="secondary" className={featureButtonClass}>
-                  <Link to={feature.href}>
-                    {copy.openTool} <ArrowRight className="ml-auto h-4 w-4" />
+                  <Link to={user ? feature.href : "/login"}>
+                    {featureActionLabels[feature.key] ?? copy.openTool}
+                    <ArrowRight className="ml-auto h-4 w-4" />
                   </Link>
                 </Button>
               </CardFooter>

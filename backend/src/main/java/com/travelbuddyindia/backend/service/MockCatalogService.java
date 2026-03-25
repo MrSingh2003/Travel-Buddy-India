@@ -1,5 +1,20 @@
 package com.travelbuddyindia.backend.service;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.travelbuddyindia.backend.model.BookingEntity;
@@ -8,18 +23,6 @@ import com.travelbuddyindia.backend.model.UserProfileEntity;
 import com.travelbuddyindia.backend.repository.BookingRepository;
 import com.travelbuddyindia.backend.repository.TripRequestRepository;
 import com.travelbuddyindia.backend.repository.UserProfileRepository;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
 
 @Service
 public class MockCatalogService {
@@ -197,6 +200,7 @@ public class MockCatalogService {
         .toList();
   }
 
+  @SuppressWarnings("UseSpecificCatch")
   public FlightWebhookResponse subscribeFlightWebhook(FlightWebhookRequest request) {
     if (!hasRapidApiKey()) {
       return new FlightWebhookResponse("fallback",
@@ -212,15 +216,16 @@ public class MockCatalogService {
 
     try {
       String flightNumber = request.flightNumber().replace(" ", "").trim();
+      String payload = objectMapper.writeValueAsString(Map.of(
+          "url", callbackUrl,
+          "maxDeliveryRetries", 0));
       String body = restClient.post()
           .uri("https://aerodatabox.p.rapidapi.com/subscriptions/webhook/FlightByNumber/" + flightNumber
               + "?useCredits=" + request.useCredits())
           .header("Content-Type", "application/json")
           .header("x-rapidapi-host", "aerodatabox.p.rapidapi.com")
           .header("x-rapidapi-key", rapidApiKey)
-          .body(objectMapper.writeValueAsString(Map.of(
-              "url", callbackUrl,
-              "maxDeliveryRetries", 0)))
+          .body(payload)
           .retrieve()
           .body(String.class);
       return new FlightWebhookResponse("success", body);
@@ -600,7 +605,9 @@ public class MockCatalogService {
       url.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
     }
     url.append("&api_key=").append(URLEncoder.encode(searchApiKey, StandardCharsets.UTF_8));
-    String body = restClient.get().uri(url.toString()).retrieve().body(String.class);
+    String body = Objects.requireNonNullElse(
+        restClient.get().uri(url.toString()).retrieve().body(String.class),
+        "{}");
     return objectMapper.readTree(body);
   }
 
@@ -612,7 +619,7 @@ public class MockCatalogService {
       int adults,
       String currency,
       String locale) throws Exception {
-    String body = restClient.get()
+    String body = Objects.requireNonNullElse(restClient.get()
         .uri("https://hotels4.p.rapidapi.com/properties/get-details?id=" + propertyId
             + "&checkIn=" + checkIn
             + "&checkOut=" + checkOut
@@ -623,7 +630,7 @@ public class MockCatalogService {
         .header("x-rapidapi-host", "hotels4.p.rapidapi.com")
         .header("x-rapidapi-key", rapidApiKey)
         .retrieve()
-        .body(String.class);
+        .body(String.class), "{}");
     JsonNode root = objectMapper.readTree(body);
     JsonNode data = root.path("data").path("body");
 
@@ -767,14 +774,35 @@ public class MockCatalogService {
   }
 
   private JsonNode geminiRequest(String model, Map<String, Object> payload) throws Exception {
-    String response = restClient.post()
-        .uri("https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent")
-        .header("x-goog-api-key", geminiApiKey)
-        .header("Content-Type", "application/json")
-        .body(objectMapper.writeValueAsString(payload))
-        .retrieve()
-        .body(String.class);
-    return objectMapper.readTree(response);
+    String requestBody = objectMapper.writeValueAsString(payload);
+    String response =
+        restClient.post()
+            .uri(
+                "https://generativelanguage.googleapis.com/v1beta/models/" + model
+                    + ":generateContent")
+            .header("x-goog-api-key", geminiApiKey)
+            .header("Content-Type", "application/json")
+            .body(requestBody)
+            .retrieve()
+            .body(String.class);
+    // Some providers may return null/empty body; fall back to an empty JSON object.
+    return objectMapper.readTree(response == null ? "{}" : response);
+  }
+
+  private static String textValue(@Nullable JsonNode node, String... keys) {
+    if (node == null) {
+      return "";
+    }
+    for (String key : keys) {
+      JsonNode value = node.path(key);
+      if (!value.isMissingNode() && !value.isNull()) {
+        String text = value.asText("");
+        if (!text.isBlank()) {
+          return text;
+        }
+      }
+    }
+    return "";
   }
 
   private String extractGeminiText(JsonNode response) {
@@ -848,24 +876,6 @@ public class MockCatalogService {
 
   private String cityOnly(String value) {
     return value == null ? "" : value.split(",")[0].trim();
-  }
-
-  private String textValue(JsonNode node, String... keys) {
-    for (String key : keys) {
-      JsonNode value = node.path(key);
-      if (!value.isMissingNode() && !value.isNull()) {
-        if (value.isTextual()) {
-          return value.asText();
-        }
-        if (value.isArray() && !value.isEmpty()) {
-          JsonNode first = value.get(0);
-          if (first.isTextual()) {
-            return first.asText();
-          }
-        }
-      }
-    }
-    return "";
   }
 
   private int seed(String value) {

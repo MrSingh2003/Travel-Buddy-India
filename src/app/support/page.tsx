@@ -1,10 +1,14 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { LifeBuoy, Mail, MessageSquare, Send, User } from "lucide-react";
 
+import { fetchSupportMessages } from "@/lib/api/travel-buddy";
+import type { SupportMessage } from "@/lib/api/types";
+import { apiRequest } from "@/lib/api/client";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -44,6 +48,8 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function SupportPage() {
   const { toast } = useToast();
+  const [messages, setMessages] = useState<SupportMessage[]>([]);
+  const [loadingMessages, setLoadingMessages] = useState(true);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -55,20 +61,99 @@ export default function SupportPage() {
     },
   });
 
+  // Auto-send support message to backend while the user is typing.
+  // This is debounced + throttled to avoid flooding emails/DB.
+  const messageValue = form.watch("message");
+  const nameValue = form.watch("name");
+  const emailValue = form.watch("email");
+  const subjectValue = form.watch("subject");
+  const lastAutoSendRef = useRef<{ atMs: number; lastPayloadKey: string }>({
+    atMs: 0,
+    lastPayloadKey: "",
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadMessages() {
+      try {
+        const rows = await fetchSupportMessages();
+        if (!cancelled) {
+          setMessages(rows);
+        }
+      } catch {
+        if (!cancelled) {
+          setMessages([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingMessages(false);
+        }
+      }
+    }
+
+    loadMessages();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    const name = (nameValue ?? "").trim();
+    const email = (emailValue ?? "").trim();
+    const subject = (subjectValue ?? "").trim();
+    const message = (messageValue ?? "").toString();
+
+    const emailOk = z.string().email().safeParse(email).success;
+    const shouldAutoSend = !form.formState.isSubmitting &&
+      name.length >= 2 &&
+      emailOk &&
+      subject.length >= 1 &&
+      message.trim().length >= 1;
+
+    if (!shouldAutoSend) return;
+
+    // Debounce typing.
+    const handle = window.setTimeout(async () => {
+      const payloadKey = `${name}|${email}|${subject}|${message}`;
+      const now = Date.now();
+      const last = lastAutoSendRef.current;
+
+      // Throttle + dedupe identical payloads.
+      if (payloadKey === last.lastPayloadKey) return;
+      if (now - last.atMs < 10_000) return;
+
+      lastAutoSendRef.current = { atMs: now, lastPayloadKey: payloadKey };
+
+      try {
+        await apiRequest("/support", {
+          method: "POST",
+          json: { name, email, subject, message },
+        });
+      } catch {
+        // Keep typing UX smooth; final "Send Details" still shows error via toast.
+      }
+    }, 1500);
+
+    return () => window.clearTimeout(handle);
+  }, [messageValue, nameValue, emailValue, subjectValue, form.formState.isSubmitting]);
+
   async function onSubmit(values: FormValues) {
     try {
-      const res = await fetch('/api/support', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
-      })
-      if (!res.ok) {
-        throw new Error('Failed to submit')
-      }
-      toast({
-        title: "Message Sent!",
-        description: "Thanks for reaching out. We'll get back to you shortly.",
+      const res = await apiRequest<{ id: number; status: string }>("/support", {
+        method: "POST",
+        json: values,
       });
+      const status = res?.status ?? "UNKNOWN";
+      toast({
+        title: status === "EMAIL_SENT" ? "Message Sent!" : "Message Received!",
+        description:
+          status === "EMAIL_SENT"
+            ? "Thanks for reaching out. We'll get back to you shortly."
+            : `Your message was saved. Email status: ${status}.`,
+      });
+      const rows = await fetchSupportMessages();
+      setMessages(rows);
       form.reset();
     } catch (e) {
       toast({
@@ -181,6 +266,47 @@ export default function SupportPage() {
               </Button>
             </form>
           </Form>
+        </CardContent>
+      </Card>
+
+      <Card className="mt-8 shadow-lg border border-primary/10">
+        <CardHeader>
+          <CardTitle className="text-2xl font-headline">Support Messages</CardTitle>
+          <CardDescription>
+            These are the support requests currently saved by the app.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {loadingMessages ? (
+            <p className="text-sm text-muted-foreground">Loading support messages...</p>
+          ) : messages.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No support messages saved yet.</p>
+          ) : (
+            messages.map((item) => (
+              <div
+                key={item.id}
+                className="rounded-xl border border-primary/10 bg-card/70 p-4"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <h3 className="text-lg font-semibold">{item.subject}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {item.name} · {item.email}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-medium">{item.status}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {new Date(item.createdAt).toLocaleString()}
+                    </div>
+                  </div>
+                </div>
+                <p className="mt-3 whitespace-pre-wrap text-sm text-muted-foreground">
+                  {item.message}
+                </p>
+              </div>
+            ))
+          )}
         </CardContent>
       </Card>
     </div>

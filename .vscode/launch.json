@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Backend: Spring Boot",
+      "request": "launch",
+      "mainClass": "com.travelbuddyindia.backend.TravelBuddyIndiaApplication",
+      "projectName": "travel-buddy-india-backend",
+      "cwd": "${workspaceFolder}/backend"
+    },
+    {
+      "type": "node-terminal",
+      "name": "Frontend: Vite Dev Server",
+      "request": "launch",
+      "command": "npm run dev",
+      "cwd": "${workspaceFolder}"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Run Frontend + Backend",
+      "configurations": [
+        "Backend: Spring Boot",
+        "Frontend: Vite Dev Server"
+      ]
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { Mail, MapPinned, ShieldCheck } from "lucide-react";
-import { useLanguage } from "@/components/language-provider";
+import { repairText, useLanguage } from "@/components/language-provider";
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -42,7 +42,7 @@ export function Footer() {
       <footer className="border-t border-border/70 bg-background/95">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-4 py-4 text-sm text-muted-foreground lg:px-6">
           <p>(c) {year} Travel Buddy India</p>
-          <p>{copy.shortLicense}</p>
+          <p>{repairText(copy.shortLicense)}</p>
         </div>
       </footer>
     );
@@ -56,11 +56,11 @@ export function Footer() {
             <p className="text-sm uppercase tracking-[0.28em] text-emerald-700 dark:text-orange-200">
               Travel Buddy India
             </p>
-            <p className="text-sm leading-7 text-muted-foreground">{copy.tagline}</p>
+            <p className="text-sm leading-7 text-muted-foreground">{repairText(copy.tagline)}</p>
           </div>
 
           <div className="space-y-3">
-            <p className="font-semibold">{copy.quickLinks}</p>
+            <p className="font-semibold">{repairText(copy.quickLinks)}</p>
             <div className="flex flex-col gap-2 text-sm text-muted-foreground">
               <Link to="/trip-planner" className="hover:text-foreground">
                 {t("nav.aiTripPlanner")}
@@ -75,7 +75,7 @@ export function Footer() {
           </div>
 
           <div className="space-y-3">
-            <p className="font-semibold">{copy.contact}</p>
+            <p className="font-semibold">{repairText(copy.contact)}</p>
             <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-primary" />
@@ -85,19 +85,19 @@ export function Footer() {
               </div>
               <div className="flex items-center gap-2">
                 <MapPinned className="h-4 w-4 text-primary" />
-                <span>{copy.projectLine}</span>
+                <span>{repairText(copy.projectLine)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-primary" />
-                <span>{copy.rights}</span>
+                <span>{repairText(copy.rights)}</span>
               </div>
             </div>
           </div>
         </div>
 
         <div className="flex flex-col gap-2 border-t border-border/60 pt-4 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
-          <p>(c) {year} {copy.crafted}</p>
-          <p>{copy.license}</p>
+          <p>(c) {year} {repairText(copy.crafted)}</p>
+          <p>{repairText(copy.license)}</p>
         </div>
       </div>
     </footer>

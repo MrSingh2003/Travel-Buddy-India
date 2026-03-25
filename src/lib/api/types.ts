@@ -108,3 +108,14 @@ export type UserProfile = {
 export type AvatarResponse = {
   imageUrl: string;
 };
+
+export type SupportMessage = {
+  id: number;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+};

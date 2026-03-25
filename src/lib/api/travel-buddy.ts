@@ -9,6 +9,7 @@ import type {
   PersonalizedTripOutput,
   Place,
   RoutePlan,
+  SupportMessage,
   TransportOption,
   UserProfile,
 } from "@/lib/api/types";
@@ -120,4 +121,8 @@ export function generateAvatar(prompt: string) {
     method: "POST",
     json: { prompt },
   });
+}
+
+export function fetchSupportMessages() {
+  return apiRequest<SupportMessage[]>("/support");
 }
