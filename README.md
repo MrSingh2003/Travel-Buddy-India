@@ -1,272 +1,202 @@
 # Travel Buddy India
 
-Travel Buddy India is now structured as a Java full-stack application with a React frontend and a Spring Boot backend designed to grow into a microservices architecture.
+Travel Buddy India is a full-stack travel planning app with a Vite + React frontend and a Spring Boot backend. It combines trip planning, route support, local-language UI, profile flows, and email-based authentication features in one project.
 
 ## Current Stack
 
-- Frontend: React, Vite, React Router, TypeScript, Tailwind CSS, ShadCN UI
-- Backend: Spring Boot 3, REST APIs, Flyway, MySQL-ready configuration
-- Database: MySQL 8
-- DevOps: Docker Compose, GitHub Actions CI
-- Build: XML-based Maven configuration in `backend/pom.xml`
+- Frontend: React 18, Vite 5, TypeScript, Tailwind CSS, Radix UI
+- Backend: Spring Boot 3.2, Java 17, Maven
+- Database: H2 by default for local development, MySQL-compatible schema via Flyway
+- Auth: email/password, Google login, OTP verification, password reset, remember-me session handling
+- Mail: SMTP-based OTP emails, welcome emails, and support notifications
+- CI: GitHub Actions
 
-## What Was Added
+## Main Features
 
-- Java backend endpoints for trip planning, chat, discovery, transport, accommodations, routes, and profile/avatar flows
-- Shared React API client at `src/lib/api/travel-buddy.ts`
-- MySQL Flyway baseline schema in `backend/src/main/resources/db/migration/V1__baseline.sql`
-- Local orchestration in `docker-compose.yml`
-- CI pipeline in `.github/workflows/ci.yml`
-- Architecture notes in `docs/java-fullstack-architecture.md`
+- AI-assisted trip planning and decision-support flows
+- Route, transport, accommodation, and profile APIs
+- Email signup and login with OTP verification
+- Google login with OTP verification before session completion
+- Forgot-password flow with email OTP
+- Support form with saved messages and email notification delivery
+- Multilingual UI with native language labels
+
+## Project Structure
+
+- `src/`: frontend application
+- `backend/`: Spring Boot API and Flyway migrations
+- `backend/services/`: early microservice scaffold
+- `scripts/`: PowerShell helper scripts for local setup
+- `.github/workflows/ci.yml`: frontend and backend CI workflow
+
+## Prerequisites
+
+- Node.js 20+
+- npm
+- Java 17
+- Maven 3.9+
 
 ## Run Locally
 
-### Option 1: Docker Compose
-
-```bash
-docker compose up --build
-```
-
-PowerShell shortcut:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\start-docker.ps1
-```
-
-Frontend:
-- `http://localhost:9002`
-
-Backend:
-- `http://localhost:8080/api`
-
-MySQL:
-- `localhost:3306`
-
-### Option 2: Run Separately
-
-Backend prerequisites:
-- Java 17+
-- Maven 3.9+
-- MySQL 8+
-
-Frontend prerequisites:
-- Node.js 20+
-- npm
-
-Backend:
-
-```bash
-cd backend
-mvn spring-boot:run
-```
-
-Frontend:
+### Frontend
 
 ```bash
 npm install
 npm run dev
 ```
 
-PowerShell shortcuts:
+Frontend default URL:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\check-prereqs.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\start-local.ps1
-```
-
-Microservice scaffold:
-
-```bash
-cd backend/services
-mvn -pl gateway-service spring-boot:run
-mvn -pl planning-service spring-boot:run
-mvn -pl discovery-service spring-boot:run
-mvn -pl profile-service spring-boot:run
-```
-
-## Environment
-
-Optional frontend env:
-
-```bash
-VITE_TRAVEL_BUDDY_API_BASE_URL=http://localhost:8080/api
-VITE_GOOGLE_MAPS_API_KEY=your_google_maps_key
-```
-
-Optional backend env:
-
-```bash
-MYSQL_URL=jdbc:mysql://localhost:3306/travel_buddy_india
-MYSQL_USERNAME=travelbuddy
-MYSQL_PASSWORD=travelbuddy
-```
-
-## MySQL Username And Password
-
-If you do not know your current local MySQL username/password, the fastest path is usually to create a project-specific user.
-
-Example in MySQL:
-
-```sql
-CREATE DATABASE IF NOT EXISTS travel_buddy_india;
-CREATE USER IF NOT EXISTS 'travelbuddy'@'localhost' IDENTIFIED BY 'travelbuddy';
-GRANT ALL PRIVILEGES ON travel_buddy_india.* TO 'travelbuddy'@'localhost';
-FLUSH PRIVILEGES;
-```
-
-Then use:
-
-```bash
-MYSQL_USERNAME=travelbuddy
-MYSQL_PASSWORD=travelbuddy
-```
-
-## GitHub Preparation
-
-This repository is ready to be pushed to GitHub after one important cleanup step:
-
-- Do not commit your real `.env`
-- Use `.env.example` as the safe template
-- Rotate any live API keys that were previously shared
-
-Recommended files to keep out of GitHub:
-
-- `.env`
-- `node_modules/`
-- `dist/`
-- `.next/`
-- local database files
-
-Recommended first commands on your machine:
-
-```bash
-git init
-git add .
-git commit -m "Initial Java full-stack Travel Buddy India setup"
-git branch -M main
-git remote add origin https://github.com/<your-username>/<your-repo>.git
-git push -u origin main
-```
-
-If `.env` was ever staged before, remove it from git tracking first:
-
-```bash
-git rm --cached .env
-git add .gitignore .env.example
-git commit -m "Remove secrets and add safe env example"
-```
-
-## Deployment Recommendation
-
-Best practical hosting split for this project:
-
-### Frontend
-
-Deploy the React/Vite frontend from GitHub to one of:
-
-- Vercel
-- Netlify
-- Render Static Site
-
-Production frontend env:
-
-```bash
-VITE_TRAVEL_BUDDY_API_BASE_URL=https://your-backend-domain/api
-VITE_GOOGLE_MAPS_API_KEY=your_google_maps_key
+```text
+http://localhost:9002
 ```
 
 ### Backend
 
-Deploy the Spring Boot backend from GitHub to one of:
-
-- Render Web Service
-- Railway
-- Fly.io
-- AWS Elastic Beanstalk / ECS
-
-Production backend env:
-
 ```bash
-MYSQL_URL=jdbc:mysql://<host>:3306/travel_buddy_india
-MYSQL_USERNAME=<db_user>
-MYSQL_PASSWORD=<db_password>
-GEMINI_API_KEY=<gemini_key>
-SEARCHAPI_API_KEY=<searchapi_key>
+cd backend
+mvn spring-boot:run
 ```
 
-### Database
+Backend default URL:
 
-Use a hosted MySQL provider such as:
+```text
+http://localhost:8080
+```
 
-- Railway MySQL
-- Aiven MySQL
-- PlanetScale-compatible MySQL setup
-- AWS RDS MySQL
+API base URL:
 
-## GitHub Actions CI
+```text
+http://localhost:8080/api
+```
 
-This project already includes GitHub Actions in:
+If port `8080` is already in use, set `SERVER_PORT=8081` in your `.env` and update the frontend API base URL to `http://localhost:8081/api`.
+
+### PowerShell Helpers
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\check-prereqs.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\start-local.ps1
+powershell -ExecutionPolicy Bypass -File .\backend\start-backend.ps1
+powershell -ExecutionPolicy Bypass -File .\backend\stop-backend.ps1
+```
+
+## Database
+
+The backend now uses a local H2 file database by default, so MySQL is not required for normal local development.
+
+Default local database:
+
+```text
+backend/data/travel_buddy_india
+```
+
+H2 console:
+
+```text
+http://localhost:8080/h2-console
+```
+
+Default connection settings:
+
+- JDBC URL: `jdbc:h2:file:./data/travel_buddy_india;MODE=MySQL;DATABASE_TO_LOWER=TRUE;AUTO_SERVER=TRUE`
+- Username: `sa`
+- Password: empty
+
+If you want to use MySQL instead, set `DB_URL`, `DB_USER`, and `DB_PASS` in your `.env`.
+
+## Environment Variables
+
+Use `.env.example` as the starting point.
+
+### Frontend
 
 ```bash
+VITE_TRAVEL_BUDDY_API_BASE_URL=http://localhost:8080/api
+VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+```
+
+### Backend
+
+```bash
+SERVER_PORT=8080
+DB_URL=jdbc:h2:file:./data/travel_buddy_india;MODE=MySQL;DATABASE_TO_LOWER=TRUE;AUTO_SERVER=TRUE
+DB_USER=sa
+DB_PASS=
+GEMINI_API_KEY=your_gemini_api_key
+SEARCHAPI_API_KEY=your_searchapi_api_key
+RAPIDAPI_KEY=your_rapidapi_key
+RAPIDAPI_WEBHOOK_URL=https://your-domain.example.com/api/flights/webhook-callback
+GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+```
+
+### Auth
+
+```bash
+AUTH_OTP_TTL_MINUTES=10
+```
+
+### Mail and Support
+
+```bash
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=your_email@gmail.com
+MAIL_PASSWORD=your_gmail_app_password
+SUPPORT_NOTIFICATION_EMAILS=support@example.com
+SUPPORT_MAIL_FROM=your_email@gmail.com
+```
+
+For Gmail SMTP, use a Gmail App Password, not your normal Gmail account password.
+
+## Auth and Mail Behavior
+
+- Signup sends an OTP email before account activation completes
+- Email login sends an OTP email before the session is completed
+- Google login also requires OTP verification
+- Forgot-password sends an OTP email before password reset
+- A welcome email is sent after successful verification
+- Support submissions are saved in the backend and can also send email notifications
+
+If SMTP is not configured correctly, auth flows can fall back to a local OTP preview for development instead of blocking all local testing.
+
+## Docker Compose
+
+A `docker-compose.yml` file is included for MySQL-oriented local orchestration. The primary local path is still:
+
+1. frontend with `npm run dev`
+2. backend with `mvn spring-boot:run`
+3. H2 database by default
+
+If you use Docker Compose, review the environment variables first so they match the backend config you want to run.
+
+## CI
+
+GitHub Actions workflow:
+
+```text
 .github/workflows/ci.yml
 ```
 
-It can be extended to:
+Current CI runs:
 
-- build the React frontend
-- build the Spring Boot backend
-- run tests
-- deploy automatically on push to `main`
+- frontend typecheck with Node 20
+- backend `mvn -B test` with Java 17
 
-## Important Security Note
+## Security Notes
 
-Because live API keys were used during setup, rotate these before public GitHub hosting:
+- Do not commit your real `.env`
+- Use `.env.example` as the safe template
+- Keep SMTP credentials, API keys, and production DB credentials out of git
+- Rotate any secrets that were previously exposed
 
-- Google Maps API key
-- Gemini API key
-- SearchAPI key
+## Microservice Direction
 
-Then place the new values only in deployment environment variables, not in committed files.
+The main working backend lives in `backend/`. The `backend/services/` folder is a scaffold for a future split into separate services such as:
 
-If you can log in as root but want to reset the app user's password:
+- gateway-service
+- planning-service
+- discovery-service
+- profile-service
 
-```sql
-ALTER USER 'travelbuddy'@'localhost' IDENTIFIED BY 'travelbuddy';
-FLUSH PRIVILEGES;
-```
-
-## Architecture
-
-Recommended target services:
-
-1. `gateway-service`
-2. `planning-service`
-3. `discovery-service`
-4. `profile-service`
-
-The current backend in `backend/` acts as a strong starting point and API consolidation layer while the project moves toward a full microservices split.
-
-## What You Still Need To Change On Your Machine
-
-This workspace could not run the app end-to-end because the current environment is missing:
-
-- Maven
-- npm / Node.js
-- Docker
-- Java 17
-
-The detected Java version here is Java 10, but Spring Boot 3 requires Java 17+.
-
-Before running locally, install:
-
-1. Java 17 or 21
-2. Maven 3.9+
-3. Node.js 20+
-4. MySQL 8+ or Docker Desktop
-
-Then the first things to verify are:
-
-1. `.env` values
-2. MySQL user/password
-3. Google Maps APIs enabled for the supplied key
-4. Gemini and SearchAPI quota/access
+For now, the single Spring Boot backend in `backend/` is the main runtime application.
